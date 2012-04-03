@@ -118,7 +118,7 @@ class Application
     {
         if (null === $input) {
             $input = new ArgvInput();
-            // if we have a default command and we can not decid which command
+            // if we have a default command and we can not decide which command
             // to execute we execute the default one
             if (! is_null($this->getDefaultcommandName())) {
                 if (! $this->has($this->getCommandName($input))) {
