@@ -417,6 +417,84 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('called'.PHP_EOL, $tester->getDisplay(), '->run() does not call interact() if -n is passed');
     }
 
+    /*
+     * @depends testSetGetDefaultCommandName
+     */
+    public function testRun_defaultCommand()
+    {
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+        $application->add($command = new \Foo1Command());
+        $application->setDefaultCommandName('foo:bar1');
+        $_SERVER['argv'] = array('cli.php');
+
+        ob_start();
+        $application->run();
+        ob_end_clean();
+
+        $this->assertSame('Symfony\Component\Console\Input\ArgvInput', get_class($command->input), '->run() creates an ArgvInput by default if none is given');
+        $this->assertSame('Symfony\Component\Console\Output\ConsoleOutput', get_class($command->output), '->run() creates a ConsoleOutput by default if none is given');
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+
+        $this->ensureStaticCommandHelp($application);
+        $tester = new ApplicationTester($application);
+
+        $tester->run(array(), array('decorated' => false));
+        $this->assertStringEqualsFile(self::$fixturesPath.'/application_run1.txt', $this->normalizeLineBreaks($tester->getDisplay()), '->run() runs the list command if no argument is passed');
+
+        $tester->run(array('--help' => true), array('decorated' => false));
+        $this->assertStringEqualsFile(self::$fixturesPath.'/application_run2.txt', $this->normalizeLineBreaks($tester->getDisplay()), '->run() runs the help command if --help is passed');
+
+        $tester->run(array('-h' => true), array('decorated' => false));
+        $this->assertStringEqualsFile(self::$fixturesPath.'/application_run2.txt', $this->normalizeLineBreaks($tester->getDisplay()), '->run() runs the help command if -h is passed');
+
+        $tester->run(array('command' => 'list', '--help' => true), array('decorated' => false));
+        $this->assertStringEqualsFile(self::$fixturesPath.'/application_run3.txt', $this->normalizeLineBreaks($tester->getDisplay()), '->run() displays the help if --help is passed');
+
+        $tester->run(array('command' => 'list', '-h' => true), array('decorated' => false));
+        $this->assertStringEqualsFile(self::$fixturesPath.'/application_run3.txt', $this->normalizeLineBreaks($tester->getDisplay()), '->run() displays the help if -h is passed');
+
+        $tester->run(array('--ansi' => true));
+        $this->assertTrue($tester->getOutput()->isDecorated(), '->run() forces color output if --ansi is passed');
+
+        $tester->run(array('--no-ansi' => true));
+        $this->assertFalse($tester->getOutput()->isDecorated(), '->run() forces color output to be disabled if --no-ansi is passed');
+
+        $tester->run(array('--version' => true), array('decorated' => false));
+        $this->assertStringEqualsFile(self::$fixturesPath.'/application_run4.txt', $this->normalizeLineBreaks($tester->getDisplay()), '->run() displays the program version if --version is passed');
+
+        $tester->run(array('-V' => true), array('decorated' => false));
+        $this->assertStringEqualsFile(self::$fixturesPath.'/application_run4.txt', $this->normalizeLineBreaks($tester->getDisplay()), '->run() displays the program version if -v is passed');
+
+        $tester->run(array('command' => 'list', '--quiet' => true));
+        $this->assertSame('', $tester->getDisplay(), '->run() removes all output if --quiet is passed');
+
+        $tester->run(array('command' => 'list', '-q' => true));
+        $this->assertSame('', $tester->getDisplay(), '->run() removes all output if -q is passed');
+
+        $tester->run(array('command' => 'list', '--verbose' => true));
+        $this->assertSame(Output::VERBOSITY_VERBOSE, $tester->getOutput()->getVerbosity(), '->run() sets the output to verbose if --verbose is passed');
+
+        $tester->run(array('command' => 'list', '-v' => true));
+        $this->assertSame(Output::VERBOSITY_VERBOSE, $tester->getOutput()->getVerbosity(), '->run() sets the output to verbose if -v is passed');
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+        $application->add(new \FooCommand());
+        $tester = new ApplicationTester($application);
+
+        $tester->run(array('command' => 'foo:bar', '--no-interaction' => true), array('decorated' => false));
+        $this->assertSame('called'.PHP_EOL, $tester->getDisplay(), '->run() does not call interact() if --no-interaction is passed');
+
+        $tester->run(array('command' => 'foo:bar', '-n' => true), array('decorated' => false));
+        $this->assertSame('called'.PHP_EOL, $tester->getDisplay(), '->run() does not call interact() if -n is passed');
+    }
+
     /**
      * @expectedException \LogicException
      * @dataProvider getAddingAlreadySetDefinitionElementData
@@ -444,5 +522,21 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
             array(new InputOption('quiet', '', InputOption::VALUE_NONE)),
             array(new InputOption('query', 'q', InputOption::VALUE_NONE)),
         );
+    }
+
+    public function testSetGetDefaultCommandName()
+    {
+        $application = new Application();
+        $application->setDefaultCommandName('foo');
+        $this->assertEquals('foo', $application->getDefaultCommandName());
+    }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     */
+    public function testSetGetDefaultCommandName_InvalidParameter()
+    {
+        $application = new Application();
+        $application->setDefaultCommandName(new \stdClass);
     }
 }
