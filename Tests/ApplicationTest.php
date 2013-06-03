@@ -541,7 +541,7 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
 
         $exitCode = $application->run(new ArrayInput(array()), new NullOutput());
 
-        $this->assertSame(1, $exitCode, '->run() returns integer exit code extracted from raised exception');
+        $this->assertSame(1, $exitCode, '->run() returns exit code 1 when exception code is 0');
     }
 
     /**
