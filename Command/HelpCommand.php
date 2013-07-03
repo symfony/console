@@ -36,12 +36,12 @@ class HelpCommand extends Command
         $this
             ->setName('help')
             ->setDefinition(array(
-                new InputArgument('command_name', InputArgument::OPTIONAL, 'The command name', 'help'),
-                new InputOption('xml', null, InputOption::VALUE_NONE, 'To output help as XML'),
-                new InputOption('format', null, InputOption::VALUE_REQUIRED, 'To output help in other formats'),
-                new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw command help'),
+                new InputArgument('command_name', InputArgument::OPTIONAL, 'The command name.', 'help'),
+                new InputOption('xml', null, InputOption::VALUE_NONE, 'To output help as XML.'),
+                new InputOption('format', null, InputOption::VALUE_REQUIRED, 'To output help in other formats.'),
+                new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw command help.'),
             ))
-            ->setDescription('Displays help for a command')
+            ->setDescription('Displays help for a command.')
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command displays help for a given command:
 
