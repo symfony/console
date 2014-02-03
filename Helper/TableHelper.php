@@ -33,6 +33,13 @@ class TableHelper extends Helper
     private $headers = array();
 
     /**
+     * Table footers.
+     *
+     * @var array
+     */
+    private $footers = array();
+
+    /**
      * Table rows.
      *
      * @var array
@@ -45,6 +52,7 @@ class TableHelper extends Helper
     private $verticalBorderChar;
     private $crossingChar;
     private $cellHeaderFormat;
+    private $cellFooterFormat;
     private $cellRowFormat;
     private $cellRowContentFormat;
     private $borderFormat;
@@ -91,6 +99,7 @@ class TableHelper extends Helper
                     ->setVerticalBorderChar(' ')
                     ->setCrossingChar(' ')
                     ->setCellHeaderFormat('<info>%s</info>')
+                    ->setCellFooterFormat('<info>%s</info>')
                     ->setCellRowFormat('%s')
                     ->setCellRowContentFormat(' %s ')
                     ->setBorderFormat('%s')
@@ -105,6 +114,7 @@ class TableHelper extends Helper
                     ->setVerticalBorderChar(' ')
                     ->setCrossingChar('')
                     ->setCellHeaderFormat('<info>%s</info>')
+                    ->setCellFooterFormat('<info>%s</info>')
                     ->setCellRowFormat('%s')
                     ->setCellRowContentFormat('%s')
                     ->setBorderFormat('%s')
@@ -119,6 +129,7 @@ class TableHelper extends Helper
                     ->setVerticalBorderChar('|')
                     ->setCrossingChar('+')
                     ->setCellHeaderFormat('<info>%s</info>')
+                    ->setCellFooterFormat('<info>%s</info>')
                     ->setCellRowFormat('%s')
                     ->setCellRowContentFormat(' %s ')
                     ->setBorderFormat('%s')
@@ -137,6 +148,13 @@ class TableHelper extends Helper
     public function setHeaders(array $headers)
     {
         $this->headers = array_values($headers);
+
+        return $this;
+    }
+
+    public function setFooters(array $footers)
+    {
+        $this->footers = array_values($footers);
 
         return $this;
     }
@@ -269,6 +287,20 @@ class TableHelper extends Helper
     }
 
     /**
+     * Sets footer cell format.
+     *
+     * @param string $cellFooterFormat
+     *
+     * @return TableHelper
+     */
+    public function setCellFooterFormat($cellFooterFormat)
+    {
+        $this->cellFooterFormat = $cellFooterFormat;
+
+        return $this;
+    }
+
+    /**
      * Sets row cell format.
      *
      * @param string $cellRowFormat
@@ -351,6 +383,10 @@ class TableHelper extends Helper
             $this->renderRow($row, $this->cellRowFormat);
         }
         if (!empty($this->rows)) {
+            $this->renderRowSeparator();
+        }
+        $this->renderRow($this->footers, $this->cellHeaderFormat);
+        if (!empty($this->footers)) {
             $this->renderRowSeparator();
         }
 
@@ -472,6 +508,7 @@ class TableHelper extends Helper
         foreach ($this->rows as $row) {
             $lengths[] = $this->getCellWidth($row, $column);
         }
+        $lengths[] = $this->getCellWidth($this->footers, $column);
 
         return $this->columnWidths[$column] = max($lengths) + strlen($this->cellRowContentFormat) - 2;
     }
