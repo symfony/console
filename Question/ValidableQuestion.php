@@ -47,5 +47,7 @@ class ValidableQuestion extends Question{
                 );
             }
         }
+
+        return $answer;
     }
 }
