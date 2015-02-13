@@ -48,6 +48,10 @@ class ArrayInput extends Input
      */
     public function getFirstArgument()
     {
+        if (0 !== count($this->arguments)) {
+            return reset($this->arguments);
+        }
+
         foreach ($this->parameters as $key => $value) {
             if ($key && '-' === $key[0]) {
                 continue;

@@ -261,6 +261,10 @@ class ArgvInput extends Input
      */
     public function getFirstArgument()
     {
+        if (0 !== count($this->arguments)) {
+            return reset($this->arguments);
+        }
+
         foreach ($this->tokens as $token) {
             if ($token && '-' === $token[0]) {
                 continue;

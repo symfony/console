@@ -110,7 +110,7 @@ class Application
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
         if (null === $input) {
-            $input = new ArgvInput();
+            $input = new ArgvInput(null, $this->definition);
         }
 
         if (null === $output) {
