@@ -399,6 +399,27 @@ class Application
     }
 
     /**
+     * Remove a command object.
+     *
+     * @param Command $command A Command object
+     *
+     * @api
+     */
+    public function remove(Command $command)
+    {
+
+		if(isset($this->commands[$command->getName()])) {
+			unset($this->commands[$command->getName()]);
+		}
+		
+        foreach ($command->getAliases() as $alias) {
+            if(isset($this->commands[$alias])) {
+				unset($this->commands[$alias]);
+			}
+        }
+    }
+
+    /**
      * Returns a registered command by name or alias.
      *
      * @param string $name The command name or alias
