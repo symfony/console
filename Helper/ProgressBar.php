@@ -181,7 +181,7 @@ class ProgressBar
     /**
      * Gets the progress bar step width.
      *
-     * @return int     The progress bar step width
+     * @return int The progress bar step width
      */
     private function getStepWidth()
     {
@@ -342,7 +342,7 @@ class ProgressBar
     }
 
     /**
-     * Sets whether to overwrite the progressbar, false for new line
+     * Sets whether to overwrite the progressbar, false for new line.
      *
      * @param bool $overwrite
      */
@@ -369,8 +369,8 @@ class ProgressBar
             $this->max = $step;
         }
 
-        $prevPeriod = intval($this->step / $this->redrawFreq);
-        $currPeriod = intval($step / $this->redrawFreq);
+        $prevPeriod = (int) ($this->step / $this->redrawFreq);
+        $currPeriod = (int) ($step / $this->redrawFreq);
         $this->step = $step;
         $this->percent = $this->max ? (float) $this->step / $this->max : 0;
         if ($prevPeriod !== $currPeriod || $this->max === $step) {
@@ -440,7 +440,7 @@ class ProgressBar
     /**
      * Sets the progress bar maximal steps.
      *
-     * @param int     The progress bar max steps
+     * @param int $max The progress bar max steps
      */
     private function setMaxSteps($max)
     {

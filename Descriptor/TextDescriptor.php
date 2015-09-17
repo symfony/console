@@ -44,7 +44,7 @@ class TextDescriptor extends Descriptor
             $argument->getName(),
             str_repeat(' ', $spacingWidth),
             // + 17 = 2 spaces + <info> + </info> + 2 spaces
-            preg_replace('/\s*\R\s*/', PHP_EOL.str_repeat(' ', $totalWidth + 17), $argument->getDescription()),
+            preg_replace('/\s*[\r\n]\s*/', "\n".str_repeat(' ', $totalWidth + 17), $argument->getDescription()),
             $default
         ), $options);
     }
@@ -81,7 +81,7 @@ class TextDescriptor extends Descriptor
             $synopsis,
             str_repeat(' ', $spacingWidth),
             // + 17 = 2 spaces + <info> + </info> + 2 spaces
-            preg_replace('/\s*\R\s*/', "\n".str_repeat(' ', $totalWidth + 17), $option->getDescription()),
+            preg_replace('/\s*[\r\n]\s*/', "\n".str_repeat(' ', $totalWidth + 17), $option->getDescription()),
             $default,
             $option->isArray() ? '<comment> (multiple values allowed)</comment>' : ''
         ), $options);
@@ -245,12 +245,16 @@ class TextDescriptor extends Descriptor
      */
     private function getColumnWidth(array $commands)
     {
-        $width = 0;
+        $widths = array();
+
         foreach ($commands as $command) {
-            $width = strlen($command->getName()) > $width ? strlen($command->getName()) : $width;
+            $widths[] = strlen($command->getName());
+            foreach ($command->getAliases() as $alias) {
+                $widths[] = strlen($alias);
+            }
         }
 
-        return $width + 2;
+        return max($widths) + 2;
     }
 
     /**
