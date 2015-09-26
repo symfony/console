@@ -79,6 +79,8 @@ EOF
         }
 
         while (true) {
+			$this->output->setVerbosity(ConsoleOutput::VERBOSITY_NORMAL);
+			
             $command = $this->readline();
 
             if (false === $command) {
