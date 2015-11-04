@@ -240,6 +240,16 @@ class Application
     }
 
     /**
+     * Gets the applications catch exceptions property.
+     *
+     * @return bool catchExceptions property
+     */
+    public function getCatchExceptions()
+    {
+        return $this->catchExceptions;
+    }
+
+    /**
      * Sets whether to catch exceptions or not during commands execution.
      *
      * @param bool $boolean Whether to catch exceptions or not during commands execution
