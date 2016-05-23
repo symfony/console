@@ -484,7 +484,7 @@ class ProgressBar
             $this->output->write("\x1B[2K");
 
             // Erase previous lines
-            if ($this->formatLineCount > 0) {
+            if ($this->step > 1 && $this->formatLineCount > 0) {
                 $this->output->write(str_repeat("\x1B[1A\x1B[2K", $this->formatLineCount));
             }
         } elseif ($this->step > 0) {
