@@ -108,7 +108,7 @@ class Application
         putenv('COLUMNS='.$this->terminal->getWidth());
 
         if (null === $input) {
-            $input = new ArgvInput();
+            $input = new ArgvInput(null, $this->definition);
         }
 
         if (null === $output) {

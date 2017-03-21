@@ -1246,6 +1246,30 @@ class ApplicationTest extends TestCase
         $inputStream = $tester->getInput()->getStream();
         $this->assertEquals($tester->getInput()->isInteractive(), @posix_isatty($inputStream));
     }
+
+    /**
+     * When an InputOption with VALUE_REQUIRED precedes the first argument it should not use it's value as the first argument
+     *
+     * This test will fail with 'Command "custom" is not defined' if broken
+     */
+    public function testAppendDefaultInputDefinitionWithValueRequired()
+    {
+        $application = new CustomAppendApplication();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+        $application->add(new \FooCommand());
+
+        $output = new StreamOutput(fopen('php://memory', 'w', false));
+
+        $input = new ArrayInput(array('--custom' => 'custom', 'command' => 'foo:bar'), $application->getDefinition());
+        $application->run($input, $output);
+
+        $input = new ArgvInput(array('cli.php', '-c', 'custom', 'foo:bar'), $application->getDefinition());
+        $application->run($input, $output);
+
+        $input = new ArgvInput(array('cli.php', '--custom', 'custom', 'foo:bar'), $application->getDefinition());
+        $application->run($input, $output);
+    }
 }
 
 class CustomApplication extends Application
@@ -1268,6 +1292,21 @@ class CustomApplication extends Application
     protected function getDefaultHelperSet()
     {
         return new HelperSet(array(new FormatterHelper()));
+    }
+}
+
+class CustomAppendApplication extends Application
+{
+    /**
+     * Overwrites the default input definition.
+     *
+     * @return InputDefinition An InputDefinition instance
+     */
+    protected function getDefaultInputDefinition()
+    {
+        $defintion = parent::getDefaultInputDefinition();
+        $defintion->addOption(new InputOption('--custom', '-c', InputOption::VALUE_REQUIRED, 'Set the custom input definition.'));
+        return $defintion;
     }
 }
 
