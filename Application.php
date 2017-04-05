@@ -855,13 +855,13 @@ class Application
         try {
             $command->mergeApplicationDefinition();
             $input->bind($command->getDefinition());
+
+            // don't bind the input again as it would override any input argument/option set from the command event in
+            // addition to being useless
+            $command->setInputBound(true);
         } catch (ExceptionInterface $e) {
             // ignore invalid options/arguments for now, to allow the event listeners to customize the InputDefinition
         }
-
-        // don't bind the input again as it would override any input argument/option set from the command event in
-        // addition to being useless
-        $command->setInputBound(true);
 
         $event = new ConsoleCommandEvent($command, $input, $output);
         $this->dispatcher->dispatch(ConsoleEvents::COMMAND, $event);
