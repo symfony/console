@@ -30,7 +30,7 @@ use Symfony\Component\Console\Terminal;
  *
  * @author Kevin Bond <kevinbond@gmail.com>
  */
-class SymfonyStyle extends OutputStyle
+class SymfonyStyle extends OutputStyle implements StyleInterface
 {
     const MAX_LINE_LENGTH = 120;
 
