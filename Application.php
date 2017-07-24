@@ -197,7 +197,9 @@ class Application
 
         if (!$name) {
             $name = $this->defaultCommand;
-            $input = new ArrayInput(array('command' => $this->defaultCommand));
+            $newInput = new ArrayInput(array('command' => $this->defaultCommand));
+            $newInput->setInteractive($input->isInteractive());
+            $input = $newInput;
         }
 
         try {
