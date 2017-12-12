@@ -27,13 +27,16 @@ use Symfony\Component\Console\Exception\LogicException;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Command
+abstract class Command
 {
     /**
      * @var string|null The default command name
      */
     protected static $defaultName;
 
+    /**
+     * @var Application
+     */
     private $application;
     private $name;
     private $processTitle;
@@ -48,6 +51,9 @@ class Command
     private $code;
     private $synopsis = array();
     private $usages = array();
+    /**
+     * @var HelperSet
+     */
     private $helperSet;
 
     /**
@@ -150,16 +156,14 @@ class Command
      * execute() method, you set the code to execute by passing
      * a Closure to the setCode() method.
      *
-     * @return null|int null or 0 if everything went fine, or an error code
+     * @param InputInterface $input
+     * @param OutputInterface $output
      *
-     * @throws LogicException When this abstract method is not implemented
+     * @return null|int null or 0 if everything went fine, or an error code
      *
      * @see setCode()
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        throw new LogicException('You must override the execute() method in the concrete command class.');
-    }
+    abstract protected function execute(InputInterface $input, OutputInterface $output);
 
     /**
      * Interacts with the user.
@@ -167,6 +171,9 @@ class Command
      * This method is executed before the InputDefinition is validated.
      * This means that this is the only place where the command can
      * interactively ask for values of missing required arguments.
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
      */
     protected function interact(InputInterface $input, OutputInterface $output)
     {
@@ -177,6 +184,9 @@ class Command
      *
      * This is mainly useful when a lot of commands extends one main command
      * where some things need to be initialized based on the input arguments and options.
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
@@ -188,6 +198,9 @@ class Command
      * The code to execute is either defined directly with the
      * setCode() method or by overriding the execute() method
      * in a sub-class.
+     *
+     * @param InputInterface $input
+     * @param OutputInterface $output
      *
      * @return int The command exit code
      *
@@ -635,6 +648,8 @@ class Command
      * Validates a command name.
      *
      * It must be non-empty and parts can optionally be separated by ":".
+     *
+     * @param string $name
      *
      * @throws InvalidArgumentException When the name is invalid
      */
