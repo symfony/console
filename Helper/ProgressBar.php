@@ -172,7 +172,7 @@ final class ProgressBar
         return $this->step;
     }
 
-    private function getStepWidth(): int
+    public function getStepWidth(): int
     {
         return $this->stepWidth;
     }
