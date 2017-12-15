@@ -148,13 +148,8 @@ class Application
 
             $renderException($e);
 
-            $exitCode = $e->getCode();
-            if (is_numeric($exitCode)) {
-                $exitCode = (int) $exitCode;
-                if (0 === $exitCode) {
-                    $exitCode = 1;
-                }
-            } else {
+            $exitCode = (int) $e->getCode();
+            if (! is_numeric($e->getCode()) || 0 === $exitCode) {
                 $exitCode = 1;
             }
         } finally {
@@ -721,11 +716,10 @@ class Application
     {
         do {
             $message = trim($e->getMessage());
+            $len = 0;
             if ('' === $message || OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
                 $title = sprintf('  [%s%s]  ', get_class($e), 0 !== ($code = $e->getCode()) ? ' ('.$code.')' : '');
                 $len = Helper::strlen($title);
-            } else {
-                $len = 0;
             }
 
             $width = $this->terminal->getWidth() ? $this->terminal->getWidth() - 1 : PHP_INT_MAX;
