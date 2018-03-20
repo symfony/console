@@ -33,6 +33,17 @@ class CommandTester
     {
         $this->command = $command;
     }
+    
+    /**
+     * Returns the Command to access command specific
+     * features.
+     *
+     * @return Command
+     */
+    public function getCommand()
+    {
+        return $this->command;
+    }
 
     /**
      * Executes the command.
