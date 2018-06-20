@@ -27,7 +27,7 @@ use Symfony\Component\Console\Exception\LogicException;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Command
+class Command implements CommandInterface
 {
     /**
      * @var string|null The default command name
@@ -51,7 +51,7 @@ class Command
     private $helperSet;
 
     /**
-     * @return string|null The default command name or null when no default name is set
+     * {@inheritdoc}
      */
     public static function getDefaultName()
     {
@@ -62,9 +62,7 @@ class Command
     }
 
     /**
-     * @param string|null $name The name of the command; passing null means it must be set in configure()
-     *
-     * @throws LogicException When the command name is empty
+     * {@inheritdoc}
      */
     public function __construct(string $name = null)
     {
@@ -78,9 +76,7 @@ class Command
     }
 
     /**
-     * Ignores validation errors.
-     *
-     * This is mainly useful for the help command.
+     * {@inheritdoc}
      */
     public function ignoreValidationErrors()
     {
@@ -103,9 +99,7 @@ class Command
     }
 
     /**
-     * Gets the helper set.
-     *
-     * @return HelperSet A HelperSet instance
+     * {@inheritdoc}
      */
     public function getHelperSet()
     {
@@ -113,9 +107,7 @@ class Command
     }
 
     /**
-     * Gets the application instance for this command.
-     *
-     * @return Application An Application instance
+     * {@inheritdoc}
      */
     public function getApplication()
     {
@@ -123,12 +115,7 @@ class Command
     }
 
     /**
-     * Checks whether the command is enabled or not in the current environment.
-     *
-     * Override this to check for x or y and return false if the command can not
-     * run properly under the current conditions.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function isEnabled()
     {
@@ -136,25 +123,14 @@ class Command
     }
 
     /**
-     * Configures the current command.
+     * {@inheritdoc}
      */
     protected function configure()
     {
     }
 
     /**
-     * Executes the current command.
-     *
-     * This method is not abstract because you can use this class
-     * as a concrete class. In this case, instead of defining the
-     * execute() method, you set the code to execute by passing
-     * a Closure to the setCode() method.
-     *
-     * @return null|int null or 0 if everything went fine, or an error code
-     *
-     * @throws LogicException When this abstract method is not implemented
-     *
-     * @see setCode()
+     * {@inheritdoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -162,39 +138,21 @@ class Command
     }
 
     /**
-     * Interacts with the user.
-     *
-     * This method is executed before the InputDefinition is validated.
-     * This means that this is the only place where the command can
-     * interactively ask for values of missing required arguments.
+     * {@inheritdoc}
      */
     protected function interact(InputInterface $input, OutputInterface $output)
     {
     }
 
     /**
-     * Initializes the command just after the input has been validated.
-     *
-     * This is mainly useful when a lot of commands extends one main command
-     * where some things need to be initialized based on the input arguments and options.
+     * {@inheritdoc}
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
     }
 
     /**
-     * Runs the command.
-     *
-     * The code to execute is either defined directly with the
-     * setCode() method or by overriding the execute() method
-     * in a sub-class.
-     *
-     * @return int The command exit code
-     *
-     * @throws \Exception When binding input fails. Bypass this by calling {@link ignoreValidationErrors()}.
-     *
-     * @see setCode()
-     * @see execute()
+     * {@inheritdoc}
      */
     public function run(InputInterface $input, OutputInterface $output)
     {
@@ -255,18 +213,7 @@ class Command
     }
 
     /**
-     * Sets the code to execute when running this command.
-     *
-     * If this method is used, it overrides the code defined
-     * in the execute() method.
-     *
-     * @param callable $code A callable(InputInterface $input, OutputInterface $output)
-     *
-     * @return $this
-     *
-     * @throws InvalidArgumentException
-     *
-     * @see execute()
+     * {@inheritdoc}
      */
     public function setCode(callable $code)
     {
@@ -283,11 +230,7 @@ class Command
     }
 
     /**
-     * Merges the application definition with the command definition.
-     *
-     * This method is not part of public API and should not be used directly.
-     *
-     * @param bool $mergeArgs Whether to merge or not the Application definition arguments to Command definition arguments
+     * {@inheritdoc}
      */
     public function mergeApplicationDefinition($mergeArgs = true)
     {
@@ -310,11 +253,7 @@ class Command
     }
 
     /**
-     * Sets an array of argument and option instances.
-     *
-     * @param array|InputDefinition $definition An array of argument and option instances or a definition instance
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setDefinition($definition)
     {
@@ -330,9 +269,7 @@ class Command
     }
 
     /**
-     * Gets the InputDefinition attached to this Command.
-     *
-     * @return InputDefinition An InputDefinition instance
+     * {@inheritdoc}
      */
     public function getDefinition()
     {
@@ -340,14 +277,7 @@ class Command
     }
 
     /**
-     * Gets the InputDefinition to be used to create representations of this Command.
-     *
-     * Can be overridden to provide the original command representation when it would otherwise
-     * be changed by merging with the application InputDefinition.
-     *
-     * This method is not part of public API and should not be used directly.
-     *
-     * @return InputDefinition An InputDefinition instance
+     * {@inheritdoc}
      */
     public function getNativeDefinition()
     {
@@ -355,14 +285,7 @@ class Command
     }
 
     /**
-     * Adds an argument.
-     *
-     * @param string $name        The argument name
-     * @param int    $mode        The argument mode: InputArgument::REQUIRED or InputArgument::OPTIONAL
-     * @param string $description A description text
-     * @param mixed  $default     The default value (for InputArgument::OPTIONAL mode only)
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function addArgument($name, $mode = null, $description = '', $default = null)
     {
@@ -372,15 +295,7 @@ class Command
     }
 
     /**
-     * Adds an option.
-     *
-     * @param string $name        The option name
-     * @param string $shortcut    The shortcut (can be null)
-     * @param int    $mode        The option mode: One of the InputOption::VALUE_* constants
-     * @param string $description A description text
-     * @param mixed  $default     The default value (must be null for InputOption::VALUE_NONE)
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
     {
@@ -390,18 +305,7 @@ class Command
     }
 
     /**
-     * Sets the name of the command.
-     *
-     * This method can set both the namespace and the name if
-     * you separate them by a colon (:)
-     *
-     *     $command->setName('foo:bar');
-     *
-     * @param string $name The command name
-     *
-     * @return $this
-     *
-     * @throws InvalidArgumentException When the name is invalid
+     * {@inheritdoc}
      */
     public function setName($name)
     {
@@ -413,16 +317,7 @@ class Command
     }
 
     /**
-     * Sets the process title of the command.
-     *
-     * This feature should be used only when creating a long process command,
-     * like a daemon.
-     *
-     * PHP 5.5+ or the proctitle PECL library is required
-     *
-     * @param string $title The process title
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setProcessTitle($title)
     {
@@ -432,9 +327,7 @@ class Command
     }
 
     /**
-     * Returns the command name.
-     *
-     * @return string The command name
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -442,9 +335,7 @@ class Command
     }
 
     /**
-     * @param bool $hidden Whether or not the command should be hidden from the list of commands
-     *
-     * @return Command The current instance
+     * {@inheritdoc}
      */
     public function setHidden($hidden)
     {
@@ -454,7 +345,7 @@ class Command
     }
 
     /**
-     * @return bool whether the command should be publicly shown or not
+     * {@inheritdoc}
      */
     public function isHidden()
     {
@@ -462,11 +353,7 @@ class Command
     }
 
     /**
-     * Sets the description for the command.
-     *
-     * @param string $description The description for the command
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setDescription($description)
     {
@@ -476,9 +363,7 @@ class Command
     }
 
     /**
-     * Returns the description for the command.
-     *
-     * @return string The description for the command
+     * {@inheritdoc}
      */
     public function getDescription()
     {
@@ -486,11 +371,7 @@ class Command
     }
 
     /**
-     * Sets the help for the command.
-     *
-     * @param string $help The help for the command
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function setHelp($help)
     {
@@ -500,9 +381,7 @@ class Command
     }
 
     /**
-     * Returns the help for the command.
-     *
-     * @return string The help for the command
+     * {@inheritdoc}
      */
     public function getHelp()
     {
@@ -510,10 +389,7 @@ class Command
     }
 
     /**
-     * Returns the processed help for the command replacing the %command.name% and
-     * %command.full_name% patterns with the real values dynamically.
-     *
-     * @return string The processed help for the command
+     * {@inheritdoc}
      */
     public function getProcessedHelp()
     {
@@ -532,13 +408,7 @@ class Command
     }
 
     /**
-     * Sets the aliases for the command.
-     *
-     * @param string[] $aliases An array of aliases for the command
-     *
-     * @return $this
-     *
-     * @throws InvalidArgumentException When an alias is invalid
+     * {@inheritdoc}
      */
     public function setAliases($aliases)
     {
@@ -556,9 +426,7 @@ class Command
     }
 
     /**
-     * Returns the aliases for the command.
-     *
-     * @return array An array of aliases for the command
+     * {@inheritdoc}
      */
     public function getAliases()
     {
@@ -566,11 +434,7 @@ class Command
     }
 
     /**
-     * Returns the synopsis for the command.
-     *
-     * @param bool $short Whether to show the short version of the synopsis (with options folded) or not
-     *
-     * @return string The synopsis
+     * {@inheritdoc}
      */
     public function getSynopsis($short = false)
     {
@@ -584,11 +448,7 @@ class Command
     }
 
     /**
-     * Add a command usage example.
-     *
-     * @param string $usage The usage, it'll be prefixed with the command name
-     *
-     * @return $this
+     * {@inheritdoc}
      */
     public function addUsage($usage)
     {
@@ -602,9 +462,7 @@ class Command
     }
 
     /**
-     * Returns alternative usages of the command.
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getUsages()
     {
@@ -612,14 +470,7 @@ class Command
     }
 
     /**
-     * Gets a helper instance by name.
-     *
-     * @param string $name The helper name
-     *
-     * @return mixed The helper value
-     *
-     * @throws LogicException           if no HelperSet is defined
-     * @throws InvalidArgumentException if the helper is not defined
+     * {@inheritdoc}
      */
     public function getHelper($name)
     {
