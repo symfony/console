@@ -62,6 +62,25 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class Application
 {
+    const SUGGESTED_PACKAGES = array(
+        'doctrine' => array(
+            'Doctrine ORM',
+            'symfony/orm-pack',
+        ),
+        'generate' => array(
+            'SensioGeneratorBundle',
+            'sensio/generator-bundle',
+        ),
+        'make' => array(
+            'MakerBundle',
+            'symfony/maker-bundle --dev',
+        ),
+        'server' => array(
+            'Symfony Web Server',
+            'symfony/web-server-bundle --dev',
+        ),
+    );
+
     private $commands = array();
     private $wantHelps = false;
     private $runningCommand;
@@ -563,6 +582,8 @@ class Application
         $namespaces = preg_grep('{^'.$expr.'}', $allNamespaces);
 
         if (empty($namespaces)) {
+            $this->suggestPackage($namespace);
+
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
 
             if ($alternatives = $this->findAlternatives($namespace, $allNamespaces)) {
@@ -1169,6 +1190,26 @@ class Application
 
         foreach ($this->getDefaultCommands() as $command) {
             $this->add($command);
+        }
+    }
+
+    /**
+     * Suggests a package, that should be installed via composer,
+     * if the package is missing, and the provided namespace can be mapped to a Symfony bundle.
+     *
+     * @param string $namespace A namespace to search for
+     *
+     * @return void
+     *
+     * @throws NamespaceNotFoundException When namespace is mapped to a Symfony bundle
+     */
+    private function suggestPackage($namespace) {
+        if (isset(self::SUGGESTED_PACKAGES[$namespace])) {
+            $suggestion = self::SUGGESTED_PACKAGES[$namespace];
+
+            $message = sprintf("It seems that you are trying to run a command from '%s' bundle/package, but you do not have it installed. You may try installing the missing bundle/package by running:\n\n    composer require %s", $suggestion[0], $suggestion[1]);
+
+            throw  new NamespaceNotFoundException($message);
         }
     }
 }
