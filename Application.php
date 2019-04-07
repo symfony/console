@@ -78,6 +78,7 @@ class Application
     private $defaultCommand;
     private $singleCommand = false;
     private $initialized;
+    protected $autoFindMatching = true;
 
     /**
      * @param string $name    The name of the application
@@ -102,6 +103,11 @@ class Application
     public function setCommandLoader(CommandLoaderInterface $commandLoader)
     {
         $this->commandLoader = $commandLoader;
+    }
+
+    public function setAutoFindMatching(bool $autoFind)
+    {
+        $this->autoFindMatching = $autoFind;
     }
 
     /**
@@ -673,6 +679,10 @@ class Application
             $suggestions = $this->getAbbreviationSuggestions($abbrevs);
 
             throw new CommandNotFoundException(sprintf("Command \"%s\" is ambiguous.\nDid you mean one of these?\n%s", $name, $suggestions), array_values($commands));
+        }
+
+        if (!$exact && !$this->autoFindMatching) {
+            throw new CommandNotFoundException(sprintf("Command \"%s\" not found.\nDid you mean \"%s\"?", $name, reset($commands)));
         }
 
         return $this->get($exact ? $name : reset($commands));
