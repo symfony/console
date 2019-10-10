@@ -12,7 +12,6 @@
 namespace Symfony\Component\Console\Helper;
 
 use Symfony\Component\Console\Exception\LogicException;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
@@ -56,10 +55,6 @@ final class ProgressBar
      */
     public function __construct(OutputInterface $output, int $max = 0, float $minSecondsBetweenRedraws = 0.1)
     {
-        if ($output instanceof ConsoleOutputInterface) {
-            $output = $output->getErrorOutput();
-        }
-
         $this->output = $output;
         $this->setMaxSteps($max);
         $this->terminal = new Terminal();
