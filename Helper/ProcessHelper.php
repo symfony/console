@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\Console\Helper;
 
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -36,10 +35,6 @@ class ProcessHelper extends Helper
      */
     public function run(OutputInterface $output, $cmd, string $error = null, callable $callback = null, int $verbosity = OutputInterface::VERBOSITY_VERY_VERBOSE): Process
     {
-        if ($output instanceof ConsoleOutputInterface) {
-            $output = $output->getErrorOutput();
-        }
-
         $formatter = $this->getHelperSet()->get('debug_formatter');
 
         if ($cmd instanceof Process) {
@@ -114,10 +109,6 @@ class ProcessHelper extends Helper
      */
     public function wrapCallback(OutputInterface $output, Process $process, callable $callback = null): callable
     {
-        if ($output instanceof ConsoleOutputInterface) {
-            $output = $output->getErrorOutput();
-        }
-
         $formatter = $this->getHelperSet()->get('debug_formatter');
 
         return function ($type, $buffer) use ($output, $process, $callback, $formatter) {

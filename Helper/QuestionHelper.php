@@ -16,7 +16,6 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\StreamableInputInterface;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
@@ -43,10 +42,6 @@ class QuestionHelper extends Helper
      */
     public function ask(InputInterface $input, OutputInterface $output, Question $question)
     {
-        if ($output instanceof ConsoleOutputInterface) {
-            $output = $output->getErrorOutput();
-        }
-
         if (!$input->isInteractive()) {
             $default = $question->getDefault();
 
