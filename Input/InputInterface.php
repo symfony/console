@@ -93,6 +93,7 @@ interface InputInterface
      * Sets an argument value by name.
      *
      * @param string|string[]|null $value The argument value
+     * @param mixed $value
      *
      * @throws InvalidArgumentException When argument given doesn't exist
      */
@@ -127,6 +128,7 @@ interface InputInterface
      * Sets an option value by name.
      *
      * @param string|string[]|bool|null $value The option value
+     * @param mixed $value
      *
      * @throws InvalidArgumentException When option given doesn't exist
      */
