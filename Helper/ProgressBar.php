@@ -195,6 +195,14 @@ final class ProgressBar
     {
         return floor($this->max ? $this->percent * $this->barWidth : (null === $this->redrawFreq ? min(5, $this->barWidth / 15) * $this->writeCount : $this->step) % $this->barWidth);
     }
+    
+    public function getEstimated() : int
+    {
+        if (!$bar->getProgress()) {
+            return 0;
+        }
+        return round((time() - $bar->getStartTime()) / $bar->getProgress() * $bar->getMaxSteps());
+    }
 
     public function setBarWidth(int $size)
     {
@@ -513,13 +521,7 @@ final class ProgressBar
                     throw new LogicException('Unable to display the estimated time if the maximum number of steps is not set.');
                 }
 
-                if (!$bar->getProgress()) {
-                    $estimated = 0;
-                } else {
-                    $estimated = round((time() - $bar->getStartTime()) / $bar->getProgress() * $bar->getMaxSteps());
-                }
-
-                return Helper::formatTime($estimated);
+                return Helper::formatTime($this->getEstimated());
             },
             'memory' => function (self $bar) {
                 return Helper::formatMemory(memory_get_usage(true));
