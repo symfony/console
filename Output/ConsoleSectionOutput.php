@@ -104,7 +104,7 @@ class ConsoleSectionOutput extends StreamOutput
 
         $this->addContent($message);
 
-        parent::doWrite($message, true);
+        parent::doWrite($message, $newLine);
         parent::doWrite($erasedContent, false);
     }
 
