@@ -81,13 +81,16 @@ class Application implements ResetInterface
     private $initialized;
     private $signalRegistry;
     private $signalsToDispatchEvent = [];
+    private $dontRunPutenv = false;
+    
 
-    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN')
+    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN', bool $dontRunPutenv = false)
     {
         $this->name = $name;
         $this->version = $version;
         $this->terminal = new Terminal();
         $this->defaultCommand = 'list';
+        $this->dontRunPutenv = $dontRunPutenv;
         $this->signalRegistry = new SignalRegistry();
         if (\defined('SIGINT')) {
             $this->signalsToDispatchEvent = [\SIGINT, \SIGTERM, \SIGUSR1, \SIGUSR2];
@@ -126,9 +129,11 @@ class Application implements ResetInterface
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
-        putenv('LINES='.$this->terminal->getHeight());
-        putenv('COLUMNS='.$this->terminal->getWidth());
-
+        if (!$this->dontRunPutenv) {   
+            putenv('LINES='.$this->terminal->getHeight());
+            putenv('COLUMNS='.$this->terminal->getWidth());
+        }
+        
         if (null === $input) {
             $input = new ArgvInput();
         }
@@ -927,7 +932,9 @@ class Application implements ResetInterface
             $input->setInteractive(false);
         }
 
-        putenv('SHELL_VERBOSITY='.$shellVerbosity);
+        if (!$this->dontRunPutenv) {
+            putenv('SHELL_VERBOSITY='.$shellVerbosity);
+        }
         $_ENV['SHELL_VERBOSITY'] = $shellVerbosity;
         $_SERVER['SHELL_VERBOSITY'] = $shellVerbosity;
     }
