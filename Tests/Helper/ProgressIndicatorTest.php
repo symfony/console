@@ -3,6 +3,7 @@
 namespace Symfony\Component\Console\Tests\Helper;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\ProgressIndicator;
 use Symfony\Component\Console\Output\StreamOutput;
 
@@ -152,10 +153,10 @@ class ProgressIndicatorTest extends TestCase
     public function provideFormat(): array
     {
         return [
-            ['normal'],
-            ['verbose'],
-            ['very_verbose'],
-            ['debug'],
+            [ProgressBar::NORMAL],
+            [ProgressBar::VERBOSE],
+            [ProgressBar::VERY_VERBOSE],
+            [ProgressBar::DEBUG],
         ];
     }
 

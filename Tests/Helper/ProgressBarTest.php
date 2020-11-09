@@ -865,10 +865,10 @@ class ProgressBarTest extends TestCase
     public function provideFormat(): array
     {
         return [
-            ['normal'],
-            ['verbose'],
-            ['very_verbose'],
-            ['debug'],
+            [ProgressBar::NORMAL],
+            [ProgressBar::VERBOSE],
+            [ProgressBar::VERY_VERBOSE],
+            [ProgressBar::DEBUG],
         ];
     }
 

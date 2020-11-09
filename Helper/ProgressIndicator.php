@@ -193,12 +193,12 @@ class ProgressIndicator
         switch ($this->output->getVerbosity()) {
             // OutputInterface::VERBOSITY_QUIET: display is disabled anyway
             case OutputInterface::VERBOSITY_VERBOSE:
-                return $this->output->isDecorated() ? 'verbose' : 'verbose_no_ansi';
+                return $this->output->isDecorated() ? ProgressBar::VERBOSE : ProgressBar::VERBOSE_NO_ANSI;
             case OutputInterface::VERBOSITY_VERY_VERBOSE:
             case OutputInterface::VERBOSITY_DEBUG:
-                return $this->output->isDecorated() ? 'very_verbose' : 'very_verbose_no_ansi';
+                return $this->output->isDecorated() ? ProgressBar::VERY_VERBOSE : ProgressBar::VERY_VERBOSE_NO_ANSI;
             default:
-                return $this->output->isDecorated() ? 'normal' : 'normal_no_ansi';
+                return $this->output->isDecorated() ? ProgressBar::NORMAL : ProgressBar::NORMAL_NO_ANSI;
         }
     }
 
@@ -241,14 +241,14 @@ class ProgressIndicator
     private static function initFormats(): array
     {
         return [
-            'normal' => ' %indicator% %message%',
-            'normal_no_ansi' => ' %message%',
+            ProgressBar::NORMAL => ' %indicator% %message%',
+            ProgressBar::NORMAL_NO_ANSI => ' %message%',
 
-            'verbose' => ' %indicator% %message% (%elapsed:6s%)',
-            'verbose_no_ansi' => ' %message% (%elapsed:6s%)',
+            ProgressBar::VERBOSE => ' %indicator% %message% (%elapsed:6s%)',
+            ProgressBar::VERBOSE_NO_ANSI => ' %message% (%elapsed:6s%)',
 
-            'very_verbose' => ' %indicator% %message% (%elapsed:6s%, %memory:6s%)',
-            'very_verbose_no_ansi' => ' %message% (%elapsed:6s%, %memory:6s%)',
+            ProgressBar::VERY_VERBOSE => ' %indicator% %message% (%elapsed:6s%, %memory:6s%)',
+            ProgressBar::VERY_VERBOSE_NO_ANSI => ' %message% (%elapsed:6s%, %memory:6s%)',
         ];
     }
 }

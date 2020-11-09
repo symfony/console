@@ -26,6 +26,18 @@ use Symfony\Component\Console\Terminal;
  */
 final class ProgressBar
 {
+    public const VERY_VERBOSE = 'very_verbose';
+    public const VERY_VERBOSE_NOMAX = 'very_verbose_nomax';
+    public const VERBOSE_NOMAX = 'verbose_nomax';
+    public const VERBOSE = 'verbose';
+    public const DEBUG = 'debug';
+    public const DEBUG_NOMAX = 'debug_nomax';
+    public const NORMAL_NOMAX = 'normal_nomax';
+    public const NORMAL = 'normal';
+    public const VERBOSE_NO_ANSI = 'verbose_no_ansi';
+    public const VERY_VERBOSE_NO_ANSI = 'very_verbose_no_ansi';
+    public const NORMAL_NO_ANSI = 'normal_no_ansi';
+
     private $barWidth = 28;
     private $barChar;
     private $emptyBarChar = '-';
@@ -489,13 +501,13 @@ final class ProgressBar
         switch ($this->output->getVerbosity()) {
             // OutputInterface::VERBOSITY_QUIET: display is disabled anyway
             case OutputInterface::VERBOSITY_VERBOSE:
-                return $this->max ? 'verbose' : 'verbose_nomax';
+                return $this->max ? self::VERBOSE : self::VERBOSE_NOMAX;
             case OutputInterface::VERBOSITY_VERY_VERBOSE:
-                return $this->max ? 'very_verbose' : 'very_verbose_nomax';
+                return $this->max ? self::VERY_VERBOSE : self::VERY_VERBOSE_NOMAX;
             case OutputInterface::VERBOSITY_DEBUG:
-                return $this->max ? 'debug' : 'debug_nomax';
+                return $this->max ? self::DEBUG : self::DEBUG_NOMAX;
             default:
-                return $this->max ? 'normal' : 'normal_nomax';
+                return $this->max ? self::NORMAL : self::NORMAL_NOMAX;
         }
     }
 
@@ -547,17 +559,17 @@ final class ProgressBar
     private static function initFormats(): array
     {
         return [
-            'normal' => ' %current%/%max% [%bar%] %percent:3s%%',
-            'normal_nomax' => ' %current% [%bar%]',
+            self::NORMAL => ' %current%/%max% [%bar%] %percent:3s%%',
+            self::NORMAL_NOMAX => ' %current% [%bar%]',
 
-            'verbose' => ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%',
-            'verbose_nomax' => ' %current% [%bar%] %elapsed:6s%',
+            self::VERBOSE => ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%',
+            self::VERBOSE_NOMAX => ' %current% [%bar%] %elapsed:6s%',
 
-            'very_verbose' => ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%',
-            'very_verbose_nomax' => ' %current% [%bar%] %elapsed:6s%',
+            self::VERY_VERBOSE => ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%',
+            self::VERY_VERBOSE_NOMAX => ' %current% [%bar%] %elapsed:6s%',
 
-            'debug' => ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%',
-            'debug_nomax' => ' %current% [%bar%] %elapsed:6s% %memory:6s%',
+            self::DEBUG => ' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%',
+            self::DEBUG_NOMAX => ' %current% [%bar%] %elapsed:6s% %memory:6s%',
         ];
     }
 
