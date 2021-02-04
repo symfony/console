@@ -37,12 +37,12 @@ class Command
     /**
      * @var string|null The default command name
      */
-    protected static $defaultName;
+    protected static ?string $defaultName;
 
     /**
      * @var string|null The default command description
      */
-    protected static $defaultDescription;
+    protected static ?string $defaultDescription;
 
     private $application;
     private $name;
