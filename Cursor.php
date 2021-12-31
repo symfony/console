@@ -184,7 +184,14 @@ final class Cursor
         static $isTtySupported;
 
         if (null === $isTtySupported && \function_exists('proc_open')) {
-            $isTtySupported = (bool) @proc_open('echo 1 >/dev/null', [['file', '/dev/tty', 'r'], ['file', '/dev/tty', 'w'], ['file', '/dev/tty', 'w']], $pipes);
+            $handle = @proc_open('echo 1 >/dev/null', [['file', '/dev/tty', 'r'], ['file', '/dev/tty', 'w'], ['file', '/dev/tty', 'w']], $pipes);
+            $isTtySupported = (bool) $handle;
+            if ($handle !== false) {
+                fclose($pipes[0]);
+                fclose($pipes[1]);
+                fclose($pipes[2]);
+                proc_close($handle);
+            }
         }
 
         if (!$isTtySupported) {
