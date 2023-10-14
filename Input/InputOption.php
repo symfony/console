@@ -190,8 +190,12 @@ class InputOption
      */
     public function setDefault(mixed $default): void
     {
-        if (self::VALUE_NONE === (self::VALUE_NONE & $this->mode) && null !== $default) {
+        if (self::VALUE_NONE === (self::VALUE_NONE & $this->mode) && !$this->isNegatable() && null !== $default) {
             throw new LogicException('Cannot set a default value when using InputOption::VALUE_NONE mode.');
+        }
+
+        if ($this->isNegatable() && null !== $default && !\is_bool($default)) {
+            throw new LogicException('A default value for a negatable option must be a boolean or null.');
         }
 
         if ($this->isArray()) {

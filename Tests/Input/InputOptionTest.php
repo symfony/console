@@ -172,6 +172,24 @@ class InputOptionTest extends TestCase
         $option = new InputOption('foo', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY);
         $option->setDefault([1, 2]);
         $this->assertSame([1, 2], $option->getDefault(), '->setDefault() changes the default value');
+
+        $option = new InputOption('foo', null, InputOption::VALUE_NONE | InputOption::VALUE_NEGATABLE);
+        $option->setDefault(true);
+        $this->assertTrue($option->getDefault(), '->setDefault() changes the default value');
+
+        $option = new InputOption('foo', null, InputOption::VALUE_NEGATABLE);
+        $option->setDefault(false);
+        $this->assertFalse($option->getDefault(), '->setDefault() changes the default value');
+    }
+
+    public function testDefaultValueWithNegatableMode()
+    {
+        $option = new InputOption('foo', 'f', InputOption::VALUE_NEGATABLE);
+
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('A default value for a negatable option must be a boolean or null.');
+
+        $option->setDefault('default');
     }
 
     public function testSetDefaultWithObject()
