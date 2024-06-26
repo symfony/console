@@ -12,6 +12,7 @@
 namespace Symfony\Component\Console\DependencyInjection;
 
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\RawInputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Attribute\AutowireCallable;
@@ -136,7 +137,7 @@ final class RegisterCommandArgumentLocatorsPass implements CompilerPassInterface
                     }
 
                     // Skip console-specific types that are resolved by other resolvers
-                    if (InputInterface::class === $type || OutputInterface::class === $type) {
+                    if (\in_array($type, [InputInterface::class, RawInputInterface::class, OutputInterface::class], true)) {
                         continue;
                     }
 

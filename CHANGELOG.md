@@ -21,6 +21,7 @@ CHANGELOG
  * Allow setting a boolean default value on `InputOption::VALUE_NEGATABLE` options
  * Deprecate passing both `InputArgument::REQUIRED` and `InputArgument::OPTIONAL` modes to `InputArgument` constructor
  * Deprecate passing more than one out of `InputOption::VALUE_NONE`, `InputOption::VALUE_REQUIRED` and `InputOption::VALUE_OPTIONAL` modes to `InputOption` constructor
+ * Add `RawInputInterface` to expose the original arguments and options and to unparse options, implemented by `Input`
 
 8.0
 ---
