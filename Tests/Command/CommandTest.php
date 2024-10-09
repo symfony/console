@@ -11,8 +11,9 @@
 
 namespace Symfony\Component\Console\Tests\Command;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bridge\PhpUnit\ExpectUserDeprecationMessageTrait;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -31,8 +32,6 @@ use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 
 class CommandTest extends TestCase
 {
-    use ExpectUserDeprecationMessageTrait;
-
     protected static string $fixturesPath;
 
     public static function setUpBeforeClass(): void
@@ -471,9 +470,8 @@ class CommandTest extends TestCase
         $this->assertSame(['f'], $command->getAliases());
     }
 
-    /**
-     * @group legacy
-     */
+    #[IgnoreDeprecations]
+    #[Group('legacy')]
     public function testCommandAttributeWithDeprecatedMethods()
     {
         $this->expectUserDeprecationMessage('Since symfony/console 7.3: Method "Symfony\Component\Console\Command\Command::getDefaultName()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.');
@@ -491,9 +489,8 @@ class CommandTest extends TestCase
         $this->assertSame('This is a command I wrote all by myself', $command->getDescription());
     }
 
-    /**
-     * @group legacy
-     */
+    #[IgnoreDeprecations]
+    #[Group('legacy')]
     public function testAttributeOverridesPropertyWithDeprecatedMethods()
     {
         $this->expectUserDeprecationMessage('Since symfony/console 7.3: Method "Symfony\Component\Console\Command\Command::getDefaultName()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.');
@@ -517,9 +514,8 @@ class CommandTest extends TestCase
         $this->assertEquals('foo2', $property->getValue($apl));
     }
 
-    /**
-     * @group legacy
-     */
+    #[IgnoreDeprecations]
+    #[Group('legacy')]
     public function testDeprecatedMethods()
     {
         $this->expectUserDeprecationMessage('Since symfony/console 7.3: Overriding "Command::getDefaultName()" in "Symfony\Component\Console\Tests\Command\FooCommand" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.');
@@ -528,9 +524,8 @@ class CommandTest extends TestCase
         new FooCommand();
     }
 
-    /**
-     * @group legacy
-     */
+    #[IgnoreDeprecations]
+    #[Group('legacy')]
     public function testDeprecatedNonIntegerReturnTypeFromClosureCode()
     {
         $this->expectUserDeprecationMessage('Since symfony/console 7.3: Returning a non-integer value from the command "foo" is deprecated and will throw an exception in Symfony 8.0.');
