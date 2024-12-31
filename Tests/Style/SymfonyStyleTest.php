@@ -15,9 +15,11 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Helper\TreeHelper;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -152,6 +154,99 @@ class SymfonyStyleTest extends TestCase
         $this->expectExceptionMessage('Output should be an instance of "Symfony\Component\Console\Output\ConsoleSectionOutput"');
 
         $style->createTable()->appendRow(['row']);
+    }
+
+    public function testCreateTree()
+    {
+        $output = $this->createMock(OutputInterface::class);
+        $output
+            ->method('getFormatter')
+            ->willReturn(new OutputFormatter());
+
+        $style = new SymfonyStyle($this->createMock(InputInterface::class), $output);
+
+        $tree = $style->createTree([]);
+        $this->assertInstanceOf(TreeHelper::class, $tree);
+    }
+
+    public function testTree()
+    {
+        $input = $this->createMock(InputInterface::class);
+        $output = new BufferedOutput();
+        $style = new SymfonyStyle($input, $output);
+
+        $tree = $style->createTree(['A', 'B' => ['B1' => ['B11', 'B12'], 'B2'], 'C'], 'root');
+        $tree->render();
+
+        $this->assertSame(<<<TREE
+root
+├── A
+├── B
+│   ├── B1
+│   │   ├── B11
+│   │   └── B12
+│   └── B2
+└── C
+TREE, trim($output->fetch()));
+    }
+
+    public function testCreateTreeWithArray()
+    {
+        $input = $this->createMock(InputInterface::class);
+        $output = new BufferedOutput();
+        $style = new SymfonyStyle($input, $output);
+
+        $tree = $style->createTree(['A', 'B' => ['B1' => ['B11', 'B12'], 'B2'], 'C'], 'root');
+        $tree->render();
+
+        $this->assertSame($tree = <<<TREE
+root
+├── A
+├── B
+│   ├── B1
+│   │   ├── B11
+│   │   └── B12
+│   └── B2
+└── C
+TREE, trim($output->fetch()));
+    }
+
+    public function testCreateTreeWithIterable()
+    {
+        $input = $this->createMock(InputInterface::class);
+        $output = new BufferedOutput();
+        $style = new SymfonyStyle($input, $output);
+
+        $tree = $style->createTree(new \ArrayIterator(['A', 'B' => ['B1' => ['B11', 'B12'], 'B2'], 'C']), 'root');
+        $tree->render();
+
+        $this->assertSame(<<<TREE
+root
+├── A
+├── B
+│   ├── B1
+│   │   ├── B11
+│   │   └── B12
+│   └── B2
+└── C
+TREE, trim($output->fetch()));
+    }
+
+    public function testCreateTreeWithConsoleOutput()
+    {
+        $input = $this->createMock(InputInterface::class);
+        $output = $this->createMock(ConsoleOutputInterface::class);
+        $output
+            ->method('getFormatter')
+            ->willReturn(new OutputFormatter());
+        $output
+            ->expects($this->once())
+            ->method('section')
+            ->willReturn($this->createMock(ConsoleSectionOutput::class));
+
+        $style = new SymfonyStyle($input, $output);
+
+        $style->createTree([]);
     }
 
     public function testGetErrorStyleUsesTheCurrentOutputIfNoErrorOutputIsAvailable()
