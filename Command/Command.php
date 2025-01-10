@@ -100,6 +100,10 @@ class Command
             $this->setDescription(static::getDefaultDescription() ?? '');
         }
 
+        if ('' === $this->help && $attributes = (new \ReflectionClass(static::class))->getAttributes(AsCommand::class)) {
+            $this->setHelp($attributes[0]->newInstance()->help ?? '');
+        }
+
         if (\is_callable($this)) {
             $this->code = new InvokableCommand($this, $this(...));
         }

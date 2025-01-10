@@ -176,6 +176,7 @@ class AddConsoleCommandPassTest extends TestCase
         $this->assertSame('%cmd%', $command->getName());
         $this->assertSame(['%cmdalias%'], $command->getAliases());
         $this->assertSame('Creates a 80% discount', $command->getDescription());
+        $this->assertSame('The %command.name% help content.', $command->getHelp());
     }
 
     public function testProcessThrowAnExceptionIfTheServiceIsAbstract()
@@ -310,12 +311,19 @@ class AddConsoleCommandPassTest extends TestCase
         $container->addCompilerPass(new AddConsoleCommandPass(), PassConfig::TYPE_BEFORE_REMOVING);
 
         $definition = new Definition(InvokableCommand::class);
-        $definition->addTag('console.command', ['command' => 'invokable', 'description' => 'Just testing']);
+        $definition->addTag('console.command', [
+            'command' => 'invokable',
+            'description' => 'The command description',
+            'help' => 'The %command.name% command help content.',
+        ]);
         $container->setDefinition('invokable_command', $definition);
 
         $container->compile();
+        $command = $container->get('console.command_loader')->get('invokable');
 
         self::assertTrue($container->has('invokable_command.command'));
+        self::assertSame('The command description', $command->getDescription());
+        self::assertSame('The %command.name% command help content.', $command->getHelp());
     }
 }
 
@@ -328,7 +336,7 @@ class NamedCommand extends Command
 {
 }
 
-#[AsCommand(name: '%cmd%|%cmdalias%', description: 'Creates a 80% discount')]
+#[AsCommand(name: '%cmd%|%cmdalias%', description: 'Creates a 80% discount', help: 'The %command.name% help content.')]
 class EscapedDefaultsFromPhpCommand extends Command
 {
 }
@@ -346,7 +354,7 @@ class DescribedCommand extends Command
     }
 }
 
-#[AsCommand(name: 'invokable', description: 'Just testing')]
+#[AsCommand(name: 'invokable', description: 'Just testing', help: 'The %command.name% help content.')]
 class InvokableCommand
 {
     public function __invoke(): void

@@ -53,6 +53,8 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 $invokableRef = new Reference($id);
                 $definition = $container->register($id .= '.command', $class = Command::class)
                     ->addMethodCall('setCode', [$invokableRef]);
+            } else {
+                $invokableRef = null;
             }
 
             $aliases = $tags[0]['command'] ?? str_replace('%', '%%', $class::getDefaultName() ?? '');
@@ -75,6 +77,7 @@ class AddConsoleCommandPass implements CompilerPassInterface
             }
 
             $description = $tags[0]['description'] ?? null;
+            $help = $tags[0]['help'] ?? null;
 
             unset($tags[0]);
             $lazyCommandMap[$commandName] = $id;
@@ -91,6 +94,7 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 }
 
                 $description ??= $tag['description'] ?? null;
+                $help ??= $tag['help'] ?? null;
             }
 
             $definition->addMethodCall('setName', [$commandName]);
@@ -103,15 +107,11 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 $definition->addMethodCall('setHidden', [true]);
             }
 
-            if (!$description) {
-                if (!$r = $container->getReflectionClass($class)) {
-                    throw new InvalidArgumentException(\sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
-                }
-                if (!$r->isSubclassOf(Command::class)) {
-                    throw new InvalidArgumentException(\sprintf('The service "%s" tagged "%s" must be a subclass of "%s".', $id, 'console.command', Command::class));
-                }
-                $description = str_replace('%', '%%', $class::getDefaultDescription() ?? '');
+            if ($help && $invokableRef) {
+                $definition->addMethodCall('setHelp', [str_replace('%', '%%', $help)]);
             }
+
+            $description ??= str_replace('%', '%%', $class::getDefaultDescription() ?? '');
 
             if ($description) {
                 $definition->addMethodCall('setDescription', [$description]);
