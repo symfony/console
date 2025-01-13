@@ -100,6 +100,10 @@ class Command
             $this->setDescription(static::getDefaultDescription() ?? '');
         }
 
+        if (\is_callable($this)) {
+            $this->code = new InvokableCommand($this, $this(...));
+        }
+
         $this->configure();
     }
 
@@ -164,9 +168,6 @@ class Command
      */
     protected function configure()
     {
-        if (!$this->code && \is_callable($this)) {
-            $this->code = new InvokableCommand($this, $this(...));
-        }
     }
 
     /**
@@ -312,22 +313,6 @@ class Command
      */
     public function setCode(callable $code): static
     {
-        if ($code instanceof \Closure) {
-            $r = new \ReflectionFunction($code);
-            if (null === $r->getClosureThis()) {
-                set_error_handler(static function () {});
-                try {
-                    if ($c = \Closure::bind($code, $this)) {
-                        $code = $c;
-                    }
-                } finally {
-                    restore_error_handler();
-                }
-            }
-        } else {
-            $code = $code(...);
-        }
-
         $this->code = new InvokableCommand($this, $code, triggerDeprecations: true);
 
         return $this;

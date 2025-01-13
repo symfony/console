@@ -22,25 +22,23 @@ class Argument
 {
     private const ALLOWED_TYPES = ['string', 'bool', 'int', 'float', 'array'];
 
+    private string|bool|int|float|array|null $default = null;
+    private array|\Closure $suggestedValues;
     private ?int $mode = null;
 
     /**
      * Represents a console command <argument> definition.
      *
-     * If unset, the `name` and `default` values will be inferred from the parameter definition.
+     * If unset, the `name` value will be inferred from the parameter definition.
      *
-     * @param string|bool|int|float|array|null                               $default         The default value (for InputArgument::OPTIONAL mode only)
-     * @param array|callable-string(CompletionInput):list<string|Suggestion> $suggestedValues The values used for input completion
+     * @param array<string|Suggestion>|callable(CompletionInput):list<string|Suggestion> $suggestedValues The values used for input completion
      */
     public function __construct(
         public string $name = '',
         public string $description = '',
-        public string|bool|int|float|array|null $default = null,
-        public array|string $suggestedValues = [],
+        array|callable $suggestedValues = [],
     ) {
-        if (\is_string($suggestedValues) && !\is_callable($suggestedValues)) {
-            throw new \TypeError(\sprintf('Argument 4 passed to "%s()" must be either an array or a callable-string.', __METHOD__));
-        }
+        $this->suggestedValues = \is_callable($suggestedValues) ? $suggestedValues(...) : $suggestedValues;
     }
 
     /**
@@ -70,12 +68,12 @@ class Argument
             $self->name = $name;
         }
 
-        $self->mode = null !== $self->default || $parameter->isDefaultValueAvailable() ? InputArgument::OPTIONAL : InputArgument::REQUIRED;
+        $self->default = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
+
+        $self->mode = $parameter->isDefaultValueAvailable() || $parameter->allowsNull() ? InputArgument::OPTIONAL : InputArgument::REQUIRED;
         if ('array' === $parameterTypeName) {
             $self->mode |= InputArgument::IS_ARRAY;
         }
-
-        $self->default ??= $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
 
         if (\is_array($self->suggestedValues) && !\is_callable($self->suggestedValues) && 2 === \count($self->suggestedValues) && ($instance = $parameter->getDeclaringFunction()->getClosureThis()) && $instance::class === $self->suggestedValues[0] && \is_callable([$instance, $self->suggestedValues[1]])) {
             $self->suggestedValues = [$instance, $self->suggestedValues[1]];
@@ -99,6 +97,6 @@ class Argument
      */
     public function resolveValue(InputInterface $input): mixed
     {
-        return $input->hasArgument($this->name) ? $input->getArgument($this->name) : null;
+        return $input->getArgument($this->name);
     }
 }

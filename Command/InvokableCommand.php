@@ -30,14 +30,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class InvokableCommand
 {
+    private readonly \Closure $code;
     private readonly \ReflectionFunction $reflection;
 
     public function __construct(
         private readonly Command $command,
-        private readonly \Closure $code,
+        callable $code,
         private readonly bool $triggerDeprecations = false,
     ) {
-        $this->reflection = new \ReflectionFunction($code);
+        $this->code = $this->getClosure($code);
+        $this->reflection = new \ReflectionFunction($this->code);
     }
 
     /**
@@ -49,7 +51,7 @@ class InvokableCommand
 
         if (null !== $statusCode && !\is_int($statusCode)) {
             if ($this->triggerDeprecations) {
-                trigger_deprecation('symfony/console', '7.3', \sprintf('Returning a non-integer value from the command "%s" is deprecated and will throw an exception in PHP 8.0.', $this->command->getName()));
+                trigger_deprecation('symfony/console', '7.3', \sprintf('Returning a non-integer value from the command "%s" is deprecated and will throw an exception in Symfony 8.0.', $this->command->getName()));
 
                 return 0;
             }
@@ -77,6 +79,28 @@ class InvokableCommand
         }
     }
 
+    private function getClosure(callable $code): \Closure
+    {
+        if (!$code instanceof \Closure) {
+            return $code(...);
+        }
+
+        if (null !== (new \ReflectionFunction($code))->getClosureThis()) {
+            return $code;
+        }
+
+        set_error_handler(static function () {});
+        try {
+            if ($c = \Closure::bind($code, $this->command)) {
+                $code = $c;
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        return $code;
+    }
+
     private function getParameters(InputInterface $input, OutputInterface $output): array
     {
         $parameters = [];
@@ -97,7 +121,7 @@ class InvokableCommand
 
             if (!$type instanceof \ReflectionNamedType) {
                 if ($this->triggerDeprecations) {
-                    trigger_deprecation('symfony/console', '7.3', \sprintf('Omitting the type declaration for the parameter "$%s" is deprecated and will throw an exception in PHP 8.0.', $parameter->getName()));
+                    trigger_deprecation('symfony/console', '7.3', \sprintf('Omitting the type declaration for the parameter "$%s" is deprecated and will throw an exception in Symfony 8.0.', $parameter->getName()));
 
                     continue;
                 }

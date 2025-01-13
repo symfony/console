@@ -22,28 +22,27 @@ class Option
 {
     private const ALLOWED_TYPES = ['string', 'bool', 'int', 'float', 'array'];
 
+    private string|bool|int|float|array|null $default = null;
+    private array|\Closure $suggestedValues;
     private ?int $mode = null;
     private string $typeName = '';
+    private bool $allowNull = false;
 
     /**
      * Represents a console command --option definition.
      *
-     * If unset, the `name` and `default` values will be inferred from the parameter definition.
+     * If unset, the `name` value will be inferred from the parameter definition.
      *
-     * @param array|string|null                                              $shortcut        The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
-     * @param scalar|array|null                                              $default         The default value (must be null for self::VALUE_NONE)
-     * @param array|callable-string(CompletionInput):list<string|Suggestion> $suggestedValues The values used for input completion
+     * @param array|string|null                                                          $shortcut        The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
+     * @param array<string|Suggestion>|callable(CompletionInput):list<string|Suggestion> $suggestedValues The values used for input completion
      */
     public function __construct(
         public string $name = '',
         public array|string|null $shortcut = null,
         public string $description = '',
-        public string|bool|int|float|array|null $default = null,
-        public array|string $suggestedValues = [],
+        array|callable $suggestedValues = [],
     ) {
-        if (\is_string($suggestedValues) && !\is_callable($suggestedValues)) {
-            throw new \TypeError(\sprintf('Argument 5 passed to "%s()" must be either an array or a callable-string.', __METHOD__));
-        }
+        $this->suggestedValues = \is_callable($suggestedValues) ? $suggestedValues(...) : $suggestedValues;
     }
 
     /**
@@ -69,23 +68,27 @@ class Option
             throw new LogicException(\sprintf('The type "%s" of parameter "$%s" is not supported as a command option. Only "%s" types are allowed.', $self->typeName, $name, implode('", "', self::ALLOWED_TYPES)));
         }
 
+        if (!$parameter->isDefaultValueAvailable()) {
+            throw new LogicException(\sprintf('The option parameter "$%s" must declare a default value.', $name));
+        }
+
         if (!$self->name) {
             $self->name = $name;
         }
 
+        $self->default = $parameter->getDefaultValue();
+        $self->allowNull = $parameter->allowsNull();
+
         if ('bool' === $self->typeName) {
-            $self->mode = InputOption::VALUE_NONE | InputOption::VALUE_NEGATABLE;
+            $self->mode = InputOption::VALUE_NONE;
+            if (false !== $self->default) {
+                $self->mode |= InputOption::VALUE_NEGATABLE;
+            }
         } else {
-            $self->mode = null !== $self->default || $parameter->isDefaultValueAvailable() ? InputOption::VALUE_OPTIONAL : InputOption::VALUE_REQUIRED;
+            $self->mode = $self->allowNull ? InputOption::VALUE_OPTIONAL : InputOption::VALUE_REQUIRED;
             if ('array' === $self->typeName) {
                 $self->mode |= InputOption::VALUE_IS_ARRAY;
             }
-        }
-
-        if (InputOption::VALUE_NONE === (InputOption::VALUE_NONE & $self->mode)) {
-            $self->default = null;
-        } else {
-            $self->default ??= $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
         }
 
         if (\is_array($self->suggestedValues) && !\is_callable($self->suggestedValues) && 2 === \count($self->suggestedValues) && ($instance = $parameter->getDeclaringFunction()->getClosureThis()) && $instance::class === $self->suggestedValues[0] && \is_callable([$instance, $self->suggestedValues[1]])) {
@@ -100,9 +103,10 @@ class Option
      */
     public function toInputOption(): InputOption
     {
+        $default = InputOption::VALUE_NONE === (InputOption::VALUE_NONE & $this->mode) ? null : $this->default;
         $suggestedValues = \is_callable($this->suggestedValues) ? ($this->suggestedValues)(...) : $this->suggestedValues;
 
-        return new InputOption($this->name, $this->shortcut, $this->mode, $this->description, $this->default, $suggestedValues);
+        return new InputOption($this->name, $this->shortcut, $this->mode, $this->description, $default, $suggestedValues);
     }
 
     /**
@@ -110,10 +114,16 @@ class Option
      */
     public function resolveValue(InputInterface $input): mixed
     {
-        if ('bool' === $this->typeName) {
-            return $input->hasOption($this->name) && null !== $input->getOption($this->name) ? $input->getOption($this->name) : ($this->default ?? false);
+        $value = $input->getOption($this->name);
+
+        if ('bool' !== $this->typeName) {
+            return $value;
         }
 
-        return $input->hasOption($this->name) ? $input->getOption($this->name) : null;
+        if ($this->allowNull && null === $value) {
+            return null;
+        }
+
+        return $value ?? $this->default;
     }
 }
