@@ -2404,7 +2404,7 @@ class ApplicationTest extends TestCase
         if ($dispatcher) {
             $application->setDispatcher($dispatcher);
         }
-        $application->add(new LazyCommand($command::getDefaultName(), [], '', false, fn () => $command, true));
+        $application->add(new LazyCommand($command->getName(), [], '', false, fn () => $command, true));
 
         return $application;
     }

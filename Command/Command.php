@@ -54,8 +54,13 @@ class Command
     private array $usages = [];
     private ?HelperSet $helperSet = null;
 
+    /**
+     * @deprecated since Symfony 7.3, use the #[AsCommand] attribute instead
+     */
     public static function getDefaultName(): ?string
     {
+        trigger_deprecation('symfony/console', '7.3', 'Method "%s()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', __METHOD__);
+
         if ($attribute = (new \ReflectionClass(static::class))->getAttributes(AsCommand::class)) {
             return $attribute[0]->newInstance()->name;
         }
@@ -63,8 +68,13 @@ class Command
         return null;
     }
 
+    /**
+     * @deprecated since Symfony 7.3, use the #[AsCommand] attribute instead
+     */
     public static function getDefaultDescription(): ?string
     {
+        trigger_deprecation('symfony/console', '7.3', 'Method "%s()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', __METHOD__);
+
         if ($attribute = (new \ReflectionClass(static::class))->getAttributes(AsCommand::class)) {
             return $attribute[0]->newInstance()->description;
         }
@@ -81,7 +91,19 @@ class Command
     {
         $this->definition = new InputDefinition();
 
-        if (null === $name && null !== $name = static::getDefaultName()) {
+        $attribute = ((new \ReflectionClass(static::class))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
+
+        if (null === $name) {
+            if (self::class !== (new \ReflectionMethod($this, 'getDefaultName'))->class) {
+                trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultName()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', static::class);
+
+                $defaultName = static::getDefaultName();
+            } else {
+                $defaultName = $attribute?->name;
+            }
+        }
+
+        if (null === $name && null !== $name = $defaultName) {
             $aliases = explode('|', $name);
 
             if ('' === $name = array_shift($aliases)) {
@@ -97,11 +119,19 @@ class Command
         }
 
         if ('' === $this->description) {
-            $this->setDescription(static::getDefaultDescription() ?? '');
+            if (self::class !== (new \ReflectionMethod($this, 'getDefaultDescription'))->class) {
+                trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultDescription()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', static::class);
+
+                $defaultDescription = static::getDefaultDescription();
+            } else {
+                $defaultDescription = $attribute?->description;
+            }
+
+            $this->setDescription($defaultDescription ?? '');
         }
 
-        if ('' === $this->help && $attributes = (new \ReflectionClass(static::class))->getAttributes(AsCommand::class)) {
-            $this->setHelp($attributes[0]->newInstance()->help ?? '');
+        if ('' === $this->help) {
+            $this->setHelp($attribute?->help ?? '');
         }
 
         if (\is_callable($this)) {

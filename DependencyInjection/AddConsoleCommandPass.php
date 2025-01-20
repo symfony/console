@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Console\DependencyInjection;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
@@ -57,7 +58,18 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 $invokableRef = null;
             }
 
-            $aliases = $tags[0]['command'] ?? str_replace('%', '%%', $class::getDefaultName() ?? '');
+            /** @var AsCommand|null $attribute */
+            $attribute = ($r->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
+
+            if (Command::class !== (new \ReflectionMethod($class, 'getDefaultName'))->class) {
+                trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultName()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', $class);
+
+                $defaultName = $class::getDefaultName();
+            } else {
+                $defaultName = $attribute?->name;
+            }
+
+            $aliases = str_replace('%', '%%', $tags[0]['command'] ?? $defaultName ?? '');
             $aliases = explode('|', $aliases);
             $commandName = array_shift($aliases);
 
@@ -111,10 +123,18 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 $definition->addMethodCall('setHelp', [str_replace('%', '%%', $help)]);
             }
 
-            $description ??= str_replace('%', '%%', $class::getDefaultDescription() ?? '');
+            if (!$description) {
+                if (Command::class !== (new \ReflectionMethod($class, 'getDefaultDescription'))->class) {
+                    trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultDescription()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', $class);
+
+                    $description = $class::getDefaultDescription();
+                } else {
+                    $description = $attribute?->description;
+                }
+            }
 
             if ($description) {
-                $definition->addMethodCall('setDescription', [$description]);
+                $definition->addMethodCall('setDescription', [str_replace('%', '%%', $description)]);
 
                 $container->register('.'.$id.'.lazy', LazyCommand::class)
                     ->setArguments([$commandName, $aliases, $description, $isHidden, new ServiceClosureArgument($lazyCommandRefs[$id])]);

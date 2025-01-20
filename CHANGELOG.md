@@ -7,6 +7,7 @@ CHANGELOG
  * Add support for invokable commands and add `#[Argument]` and `#[Option]` attributes to define input arguments and options
  * Deprecate not declaring the parameter type in callable commands defined through `setCode` method
  * Add support for help definition via `AsCommand` attribute
+ * Deprecate methods `Command::getDefaultName()` and `Command::getDefaultDescription()` in favor of the `#[AsCommand]` attribute
 
 7.2
 ---
