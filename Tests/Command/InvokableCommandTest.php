@@ -261,13 +261,15 @@ class InvokableCommandTest extends TestCase
     {
         $command = new Command('foo');
         $command->setCode(function (
-            #[Option] ?string $a = null,
-            #[Option] ?string $b = 'b',
-            #[Option] ?array $c = [],
+            #[Option] string $a = '',
+            #[Option] ?string $b = '',
+            #[Option] array $c = [],
+            #[Option] array $d = ['a', 'b'],
         ) use ($expected): int {
             $this->assertSame($expected[0], $a);
             $this->assertSame($expected[1], $b);
             $this->assertSame($expected[2], $c);
+            $this->assertSame($expected[3], $d);
 
             return 0;
         });
@@ -277,20 +279,47 @@ class InvokableCommandTest extends TestCase
 
     public static function provideNonBinaryInputOptions(): \Generator
     {
-        yield 'defaults' => [[], [null, 'b', []]];
-        yield 'with-value' => [['--a' => 'x', '--b' => 'y', '--c' => ['z']], ['x', 'y', ['z']]];
-        yield 'without-value' => [['--a' => null, '--b' => null, '--c' => null], [null, null, null]];
+        yield 'defaults' => [[], ['', '', [], ['a', 'b']]];
+        yield 'with-value' => [['--a' => 'x', '--b' => 'y', '--c' => ['z'], '--d' => ['c', 'd']], ['x', 'y', ['z'], ['c', 'd']]];
+        yield 'without-value' => [['--b' => null], ['', null, [], ['a', 'b']]];
     }
 
-    public function testInvalidOptionDefinition()
+    /**
+     * @dataProvider provideInvalidOptionDefinitions
+     */
+    public function testInvalidOptionDefinition(callable $code, string $expectedMessage)
     {
         $command = new Command('foo');
-        $command->setCode(function (#[Option] string $a) {});
+        $command->setCode($code);
 
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('The option parameter "$a" must declare a default value.');
+        $this->expectExceptionMessage($expectedMessage);
 
         $command->getDefinition();
+    }
+
+    public static function provideInvalidOptionDefinitions(): \Generator
+    {
+        yield 'no-default' => [
+            function (#[Option] string $a) {},
+            'The option parameter "$a" must declare a default value.',
+        ];
+        yield 'nullable-bool-default-true' => [
+            function (#[Option] ?bool $a = true) {},
+            'The option parameter "$a" must not be nullable when it has a default boolean value.',
+        ];
+        yield 'nullable-bool-default-false' => [
+            function (#[Option] ?bool $a = false) {},
+            'The option parameter "$a" must not be nullable when it has a default boolean value.',
+        ];
+        yield 'nullable-string' => [
+            function (#[Option] ?string $a = null) {},
+            'The option parameter "$a" must not have a default of null.',
+        ];
+        yield 'nullable-array' => [
+            function (#[Option] ?array $a = null) {},
+            'The option parameter "$a" must not be nullable.',
+        ];
     }
 
     public function testInvalidRequiredValueOptionEvenWithDefault()
