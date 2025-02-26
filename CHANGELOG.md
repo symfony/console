@@ -4,6 +4,8 @@ CHANGELOG
 7.3
 ---
 
+ * Add `TreeHelper` and `TreeStyle` to display tree-like structures
+ * Add `SymfonyStyle::createTree()`
  * Add support for invokable commands and add `#[Argument]` and `#[Option]` attributes to define input arguments and options
  * Deprecate not declaring the parameter type in callable commands defined through `setCode` method
  * Add support for help definition via `AsCommand` attribute
