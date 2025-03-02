@@ -291,7 +291,7 @@ class ApplicationTest extends TestCase
         $tester = new ApplicationTester($application);
         $tester->run(['-h' => true, '-q' => true], ['decorated' => false]);
 
-        $this->assertEmpty($tester->getDisplay(true));
+        $this->assertSame('', $tester->getDisplay(true));
     }
 
     public function testGetInvalidCommand()
