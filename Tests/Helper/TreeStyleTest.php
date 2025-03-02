@@ -41,7 +41,7 @@ root
 │   │   └── B12
 │   └── B2
 └── C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testBoxStyle()
@@ -63,7 +63,7 @@ root
 ┃  ┃  ┗╸ B12
 ┃  ┗╸ B2
 ┗╸ C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testBoxDoubleStyle()
@@ -85,7 +85,7 @@ root
 ║  ║  ╚═ B12
 ║  ╚═ B2
 ╚═ C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCompactStyle()
@@ -107,7 +107,7 @@ root
 │ │ └ B12
 │ └ B2
 └ C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testLightStyle()
@@ -129,7 +129,7 @@ root
 |   |   `-- B12
 |   `-- B2
 `-- C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testMinimalStyle()
@@ -151,7 +151,7 @@ root
 . . . B12
 . . B2
 . C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRoundedStyle()
@@ -173,7 +173,7 @@ root
 │  │  ╰─ B12
 │  ╰─ B2
 ╰─ C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCustomPrefix()
@@ -196,7 +196,7 @@ C D D A F B11
 C D D B F B12
 C D B F B2
 C B F C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     private static function createTree(OutputInterface $output, ?TreeStyle $style = null): TreeHelper
@@ -222,5 +222,10 @@ TREE, trim($output->fetch()));
             ->addChild(new TreeNode('C'));
 
         return TreeHelper::createTree($output, $root, [], $style);
+    }
+
+    private static function normalizeLineBreaks($text)
+    {
+        return str_replace(\PHP_EOL, "\n", $text);
     }
 }

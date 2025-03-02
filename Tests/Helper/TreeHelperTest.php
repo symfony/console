@@ -25,7 +25,7 @@ class TreeHelperTest extends TestCase
         $tree = TreeHelper::createTree($output);
 
         $tree->render();
-        $this->assertSame("\n", $output->fetch());
+        $this->assertSame(PHP_EOL, $output->fetch());
     }
 
     public function testRenderSingleNode()
@@ -35,7 +35,7 @@ class TreeHelperTest extends TestCase
         $tree = TreeHelper::createTree($output, $rootNode);
 
         $tree->render();
-        $this->assertSame("Root\n", $output->fetch());
+        $this->assertSame("Root\n", self::normalizeLineBreaks($output->fetch()));
     }
 
     public function testRenderTwoLevelTree()
@@ -55,7 +55,7 @@ class TreeHelperTest extends TestCase
 Root
 ├── Child 1
 └── Child 2
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRenderThreeLevelTree()
@@ -78,7 +78,7 @@ Root
 ├── Child 1
 │   └── SubChild 1
 └── Child 2
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRenderMultiLevelTree()
@@ -107,7 +107,7 @@ Root
 │   │   └── SubSubChild 1
 │   └── SubChild 2
 └── Child 2
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRenderSingleNodeTree()
@@ -119,7 +119,7 @@ TREE, trim($output->fetch()));
         $tree->render();
         $this->assertSame(<<<TREE
 Root
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRenderEmptyTree()
@@ -131,7 +131,7 @@ TREE, trim($output->fetch()));
         $tree->render();
         $this->assertSame(<<<TREE
 Root
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRenderDeeplyNestedTree()
@@ -169,7 +169,7 @@ Root
               └── Level 8
                 └── Level 9
                   └── Level 10
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRenderNodeWithMultipleChildren()
@@ -192,7 +192,7 @@ Root
 ├── Child 1
 ├── Child 2
 └── Child 3
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRenderTreeWithDuplicateNodeNames()
@@ -215,7 +215,7 @@ Root
 ├── Child
 │   └── Child
 └── Child
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRenderTreeWithComplexNodeNames()
@@ -238,7 +238,7 @@ Root
 ├── Child 1 (special)
 │   └── Node with spaces
 └── Child_2@#$
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testRenderTreeWithCycle()
@@ -272,7 +272,7 @@ TREE, trim($output->fetch()));
         $tree = TreeHelper::createTree($output, $rootNode);
         $tree->render();
 
-        $lines = explode("\n", trim($output->fetch()));
+        $lines = explode("\n", self::normalizeLineBreaks(trim($output->fetch())));
         $this->assertCount(101, $lines);
         $this->assertSame('Root', $lines[0]);
         $this->assertSame('└── Child 100', end($lines));
@@ -290,7 +290,7 @@ TREE, trim($output->fetch()));
 root
 ├── child1
 └── child2
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCreateWithNestedArray()
@@ -309,7 +309,7 @@ root
 │   └── child2.2
 │      └── child2.2.1
 └── child3
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCreateWithoutRoot()
@@ -323,7 +323,7 @@ TREE, trim($output->fetch()));
         $this->assertSame(<<<TREE
 ├── child1
 └── child2
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCreateWithEmptyArray()
@@ -334,6 +334,11 @@ TREE, trim($output->fetch()));
         $tree = TreeHelper::createTree($output, null, $array);
 
         $tree->render();
-        $this->assertSame('', trim($output->fetch()));
+        $this->assertSame('', self::normalizeLineBreaks(trim($output->fetch())));
+    }
+
+    private static function normalizeLineBreaks($text)
+    {
+        return str_replace(\PHP_EOL, "\n", $text);
     }
 }

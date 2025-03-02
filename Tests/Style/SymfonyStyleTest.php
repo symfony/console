@@ -187,7 +187,7 @@ root
 │   │   └── B12
 │   └── B2
 └── C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCreateTreeWithArray()
@@ -208,7 +208,7 @@ root
 │   │   └── B12
 │   └── B2
 └── C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCreateTreeWithIterable()
@@ -229,7 +229,7 @@ root
 │   │   └── B12
 │   └── B2
 └── C
-TREE, trim($output->fetch()));
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCreateTreeWithConsoleOutput()
@@ -313,5 +313,10 @@ TREE, trim($output->fetch()));
             "\033[9A\033[0J"), // clear 9 lines (8 output lines and one from the answer input return)
             escapeshellcmd(stream_get_contents($output->getStream()))
         );
+    }
+
+    private static function normalizeLineBreaks($text)
+    {
+        return str_replace(\PHP_EOL, "\n", $text);
     }
 }
