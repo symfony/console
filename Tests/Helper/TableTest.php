@@ -1576,17 +1576,17 @@ EOTXT;
         $expected =
             <<<TABLE
 +-----------------+-----------------+-----------------+
-| Lorem ipsum dolor sit amet, consectetur adipi       |
-| scing elit, sed do eiusmod tempor                   |
+| Lorem ipsum dolor sit amet, consectetur adipiscing  |
+| elit, sed do eiusmod tempor                         |
 +-----------------+-----------------+-----------------+
-| Lorem ipsum dolor sit amet, consectetur             |
-| adipiscing elit, sed do eiusmod tempor              |
+| Lorem ipsum dolor sit amet, consectetur adipiscing  |
+| elit, sed do eiusmod tempor                         |
 +-----------------+-----------------+-----------------+
-| Lorem ipsum dolor sit amet, co    | hello world     |
-| nsectetur                         |                 |
+| Lorem ipsum dolor sit amet, conse | hello world     |
+| ctetur                            |                 |
 +-----------------+-----------------+-----------------+
-| hello world     | Lorem ipsum dolor sit amet, co    |
-|                 | nsectetur adipiscing elit         |
+| hello world     | Lorem ipsum dolor sit amet, conse |
+|                 | ctetur adipiscing elit            |
 +-----------------+-----------------+-----------------+
 | hello           | world           | Lorem ipsum     |
 |                 |                 | dolor sit amet, |
