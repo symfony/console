@@ -13,6 +13,7 @@ CHANGELOG
  * Add support for Markdown format in `Table`
  * Add support for `LockableTrait` in invokable commands
  * Deprecate returning a non-integer value from a `\Closure` function set via `Command::setCode()`
+ * Mark `#[AsCommand]` attribute as `@final`
 
 7.2
 ---
