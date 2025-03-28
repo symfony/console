@@ -34,7 +34,9 @@ class InvokableCommandTest extends TestCase
             #[Argument] string $lastName = '',
             #[Argument(description: 'Short argument description')] string $bio = '',
             #[Argument(suggestedValues: [self::class, 'getSuggestedRoles'])] array $roles = ['ROLE_USER'],
-        ) {});
+        ): int {
+            return 0;
+        });
 
         $nameInputArgument = $command->getDefinition()->getArgument('first-name');
         self::assertSame('first-name', $nameInputArgument->getName());
@@ -75,7 +77,9 @@ class InvokableCommandTest extends TestCase
             #[Option(shortcut: 'v')] bool $verbose = false,
             #[Option(description: 'User groups')] array $groups = [],
             #[Option(suggestedValues: [self::class, 'getSuggestedRoles'])] array $roles = ['ROLE_USER'],
-        ) {});
+        ): int {
+            return 0;
+        });
 
         $timeoutInputOption = $command->getDefinition()->getOption('idle');
         self::assertSame('idle', $timeoutInputOption->getName());
@@ -138,6 +142,19 @@ class InvokableCommandTest extends TestCase
         $command->getDefinition();
     }
 
+    public function testInvalidReturnType()
+    {
+        $command = new Command('foo');
+        $command->setCode(new class {
+            public function __invoke() {}
+        });
+
+        $this->expectException(\TypeError::class);
+        $this->expectExceptionMessage('The command "foo" must return an integer value in the "__invoke" method, but "null" was returned.');
+
+        $command->run(new ArrayInput([]), new NullOutput());
+    }
+
     /**
      * @dataProvider provideInputArguments
      */
@@ -149,11 +166,13 @@ class InvokableCommandTest extends TestCase
             #[Argument] ?string $b,
             #[Argument] string $c = '',
             #[Argument] array $d = [],
-        ) use ($expected) {
+        ) use ($expected): int {
             $this->assertSame($expected[0], $a);
             $this->assertSame($expected[1], $b);
             $this->assertSame($expected[2], $c);
             $this->assertSame($expected[3], $d);
+
+            return 0;
         });
 
         $command->run(new ArrayInput($parameters), new NullOutput());
@@ -176,10 +195,12 @@ class InvokableCommandTest extends TestCase
             #[Option] bool $a = true,
             #[Option] bool $b = false,
             #[Option] ?bool $c = null,
-        ) use ($expected) {
+        ) use ($expected): int {
             $this->assertSame($expected[0], $a);
             $this->assertSame($expected[1], $b);
             $this->assertSame($expected[2], $c);
+
+            return 0;
         });
 
         $command->run(new ArrayInput($parameters), new NullOutput());
@@ -202,10 +223,12 @@ class InvokableCommandTest extends TestCase
             #[Option] ?string $a = null,
             #[Option] ?string $b = 'b',
             #[Option] ?array $c = [],
-        ) use ($expected) {
+        ) use ($expected): int {
             $this->assertSame($expected[0], $a);
             $this->assertSame($expected[1], $b);
             $this->assertSame($expected[2], $c);
+
+            return 0;
         });
 
         $command->run(new ArrayInput($parameters), new NullOutput());

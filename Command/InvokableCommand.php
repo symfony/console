@@ -32,11 +32,11 @@ class InvokableCommand
 {
     private readonly \Closure $code;
     private readonly \ReflectionFunction $reflection;
+    private bool $triggerDeprecations = false;
 
     public function __construct(
         private readonly Command $command,
         callable $code,
-        private readonly bool $triggerDeprecations = false,
     ) {
         $this->code = $this->getClosure($code);
         $this->reflection = new \ReflectionFunction($this->code);
@@ -49,17 +49,17 @@ class InvokableCommand
     {
         $statusCode = ($this->code)(...$this->getParameters($input, $output));
 
-        if (null !== $statusCode && !\is_int($statusCode)) {
+        if (!\is_int($statusCode)) {
             if ($this->triggerDeprecations) {
                 trigger_deprecation('symfony/console', '7.3', \sprintf('Returning a non-integer value from the command "%s" is deprecated and will throw an exception in Symfony 8.0.', $this->command->getName()));
 
                 return 0;
             }
 
-            throw new LogicException(\sprintf('The command "%s" must return either void or an integer value in the "%s" method, but "%s" was returned.', $this->command->getName(), $this->reflection->getName(), get_debug_type($statusCode)));
+            throw new \TypeError(\sprintf('The command "%s" must return an integer value in the "%s" method, but "%s" was returned.', $this->command->getName(), $this->reflection->getName(), get_debug_type($statusCode)));
         }
 
-        return $statusCode ?? 0;
+        return $statusCode;
     }
 
     /**
@@ -84,6 +84,8 @@ class InvokableCommand
         if (!$code instanceof \Closure) {
             return $code(...);
         }
+
+        $this->triggerDeprecations = true;
 
         if (null !== (new \ReflectionFunction($code))->getClosureThis()) {
             return $code;

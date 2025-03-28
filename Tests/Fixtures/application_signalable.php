@@ -23,7 +23,7 @@ require $vendor.'/vendor/autoload.php';
         exit(0);
     }
 })
-    ->setCode(function(InputInterface $input, OutputInterface $output) {
+    ->setCode(function(InputInterface $input, OutputInterface $output): int {
         $this->getHelper('question')
              ->ask($input, $output, new ChoiceQuestion('😊', ['y']));
 

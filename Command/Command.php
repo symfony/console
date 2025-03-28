@@ -347,7 +347,7 @@ class Command
      */
     public function setCode(callable $code): static
     {
-        $this->code = new InvokableCommand($this, $code, triggerDeprecations: true);
+        $this->code = new InvokableCommand($this, $code);
 
         return $this;
     }

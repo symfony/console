@@ -18,6 +18,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -350,8 +351,10 @@ class CommandTest extends TestCase
     public function testSetCode()
     {
         $command = new \TestCommand();
-        $ret = $command->setCode(function (InputInterface $input, OutputInterface $output) {
+        $ret = $command->setCode(function (InputInterface $input, OutputInterface $output): int {
             $output->writeln('from the code...');
+
+            return 0;
         });
         $this->assertEquals($command, $ret, '->setCode() implements a fluent interface');
         $tester = new CommandTester($command);
@@ -396,8 +399,10 @@ class CommandTest extends TestCase
 
     private static function createClosure()
     {
-        return function (InputInterface $input, OutputInterface $output) {
+        return function (InputInterface $input, OutputInterface $output): int {
             $output->writeln(isset($this) ? 'bound' : 'not bound');
+
+            return 0;
         };
     }
 
@@ -411,16 +416,20 @@ class CommandTest extends TestCase
         $this->assertEquals('interact called'.\PHP_EOL.'from the code...'.\PHP_EOL, $tester->getDisplay());
     }
 
-    public function callableMethodCommand(InputInterface $input, OutputInterface $output)
+    public function callableMethodCommand(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('from the code...');
+
+        return 0;
     }
 
     public function testSetCodeWithStaticAnonymousFunction()
     {
         $command = new \TestCommand();
-        $command->setCode(static function (InputInterface $input, OutputInterface $output) {
+        $command->setCode(static function (InputInterface $input, OutputInterface $output): int {
             $output->writeln(isset($this) ? 'bound' : 'not bound');
+
+            return 0;
         });
         $tester = new CommandTester($command);
         $tester->execute([]);
@@ -495,14 +504,28 @@ class CommandTest extends TestCase
 
         new FooCommand();
     }
+
+    /**
+     * @group legacy
+     */
+    public function testDeprecatedNonIntegerReturnTypeFromClosureCode()
+    {
+        $this->expectDeprecation('Since symfony/console 7.3: Returning a non-integer value from the command "foo" is deprecated and will throw an exception in Symfony 8.0.');
+
+        $command = new Command('foo');
+        $command->setCode(function () {});
+        $command->run(new ArrayInput([]), new NullOutput());
+    }
 }
 
 // In order to get an unbound closure, we should create it outside a class
 // scope.
 function createClosure()
 {
-    return function (InputInterface $input, OutputInterface $output) {
+    return function (InputInterface $input, OutputInterface $output): int {
         $output->writeln($this instanceof Command ? 'bound to the command' : 'not bound to the command');
+
+        return 0;
     };
 }
 

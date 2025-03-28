@@ -196,8 +196,10 @@ class ApplicationTest extends TestCase
 
     public function testRegisterAmbiguous()
     {
-        $code = function (InputInterface $input, OutputInterface $output) {
+        $code = function (InputInterface $input, OutputInterface $output): int {
             $output->writeln('It works!');
+
+            return 0;
         };
 
         $application = new Application();
@@ -1275,7 +1277,9 @@ class ApplicationTest extends TestCase
             ->register('foo')
             ->setAliases(['f'])
             ->setDefinition([new InputOption('survey', 'e', InputOption::VALUE_REQUIRED, 'My option with a shortcut.')])
-            ->setCode(function (InputInterface $input, OutputInterface $output) {})
+            ->setCode(function (InputInterface $input, OutputInterface $output): int {
+                return 0;
+            })
         ;
 
         $input = new ArrayInput(['command' => 'foo']);
@@ -1298,7 +1302,9 @@ class ApplicationTest extends TestCase
         $application
             ->register('foo')
             ->setDefinition([$def])
-            ->setCode(function (InputInterface $input, OutputInterface $output) {})
+            ->setCode(function (InputInterface $input, OutputInterface $output): int {
+                return 0;
+            })
         ;
 
         $input = new ArrayInput(['command' => 'foo']);
@@ -1435,8 +1441,10 @@ class ApplicationTest extends TestCase
         $application->setAutoExit(false);
         $application->setDispatcher($this->getDispatcher());
 
-        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output) {
+        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output): int {
             $output->write('foo.');
+
+            return 0;
         });
 
         $tester = new ApplicationTester($application);
@@ -1491,8 +1499,10 @@ class ApplicationTest extends TestCase
         $application->setDispatcher($dispatcher);
         $application->setAutoExit(false);
 
-        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output) {
+        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output): int {
             $output->write('foo.');
+
+            return 0;
         });
 
         $tester = new ApplicationTester($application);
@@ -1559,8 +1569,10 @@ class ApplicationTest extends TestCase
         $application->setDispatcher($dispatcher);
         $application->setAutoExit(false);
 
-        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output) {
+        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output): int {
             $output->write('foo.');
+
+            return 0;
         });
 
         $tester = new ApplicationTester($application);
@@ -1671,8 +1683,10 @@ class ApplicationTest extends TestCase
         $application->setDispatcher($this->getDispatcher(true));
         $application->setAutoExit(false);
 
-        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output) {
+        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output): int {
             $output->write('foo.');
+
+            return 0;
         });
 
         $tester = new ApplicationTester($application);
@@ -1698,8 +1712,10 @@ class ApplicationTest extends TestCase
         $application->setDispatcher($dispatcher);
         $application->setAutoExit(false);
 
-        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output) {
+        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output): int {
             $output->write('foo.');
+
+            return 0;
         });
 
         $tester = new ApplicationTester($application);
@@ -1728,8 +1744,10 @@ class ApplicationTest extends TestCase
         $application->setDispatcher($dispatcher);
         $application->setAutoExit(false);
 
-        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output) {
+        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output): int {
             $output->write('foo.');
+
+            return 0;
         });
 
         $tester = new ApplicationTester($application);
@@ -1858,12 +1876,12 @@ class ApplicationTest extends TestCase
             'foo:bar' => function () use (&$loaded) {
                 $loaded['foo:bar'] = true;
 
-                return (new Command('foo:bar'))->setCode(function () {});
+                return (new Command('foo:bar'))->setCode(function (): int { return 0; });
             },
             'foo' => function () use (&$loaded) {
                 $loaded['foo'] = true;
 
-                return (new Command('foo'))->setCode(function () {});
+                return (new Command('foo'))->setCode(function (): int { return 0; });
             },
         ]));
 
@@ -1934,8 +1952,10 @@ class ApplicationTest extends TestCase
         $application->setAutoExit(false);
         $application->setCatchExceptions(false);
 
-        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output) {
+        $application->register('foo')->setCode(function (InputInterface $input, OutputInterface $output): int {
             $output->write('foo.');
+
+            return 0;
         });
 
         $tester = new ApplicationTester($application);
