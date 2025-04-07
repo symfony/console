@@ -22,6 +22,7 @@ class SignalMapTest extends TestCase
      * @testWith [2, "SIGINT"]
      *           [9, "SIGKILL"]
      *           [15, "SIGTERM"]
+     *           [31, "SIGSYS"]
      */
     public function testSignalExists(int $signal, string $expected)
     {
