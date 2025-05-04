@@ -16,6 +16,7 @@ use Symfony\Component\Console\Completion\Suggestion;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\String\UnicodeString;
 
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
 class Argument
@@ -65,7 +66,7 @@ class Argument
         }
 
         if (!$self->name) {
-            $self->name = $name;
+            $self->name = (new UnicodeString($name))->kebab();
         }
 
         $self->default = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;

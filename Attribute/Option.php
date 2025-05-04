@@ -16,6 +16,7 @@ use Symfony\Component\Console\Completion\Suggestion;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\String\UnicodeString;
 
 #[\Attribute(\Attribute::TARGET_PARAMETER)]
 class Option
@@ -73,7 +74,7 @@ class Option
         }
 
         if (!$self->name) {
-            $self->name = $name;
+            $self->name = (new UnicodeString($name))->kebab();
         }
 
         $self->default = $parameter->getDefaultValue();

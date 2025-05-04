@@ -29,7 +29,7 @@ class InvokableCommandTest extends TestCase
     {
         $command = new Command('foo');
         $command->setCode(function (
-            #[Argument(name: 'first-name')] string $name,
+            #[Argument(name: 'very-first-name')] string $name,
             #[Argument] ?string $firstName,
             #[Argument] string $lastName = '',
             #[Argument(description: 'Short argument description')] string $bio = '',
@@ -38,17 +38,17 @@ class InvokableCommandTest extends TestCase
             return 0;
         });
 
-        $nameInputArgument = $command->getDefinition()->getArgument('first-name');
-        self::assertSame('first-name', $nameInputArgument->getName());
+        $nameInputArgument = $command->getDefinition()->getArgument('very-first-name');
+        self::assertSame('very-first-name', $nameInputArgument->getName());
         self::assertTrue($nameInputArgument->isRequired());
 
-        $lastNameInputArgument = $command->getDefinition()->getArgument('firstName');
-        self::assertSame('firstName', $lastNameInputArgument->getName());
+        $lastNameInputArgument = $command->getDefinition()->getArgument('first-name');
+        self::assertSame('first-name', $lastNameInputArgument->getName());
         self::assertFalse($lastNameInputArgument->isRequired());
         self::assertNull($lastNameInputArgument->getDefault());
 
-        $lastNameInputArgument = $command->getDefinition()->getArgument('lastName');
-        self::assertSame('lastName', $lastNameInputArgument->getName());
+        $lastNameInputArgument = $command->getDefinition()->getArgument('last-name');
+        self::assertSame('last-name', $lastNameInputArgument->getName());
         self::assertFalse($lastNameInputArgument->isRequired());
         self::assertSame('', $lastNameInputArgument->getDefault());
 
