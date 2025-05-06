@@ -38,9 +38,9 @@ class Option
      * @param array<string|Suggestion>|callable(CompletionInput):list<string|Suggestion> $suggestedValues The values used for input completion
      */
     public function __construct(
+        public string $description = '',
         public string $name = '',
         public array|string|null $shortcut = null,
-        public string $description = '',
         array|callable $suggestedValues = [],
     ) {
         $this->suggestedValues = \is_callable($suggestedValues) ? $suggestedValues(...) : $suggestedValues;

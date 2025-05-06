@@ -35,8 +35,8 @@ class Argument
      * @param array<string|Suggestion>|callable(CompletionInput):list<string|Suggestion> $suggestedValues The values used for input completion
      */
     public function __construct(
-        public string $name = '',
         public string $description = '',
+        public string $name = '',
         array|callable $suggestedValues = [],
     ) {
         $this->suggestedValues = \is_callable($suggestedValues) ? $suggestedValues(...) : $suggestedValues;
