@@ -134,7 +134,7 @@ class Command
             $this->setHelp($attribute?->help ?? '');
         }
 
-        if (\is_callable($this)) {
+        if (\is_callable($this) && (new \ReflectionMethod($this, 'execute'))->getDeclaringClass()->name === self::class) {
             $this->code = new InvokableCommand($this, $this(...));
         }
 

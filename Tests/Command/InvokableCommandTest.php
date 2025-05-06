@@ -21,7 +21,9 @@ use Symfony\Component\Console\Completion\Suggestion;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class InvokableCommandTest extends TestCase
 {
@@ -140,6 +142,45 @@ class InvokableCommandTest extends TestCase
         $this->expectExceptionMessage('The type "object" of parameter "$any" is not supported as a command option. Only "string", "bool", "int", "float", "array" types are allowed.');
 
         $command->getDefinition();
+    }
+
+    public function testExecuteHasPriorityOverInvokeMethod()
+    {
+        $command = new class extends Command {
+            public string $called;
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $this->called = __FUNCTION__;
+
+                return 0;
+            }
+
+            public function __invoke(): int
+            {
+                $this->called = __FUNCTION__;
+
+                return 0;
+            }
+        };
+
+        $command->run(new ArrayInput([]), new NullOutput());
+        $this->assertSame('execute', $command->called);
+    }
+
+    public function testCallInvokeMethodWhenExtendingCommandClass()
+    {
+        $command = new class extends Command {
+            public string $called;
+            public function __invoke(): int
+            {
+                $this->called = __FUNCTION__;
+
+                return 0;
+            }
+        };
+
+        $command->run(new ArrayInput([]), new NullOutput());
+        $this->assertSame('__invoke', $command->called);
     }
 
     public function testInvalidReturnType()
