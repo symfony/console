@@ -43,8 +43,7 @@
         "symfony/dotenv": "<6.4",
         "symfony/event-dispatcher": "<6.4",
         "symfony/lock": "<6.4",
-        "symfony/process": "<6.4",
-        "symfony/runtime": "<7.3"
+        "symfony/process": "<6.4"
     },
     "autoload": {
         "psr-4": { "Symfony\\Component\\Console\\": "" },
