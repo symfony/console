@@ -32,7 +32,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Command
+class Command implements SignalableCommandInterface
 {
     // see https://tldp.org/LDP/abs/html/exitcodes.html
     public const SUCCESS = 0;
@@ -672,6 +672,16 @@ class Command
         }
 
         return $this->helperSet->get($name);
+    }
+
+    public function getSubscribedSignals(): array
+    {
+        return $this->code?->getSubscribedSignals() ?? [];
+    }
+
+    public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
+    {
+        return $this->code?->handleSignal($signal, $previousExitCode) ?? false;
     }
 
     /**

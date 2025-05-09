@@ -14,6 +14,7 @@ CHANGELOG
  * Add support for `LockableTrait` in invokable commands
  * Deprecate returning a non-integer value from a `\Closure` function set via `Command::setCode()`
  * Mark `#[AsCommand]` attribute as `@final`
+ * Add support for `SignalableCommandInterface` with invokable commands
 
 7.2
 ---

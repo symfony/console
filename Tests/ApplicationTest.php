@@ -2258,6 +2258,41 @@ class ApplicationTest extends TestCase
     /**
      * @requires extension pcntl
      */
+    public function testSignalableInvokableCommand()
+    {
+        $command = new Command();
+        $command->setName('signal-invokable');
+        $command->setCode($invokable = new class implements SignalableCommandInterface {
+            use SignalableInvokableCommandTrait;
+        });
+
+        $application = $this->createSignalableApplication($command, null);
+        $application->setSignalsToDispatchEvent(\SIGUSR1);
+
+        $this->assertSame(1, $application->run(new ArrayInput(['signal-invokable'])));
+        $this->assertTrue($invokable->signaled);
+    }
+
+    /**
+     * @requires extension pcntl
+     */
+    public function testSignalableInvokableCommandThatExtendsBaseCommand()
+    {
+        $command = new class extends Command implements SignalableCommandInterface {
+            use SignalableInvokableCommandTrait;
+        };
+        $command->setName('signal-invokable');
+
+        $application = $this->createSignalableApplication($command, null);
+        $application->setSignalsToDispatchEvent(\SIGUSR1);
+
+        $this->assertSame(1, $application->run(new ArrayInput(['signal-invokable'])));
+        $this->assertTrue($command->signaled);
+    }
+
+    /**
+     * @requires extension pcntl
+     */
     public function testAlarmSubscriberNotCalledByDefault()
     {
         $command = new BaseSignableCommand(false);
@@ -2514,7 +2549,7 @@ class BaseSignableCommand extends Command
 }
 
 #[AsCommand(name: 'signal')]
-class SignableCommand extends BaseSignableCommand implements SignalableCommandInterface
+class SignableCommand extends BaseSignableCommand
 {
     public function getSubscribedSignals(): array
     {
@@ -2531,7 +2566,7 @@ class SignableCommand extends BaseSignableCommand implements SignalableCommandIn
 }
 
 #[AsCommand(name: 'signal')]
-class TerminatableCommand extends BaseSignableCommand implements SignalableCommandInterface
+class TerminatableCommand extends BaseSignableCommand
 {
     public function getSubscribedSignals(): array
     {
@@ -2548,7 +2583,7 @@ class TerminatableCommand extends BaseSignableCommand implements SignalableComma
 }
 
 #[AsCommand(name: 'signal')]
-class TerminatableWithEventCommand extends Command implements SignalableCommandInterface, EventSubscriberInterface
+class TerminatableWithEventCommand extends Command implements EventSubscriberInterface
 {
     private bool $shouldContinue = true;
     private OutputInterface $output;
@@ -2615,8 +2650,39 @@ class SignalEventSubscriber implements EventSubscriberInterface
     }
 }
 
+trait SignalableInvokableCommandTrait
+{
+    public bool $signaled = false;
+
+    public function __invoke(): int
+    {
+        posix_kill(posix_getpid(), \SIGUSR1);
+
+        for ($i = 0; $i < 1000; ++$i) {
+            usleep(100);
+            if ($this->signaled) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
+    public function getSubscribedSignals(): array
+    {
+        return SignalRegistry::isSupported() ? [\SIGUSR1] : [];
+    }
+
+    public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
+    {
+        $this->signaled = true;
+
+        return false;
+    }
+}
+
 #[AsCommand(name: 'alarm')]
-class AlarmableCommand extends BaseSignableCommand implements SignalableCommandInterface
+class AlarmableCommand extends BaseSignableCommand
 {
     public function __construct(private int $alarmInterval)
     {

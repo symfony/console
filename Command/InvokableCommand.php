@@ -28,9 +28,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @internal
  */
-class InvokableCommand
+class InvokableCommand implements SignalableCommandInterface
 {
     private readonly \Closure $code;
+    private readonly ?SignalableCommandInterface $signalableCommand;
     private readonly \ReflectionFunction $reflection;
     private bool $triggerDeprecations = false;
 
@@ -39,6 +40,7 @@ class InvokableCommand
         callable $code,
     ) {
         $this->code = $this->getClosure($code);
+        $this->signalableCommand = $code instanceof SignalableCommandInterface ? $code : null;
         $this->reflection = new \ReflectionFunction($this->code);
     }
 
@@ -141,5 +143,15 @@ class InvokableCommand
         }
 
         return $parameters ?: [$input, $output];
+    }
+
+    public function getSubscribedSignals(): array
+    {
+        return $this->signalableCommand?->getSubscribedSignals() ?? [];
+    }
+
+    public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
+    {
+        return $this->signalableCommand?->handleSignal($signal, $previousExitCode) ?? false;
     }
 }
