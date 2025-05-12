@@ -22,6 +22,7 @@ use Symfony\Component\String\UnicodeString;
 class Option
 {
     private const ALLOWED_TYPES = ['string', 'bool', 'int', 'float', 'array'];
+    private const ALLOWED_UNION_TYPES = ['bool|string', 'bool|int', 'bool|float'];
 
     private string|bool|int|float|array|null $default = null;
     private array|\Closure $suggestedValues;
@@ -56,18 +57,8 @@ class Option
             return null;
         }
 
-        $type = $parameter->getType();
         $name = $parameter->getName();
-
-        if (!$type instanceof \ReflectionNamedType) {
-            throw new LogicException(\sprintf('The parameter "$%s" must have a named type. Untyped, Union or Intersection types are not supported for command options.', $name));
-        }
-
-        $self->typeName = $type->getName();
-
-        if (!\in_array($self->typeName, self::ALLOWED_TYPES, true)) {
-            throw new LogicException(\sprintf('The type "%s" of parameter "$%s" is not supported as a command option. Only "%s" types are allowed.', $self->typeName, $name, implode('", "', self::ALLOWED_TYPES)));
-        }
+        $type = $parameter->getType();
 
         if (!$parameter->isDefaultValueAvailable()) {
             throw new LogicException(\sprintf('The option parameter "$%s" must declare a default value.', $name));
@@ -80,16 +71,26 @@ class Option
         $self->default = $parameter->getDefaultValue();
         $self->allowNull = $parameter->allowsNull();
 
+        if ($type instanceof \ReflectionUnionType) {
+            return $self->handleUnion($type);
+        }
+
+        if (!$type instanceof \ReflectionNamedType) {
+            throw new LogicException(\sprintf('The parameter "$%s" must have a named type. Untyped or Intersection types are not supported for command options.', $name));
+        }
+
+        $self->typeName = $type->getName();
+
+        if (!\in_array($self->typeName, self::ALLOWED_TYPES, true)) {
+            throw new LogicException(\sprintf('The type "%s" of parameter "$%s" is not supported as a command option. Only "%s" types are allowed.', $self->typeName, $name, implode('", "', self::ALLOWED_TYPES)));
+        }
+
         if ('bool' === $self->typeName && $self->allowNull && \in_array($self->default, [true, false], true)) {
             throw new LogicException(\sprintf('The option parameter "$%s" must not be nullable when it has a default boolean value.', $name));
         }
 
-        if ('string' === $self->typeName && null === $self->default) {
-            throw new LogicException(\sprintf('The option parameter "$%s" must not have a default of null.', $name));
-        }
-
-        if ('array' === $self->typeName && $self->allowNull) {
-            throw new LogicException(\sprintf('The option parameter "$%s" must not be nullable.', $name));
+        if ($self->allowNull && null !== $self->default) {
+            throw new LogicException(\sprintf('The option parameter "$%s" must either be not-nullable or have a default of null.', $name));
         }
 
         if ('bool' === $self->typeName) {
@@ -97,11 +98,10 @@ class Option
             if (false !== $self->default) {
                 $self->mode |= InputOption::VALUE_NEGATABLE;
             }
+        } elseif ('array' === $self->typeName) {
+            $self->mode = InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY;
         } else {
-            $self->mode = $self->allowNull ? InputOption::VALUE_OPTIONAL : InputOption::VALUE_REQUIRED;
-            if ('array' === $self->typeName) {
-                $self->mode |= InputOption::VALUE_IS_ARRAY;
-            }
+            $self->mode = InputOption::VALUE_REQUIRED;
         }
 
         if (\is_array($self->suggestedValues) && !\is_callable($self->suggestedValues) && 2 === \count($self->suggestedValues) && ($instance = $parameter->getDeclaringFunction()->getClosureThis()) && $instance::class === $self->suggestedValues[0] && \is_callable([$instance, $self->suggestedValues[1]])) {
@@ -129,6 +129,14 @@ class Option
     {
         $value = $input->getOption($this->name);
 
+        if (null === $value && \in_array($this->typeName, self::ALLOWED_UNION_TYPES, true)) {
+            return true;
+        }
+
+        if ('array' === $this->typeName && $this->allowNull && [] === $value) {
+            return null;
+        }
+
         if ('bool' !== $this->typeName) {
             return $value;
         }
@@ -138,5 +146,29 @@ class Option
         }
 
         return $value ?? $this->default;
+    }
+
+    private function handleUnion(\ReflectionUnionType $type): self
+    {
+        $types = array_map(
+            static fn(\ReflectionType $t) => $t instanceof \ReflectionNamedType ? $t->getName() : null,
+            $type->getTypes(),
+        );
+
+        sort($types);
+
+        $this->typeName = implode('|', array_filter($types));
+
+        if (!\in_array($this->typeName, self::ALLOWED_UNION_TYPES, true)) {
+            throw new LogicException(\sprintf('The union type for parameter "$%s" is not supported as a command option. Only "%s" types are allowed.', $this->name, implode('", "', self::ALLOWED_UNION_TYPES)));
+        }
+
+        if (false !== $this->default) {
+            throw new LogicException(\sprintf('The option parameter "$%s" must have a default value of false.', $this->name));
+        }
+
+        $this->mode = InputOption::VALUE_OPTIONAL;
+
+        return $this;
     }
 }

@@ -79,6 +79,7 @@ class InvokableCommandTest extends TestCase
             #[Option(shortcut: 'v')] bool $verbose = false,
             #[Option(description: 'User groups')] array $groups = [],
             #[Option(suggestedValues: [self::class, 'getSuggestedRoles'])] array $roles = ['ROLE_USER'],
+            #[Option] string|bool $opt = false,
         ): int {
             return 0;
         });
@@ -86,7 +87,8 @@ class InvokableCommandTest extends TestCase
         $timeoutInputOption = $command->getDefinition()->getOption('idle');
         self::assertSame('idle', $timeoutInputOption->getName());
         self::assertNull($timeoutInputOption->getShortcut());
-        self::assertTrue($timeoutInputOption->isValueOptional());
+        self::assertTrue($timeoutInputOption->isValueRequired());
+        self::assertFalse($timeoutInputOption->isValueOptional());
         self::assertFalse($timeoutInputOption->isNegatable());
         self::assertNull($timeoutInputOption->getDefault());
 
@@ -120,6 +122,14 @@ class InvokableCommandTest extends TestCase
         self::assertTrue($rolesInputOption->hasCompletion());
         $rolesInputOption->complete(new CompletionInput(), $suggestions = new CompletionSuggestions());
         self::assertSame(['ROLE_ADMIN', 'ROLE_USER'], array_map(static fn (Suggestion $s) => $s->getValue(), $suggestions->getValueSuggestions()));
+
+        $optInputOption = $command->getDefinition()->getOption('opt');
+        self::assertSame('opt', $optInputOption->getName());
+        self::assertNull($optInputOption->getShortcut());
+        self::assertFalse($optInputOption->isValueRequired());
+        self::assertTrue($optInputOption->isValueOptional());
+        self::assertFalse($optInputOption->isNegatable());
+        self::assertFalse($optInputOption->getDefault());
     }
 
     public function testInvalidArgumentType()
@@ -136,7 +146,7 @@ class InvokableCommandTest extends TestCase
     public function testInvalidOptionType()
     {
         $command = new Command('foo');
-        $command->setCode(function (#[Option] object $any) {});
+        $command->setCode(function (#[Option] ?object $any = null) {});
 
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('The type "object" of parameter "$any" is not supported as a command option. Only "string", "bool", "int", "float", "array" types are allowed.');
@@ -262,14 +272,30 @@ class InvokableCommandTest extends TestCase
         $command = new Command('foo');
         $command->setCode(function (
             #[Option] string $a = '',
-            #[Option] ?string $b = '',
-            #[Option] array $c = [],
-            #[Option] array $d = ['a', 'b'],
+            #[Option] array $b = [],
+            #[Option] array $c = ['a', 'b'],
+            #[Option] bool|string $d = false,
+            #[Option] ?string $e = null,
+            #[Option] ?array $f = null,
+            #[Option] int $g = 0,
+            #[Option] ?int $h = null,
+            #[Option] float $i = 0.0,
+            #[Option] ?float $j = null,
+            #[Option] bool|int $k = false,
+            #[Option] bool|float $l = false,
         ) use ($expected): int {
             $this->assertSame($expected[0], $a);
             $this->assertSame($expected[1], $b);
             $this->assertSame($expected[2], $c);
             $this->assertSame($expected[3], $d);
+            $this->assertSame($expected[4], $e);
+            $this->assertSame($expected[5], $f);
+            $this->assertSame($expected[6], $g);
+            $this->assertSame($expected[7], $h);
+            $this->assertSame($expected[8], $i);
+            $this->assertSame($expected[9], $j);
+            $this->assertSame($expected[10], $k);
+            $this->assertSame($expected[11], $l);
 
             return 0;
         });
@@ -279,9 +305,18 @@ class InvokableCommandTest extends TestCase
 
     public static function provideNonBinaryInputOptions(): \Generator
     {
-        yield 'defaults' => [[], ['', '', [], ['a', 'b']]];
-        yield 'with-value' => [['--a' => 'x', '--b' => 'y', '--c' => ['z'], '--d' => ['c', 'd']], ['x', 'y', ['z'], ['c', 'd']]];
-        yield 'without-value' => [['--b' => null], ['', null, [], ['a', 'b']]];
+        yield 'defaults' => [
+            [],
+            ['', [], ['a', 'b'], false, null, null, 0, null, 0.0, null, false, false],
+        ];
+        yield 'with-value' => [
+            ['--a' => 'x', '--b' => ['z'], '--c' => ['c', 'd'], '--d' => 'v', '--e' => 'w', '--f' => ['q'], '--g' => 1, '--h' => 2, '--i' => 3.1, '--j' => 4.2, '--k' => 5, '--l' => 6.3],
+            ['x', ['z'], ['c', 'd'], 'v', 'w', ['q'], 1, 2, 3.1, 4.2, 5, 6.3],
+        ];
+        yield 'without-value' => [
+            ['--d' => null, '--k' => null, '--l' => null],
+            ['', [], ['a', 'b'], true, null, null, 0, null, 0.0, null, true, true],
+        ];
     }
 
     /**
@@ -312,13 +347,29 @@ class InvokableCommandTest extends TestCase
             function (#[Option] ?bool $a = false) {},
             'The option parameter "$a" must not be nullable when it has a default boolean value.',
         ];
-        yield 'nullable-string' => [
-            function (#[Option] ?string $a = null) {},
-            'The option parameter "$a" must not have a default of null.',
+        yield 'invalid-union-type' => [
+            function (#[Option] array|bool $a = false) {},
+            'The union type for parameter "$a" is not supported as a command option. Only "bool|string", "bool|int", "bool|float" types are allowed.',
         ];
-        yield 'nullable-array' => [
-            function (#[Option] ?array $a = null) {},
-            'The option parameter "$a" must not be nullable.',
+        yield 'union-type-cannot-allow-null' => [
+            function (#[Option] string|bool|null $a = null) {},
+            'The union type for parameter "$a" is not supported as a command option. Only "bool|string", "bool|int", "bool|float" types are allowed.',
+        ];
+        yield 'union-type-default-true' => [
+            function (#[Option] string|bool $a = true) {},
+            'The option parameter "$a" must have a default value of false.',
+        ];
+        yield 'union-type-default-string' => [
+            function (#[Option] string|bool $a = 'foo') {},
+            'The option parameter "$a" must have a default value of false.',
+        ];
+        yield 'nullable-string-not-null-default' => [
+            function (#[Option] ?string $a = 'foo') {},
+            'The option parameter "$a" must either be not-nullable or have a default of null.',
+        ];
+        yield 'nullable-array-not-null-default' => [
+            function (#[Option] ?array $a = []) {},
+            'The option parameter "$a" must either be not-nullable or have a default of null.',
         ];
     }
 
