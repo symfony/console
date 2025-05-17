@@ -26,6 +26,7 @@ class Argument
     private string|bool|int|float|array|null $default = null;
     private array|\Closure $suggestedValues;
     private ?int $mode = null;
+    private string $function = '';
 
     /**
      * Represents a console command <argument> definition.
@@ -52,17 +53,23 @@ class Argument
             return null;
         }
 
+        if (($function = $parameter->getDeclaringFunction()) instanceof \ReflectionMethod) {
+            $self->function = $function->class.'::'.$function->name;
+        } else {
+            $self->function = $function->name;
+        }
+
         $type = $parameter->getType();
         $name = $parameter->getName();
 
         if (!$type instanceof \ReflectionNamedType) {
-            throw new LogicException(\sprintf('The parameter "$%s" must have a named type. Untyped, Union or Intersection types are not supported for command arguments.', $name));
+            throw new LogicException(\sprintf('The parameter "$%s" of "%s()" must have a named type. Untyped, Union or Intersection types are not supported for command arguments.', $name, $self->function));
         }
 
         $parameterTypeName = $type->getName();
 
         if (!\in_array($parameterTypeName, self::ALLOWED_TYPES, true)) {
-            throw new LogicException(\sprintf('The type "%s" of parameter "$%s" is not supported as a command argument. Only "%s" types are allowed.', $parameterTypeName, $name, implode('", "', self::ALLOWED_TYPES)));
+            throw new LogicException(\sprintf('The type "%s" on parameter "$%s" of "%s()" is not supported as a command argument. Only "%s" types are allowed.', $parameterTypeName, $name, $self->function, implode('", "', self::ALLOWED_TYPES)));
         }
 
         if (!$self->name) {

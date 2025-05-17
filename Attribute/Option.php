@@ -29,6 +29,7 @@ class Option
     private ?int $mode = null;
     private string $typeName = '';
     private bool $allowNull = false;
+    private string $function = '';
 
     /**
      * Represents a console command --option definition.
@@ -57,11 +58,17 @@ class Option
             return null;
         }
 
+        if (($function = $parameter->getDeclaringFunction()) instanceof \ReflectionMethod) {
+            $self->function = $function->class.'::'.$function->name;
+        } else {
+            $self->function = $function->name;
+        }
+
         $name = $parameter->getName();
         $type = $parameter->getType();
 
         if (!$parameter->isDefaultValueAvailable()) {
-            throw new LogicException(\sprintf('The option parameter "$%s" must declare a default value.', $name));
+            throw new LogicException(\sprintf('The option parameter "$%s" of "%s()" must declare a default value.', $name, $self->function));
         }
 
         if (!$self->name) {
@@ -76,21 +83,21 @@ class Option
         }
 
         if (!$type instanceof \ReflectionNamedType) {
-            throw new LogicException(\sprintf('The parameter "$%s" must have a named type. Untyped or Intersection types are not supported for command options.', $name));
+            throw new LogicException(\sprintf('The parameter "$%s" of "%s()" must have a named type. Untyped or Intersection types are not supported for command options.', $name, $self->function));
         }
 
         $self->typeName = $type->getName();
 
         if (!\in_array($self->typeName, self::ALLOWED_TYPES, true)) {
-            throw new LogicException(\sprintf('The type "%s" of parameter "$%s" is not supported as a command option. Only "%s" types are allowed.', $self->typeName, $name, implode('", "', self::ALLOWED_TYPES)));
+            throw new LogicException(\sprintf('The type "%s" on parameter "$%s" of "%s()" is not supported as a command option. Only "%s" types are allowed.', $self->typeName, $name, $self->function, implode('", "', self::ALLOWED_TYPES)));
         }
 
         if ('bool' === $self->typeName && $self->allowNull && \in_array($self->default, [true, false], true)) {
-            throw new LogicException(\sprintf('The option parameter "$%s" must not be nullable when it has a default boolean value.', $name));
+            throw new LogicException(\sprintf('The option parameter "$%s" of "%s()" must not be nullable when it has a default boolean value.', $name, $self->function));
         }
 
         if ($self->allowNull && null !== $self->default) {
-            throw new LogicException(\sprintf('The option parameter "$%s" must either be not-nullable or have a default of null.', $name));
+            throw new LogicException(\sprintf('The option parameter "$%s" of "%s()" must either be not-nullable or have a default of null.', $name, $self->function));
         }
 
         if ('bool' === $self->typeName) {
@@ -160,11 +167,11 @@ class Option
         $this->typeName = implode('|', array_filter($types));
 
         if (!\in_array($this->typeName, self::ALLOWED_UNION_TYPES, true)) {
-            throw new LogicException(\sprintf('The union type for parameter "$%s" is not supported as a command option. Only "%s" types are allowed.', $this->name, implode('", "', self::ALLOWED_UNION_TYPES)));
+            throw new LogicException(\sprintf('The union type for parameter "$%s" of "%s()" is not supported as a command option. Only "%s" types are allowed.', $this->name, $this->function, implode('", "', self::ALLOWED_UNION_TYPES)));
         }
 
         if (false !== $this->default) {
-            throw new LogicException(\sprintf('The option parameter "$%s" must have a default value of false.', $this->name));
+            throw new LogicException(\sprintf('The option parameter "$%s" of "%s()" must have a default value of false.', $this->name, $this->function));
         }
 
         $this->mode = InputOption::VALUE_OPTIONAL;
