@@ -7,6 +7,7 @@ CHANGELOG
  * Allow setting aliases and the hidden flag via the command name passed to the constructor
  * Introduce `Symfony\Component\Console\Application::addCommand()` to simplify using invokable commands when the component is used standalone
  * Deprecate `Symfony\Component\Console\Application::add()` in favor of `Symfony\Component\Console\Application::addCommand()`
+ * Add `BackedEnum` support with `#[Argument]` and `#[Option]` inputs in invokable commands
 
 7.3
 ---
