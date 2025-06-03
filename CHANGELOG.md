@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+8.0
+---
+
+ * Remove methods `Command::getDefaultName()` and `Command::getDefaultDescription()` in favor of the `#[AsCommand]` attribute
+ * Ensure closures set via `Command::setCode()` method have proper parameter and return types
+ * Add method `isSilent()` to `OutputInterface`
+
 7.3
 ---
 

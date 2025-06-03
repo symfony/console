@@ -61,14 +61,7 @@ class AddConsoleCommandPass implements CompilerPassInterface
 
             /** @var AsCommand|null $attribute */
             $attribute = ($r->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
-
-            if (Command::class !== (new \ReflectionMethod($class, 'getDefaultName'))->class) {
-                trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultName()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', $class);
-
-                $defaultName = $class::getDefaultName();
-            } else {
-                $defaultName = $attribute?->name;
-            }
+            $defaultName = $attribute?->name;
 
             $aliases = str_replace('%', '%%', $tags[0]['command'] ?? $defaultName ?? '');
             $aliases = explode('|', $aliases);
@@ -124,17 +117,7 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 $definition->addMethodCall('setHelp', [str_replace('%', '%%', $help)]);
             }
 
-            if (!$description) {
-                if (Command::class !== (new \ReflectionMethod($class, 'getDefaultDescription'))->class) {
-                    trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultDescription()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', $class);
-
-                    $description = $class::getDefaultDescription();
-                } else {
-                    $description = $attribute?->description;
-                }
-            }
-
-            if ($description) {
+            if ($description ??= $attribute?->description) {
                 $definition->addMethodCall('setDescription', [str_replace('%', '%%', $description)]);
 
                 $container->register('.'.$id.'.lazy', LazyCommand::class)

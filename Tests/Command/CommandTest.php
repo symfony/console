@@ -448,36 +448,12 @@ class CommandTest extends TestCase
         $this->assertSame(['f'], $command->getAliases());
     }
 
-    /**
-     * @group legacy
-     */
-    public function testCommandAttributeWithDeprecatedMethods()
-    {
-        $this->expectUserDeprecationMessage('Since symfony/console 7.3: Method "Symfony\Component\Console\Command\Command::getDefaultName()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.');
-        $this->expectUserDeprecationMessage('Since symfony/console 7.3: Method "Symfony\Component\Console\Command\Command::getDefaultDescription()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.');
-
-        $this->assertSame('|foo|f', Php8Command::getDefaultName());
-        $this->assertSame('desc', Php8Command::getDefaultDescription());
-    }
-
     public function testAttributeOverridesProperty()
     {
         $command = new MyAnnotatedCommand();
 
         $this->assertSame('my:command', $command->getName());
         $this->assertSame('This is a command I wrote all by myself', $command->getDescription());
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testAttributeOverridesPropertyWithDeprecatedMethods()
-    {
-        $this->expectUserDeprecationMessage('Since symfony/console 7.3: Method "Symfony\Component\Console\Command\Command::getDefaultName()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.');
-        $this->expectUserDeprecationMessage('Since symfony/console 7.3: Method "Symfony\Component\Console\Command\Command::getDefaultDescription()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.');
-
-        $this->assertSame('my:command', MyAnnotatedCommand::getDefaultName());
-        $this->assertSame('This is a command I wrote all by myself', MyAnnotatedCommand::getDefaultDescription());
     }
 
     public function testDefaultCommand()
@@ -492,29 +468,6 @@ class CommandTest extends TestCase
         $property = new \ReflectionProperty($apl, 'defaultCommand');
 
         $this->assertEquals('foo2', $property->getValue($apl));
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testDeprecatedMethods()
-    {
-        $this->expectUserDeprecationMessage('Since symfony/console 7.3: Overriding "Command::getDefaultName()" in "Symfony\Component\Console\Tests\Command\FooCommand" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.');
-        $this->expectUserDeprecationMessage('Since symfony/console 7.3: Overriding "Command::getDefaultDescription()" in "Symfony\Component\Console\Tests\Command\FooCommand" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.');
-
-        new FooCommand();
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testDeprecatedNonIntegerReturnTypeFromClosureCode()
-    {
-        $this->expectUserDeprecationMessage('Since symfony/console 7.3: Returning a non-integer value from the command "foo" is deprecated and will throw an exception in Symfony 8.0.');
-
-        $command = new Command('foo');
-        $command->setCode(function () {});
-        $command->run(new ArrayInput([]), new NullOutput());
     }
 }
 
@@ -545,17 +498,4 @@ class MyAnnotatedCommand extends Command
     protected static $defaultName = 'i-shall-be-ignored';
 
     protected static $defaultDescription = 'This description should be ignored.';
-}
-
-class FooCommand extends Command
-{
-    public static function getDefaultName(): ?string
-    {
-        return 'foo';
-    }
-
-    public static function getDefaultDescription(): ?string
-    {
-        return 'foo description';
-    }
 }

@@ -17,7 +17,6 @@
     ],
     "require": {
         "php": ">=8.4",
-        "symfony/deprecation-contracts": "^2.5|^3",
         "symfony/polyfill-mbstring": "^1.0",
         "symfony/service-contracts": "^2.5|^3",
         "symfony/string": "^7.4|^8.0"

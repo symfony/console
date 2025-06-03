@@ -55,34 +55,6 @@ class Command implements SignalableCommandInterface
     private ?HelperSet $helperSet = null;
 
     /**
-     * @deprecated since Symfony 7.3, use the #[AsCommand] attribute instead
-     */
-    public static function getDefaultName(): ?string
-    {
-        trigger_deprecation('symfony/console', '7.3', 'Method "%s()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', __METHOD__);
-
-        if ($attribute = (new \ReflectionClass(static::class))->getAttributes(AsCommand::class)) {
-            return $attribute[0]->newInstance()->name;
-        }
-
-        return null;
-    }
-
-    /**
-     * @deprecated since Symfony 7.3, use the #[AsCommand] attribute instead
-     */
-    public static function getDefaultDescription(): ?string
-    {
-        trigger_deprecation('symfony/console', '7.3', 'Method "%s()" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', __METHOD__);
-
-        if ($attribute = (new \ReflectionClass(static::class))->getAttributes(AsCommand::class)) {
-            return $attribute[0]->newInstance()->description;
-        }
-
-        return null;
-    }
-
-    /**
      * @param string|null $name The name of the command; passing null means it must be set in configure()
      *
      * @throws LogicException When the command name is empty
@@ -94,13 +66,7 @@ class Command implements SignalableCommandInterface
         $attribute = ((new \ReflectionClass(static::class))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
 
         if (null === $name) {
-            if (self::class !== (new \ReflectionMethod($this, 'getDefaultName'))->class) {
-                trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultName()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', static::class);
-
-                $defaultName = static::getDefaultName();
-            } else {
-                $defaultName = $attribute?->name;
-            }
+            $defaultName = $attribute?->name;
         }
 
         if (null === $name && null !== $name = $defaultName) {
@@ -119,15 +85,7 @@ class Command implements SignalableCommandInterface
         }
 
         if ('' === $this->description) {
-            if (self::class !== (new \ReflectionMethod($this, 'getDefaultDescription'))->class) {
-                trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultDescription()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', static::class);
-
-                $defaultDescription = static::getDefaultDescription();
-            } else {
-                $defaultDescription = $attribute?->description;
-            }
-
-            $this->setDescription($defaultDescription ?? '');
+            $this->setDescription($attribute?->description ?? '');
         }
 
         if ('' === $this->help) {
