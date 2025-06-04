@@ -197,10 +197,8 @@ class Command implements SignalableCommandInterface
 
     /**
      * Configures the current command.
-     *
-     * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
     }
 
@@ -229,10 +227,8 @@ class Command implements SignalableCommandInterface
      * This method is executed before the InputDefinition is validated.
      * This means that this is the only place where the command can
      * interactively ask for values of missing required arguments.
-     *
-     * @return void
      */
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
     }
 
@@ -245,10 +241,8 @@ class Command implements SignalableCommandInterface
      *
      * @see InputInterface::bind()
      * @see InputInterface::validate()
-     *
-     * @return void
      */
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
     }
 
