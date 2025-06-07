@@ -205,6 +205,19 @@ class CommandTest extends TestCase
         $this->assertEquals(['name1'], $command->getAliases(), '->setAliases() sets the aliases');
     }
 
+    /**
+     * @testWith ["name|alias1|alias2", "name", ["alias1", "alias2"], false]
+     *           ["|alias1|alias2", "alias1", ["alias2"], true]
+     */
+    public function testSetAliasesAndHiddenViaName(string $name, string $expectedName, array $expectedAliases, bool $expectedHidden)
+    {
+        $command = new Command($name);
+
+        self::assertSame($expectedName, $command->getName());
+        self::assertSame($expectedHidden, $command->isHidden());
+        self::assertSame($expectedAliases, $command->getAliases());
+    }
+
     public function testGetSynopsis()
     {
         $command = new \TestCommand();

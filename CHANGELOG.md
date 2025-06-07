@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+7.4
+---
+
+ * Allow setting aliases and the hidden flag via the command name passed to the constructor
+
 7.3
 ---
 

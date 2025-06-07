@@ -97,13 +97,13 @@ class Command implements SignalableCommandInterface
             if (self::class !== (new \ReflectionMethod($this, 'getDefaultName'))->class) {
                 trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultName()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', static::class);
 
-                $defaultName = static::getDefaultName();
+                $name = static::getDefaultName();
             } else {
-                $defaultName = $attribute?->name;
+                $name = $attribute?->name;
             }
         }
 
-        if (null === $name && null !== $name = $defaultName) {
+        if (null !== $name) {
             $aliases = explode('|', $name);
 
             if ('' === $name = array_shift($aliases)) {
