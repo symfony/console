@@ -25,7 +25,7 @@ final class ApplicationDescriptionTest extends TestCase
     {
         $application = new TestApplication();
         foreach ($names as $name) {
-            $application->add(new Command($name));
+            $application->addCommand(new Command($name));
         }
 
         $this->assertSame($expected, array_keys((new ApplicationDescription($application))->getNamespaces()));

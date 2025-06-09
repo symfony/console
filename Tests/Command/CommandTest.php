@@ -50,7 +50,7 @@ class CommandTest extends TestCase
     {
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('The command defined in "Symfony\Component\Console\Command\Command" cannot have an empty name.');
-        (new Application())->add(new Command());
+        (new Application())->addCommand(new Command());
     }
 
     public function testSetApplication()
@@ -190,7 +190,7 @@ class CommandTest extends TestCase
         $command = new \TestCommand();
         $command->setHelp('The %command.name% command does... Example: %command.full_name%.');
         $application = new Application();
-        $application->add($command);
+        $application->addCommand($command);
         $application->setDefaultCommand('namespace:name', true);
         $this->assertStringContainsString('The namespace:name command does...', $command->getProcessedHelp(), '->getProcessedHelp() replaces %command.name% correctly in single command applications');
         $this->assertStringNotContainsString('%command.full_name%', $command->getProcessedHelp(), '->getProcessedHelp() replaces %command.full_name% in single command applications');

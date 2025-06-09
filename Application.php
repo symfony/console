@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Console;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\CompleteCommand;
 use Symfony\Component\Console\Command\DumpCompletionCommand;
@@ -28,6 +29,7 @@ use Symfony\Component\Console\Event\ConsoleSignalEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\ExceptionInterface;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Exception\NamespaceNotFoundException;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -512,7 +514,7 @@ class Application implements ResetInterface
      */
     public function register(string $name): Command
     {
-        return $this->add(new Command($name));
+        return $this->addCommand(new Command($name));
     }
 
     /**
@@ -520,13 +522,23 @@ class Application implements ResetInterface
      *
      * If a Command is not enabled it will not be added.
      *
-     * @param Command[] $commands An array of commands
+     * @param callable[]|Command[] $commands An array of commands
      */
     public function addCommands(array $commands): void
     {
         foreach ($commands as $command) {
-            $this->add($command);
+            $this->addCommand($command);
         }
+    }
+
+    /**
+     * @deprecated since Symfony 7.4, use Application::addCommand() instead
+     */
+    public function add(Command $command): ?Command
+    {
+        trigger_deprecation('symfony/console', '7.4', 'The "%s()" method is deprecated and will be removed in Symfony 8.0, use "%s::addCommand()" instead.', __METHOD__, self::class);
+
+        return $this->addCommand($command);
     }
 
     /**
@@ -535,9 +547,24 @@ class Application implements ResetInterface
      * If a command with the same name already exists, it will be overridden.
      * If the command is not enabled it will not be added.
      */
-    public function add(Command $command): ?Command
+    public function addCommand(callable|Command $command): ?Command
     {
         $this->init();
+
+        if (!$command instanceof Command) {
+            if (!\is_object($command) || $command instanceof \Closure) {
+                throw new InvalidArgumentException(\sprintf('The command must be an instance of "%s" or an invokable object.', Command::class));
+            }
+
+            /** @var AsCommand $attribute */
+            $attribute = ((new \ReflectionObject($command))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance()
+                ?? throw new LogicException(\sprintf('The command must use the "%s" attribute.', AsCommand::class));
+
+            $command = (new Command($attribute->name))
+                ->setDescription($attribute->description ?? '')
+                ->setHelp($attribute->help ?? '')
+                ->setCode($command);
+        }
 
         $command->setApplication($this);
 
@@ -604,7 +631,7 @@ class Application implements ResetInterface
     {
         $this->init();
 
-        return isset($this->commands[$name]) || ($this->commandLoader?->has($name) && $this->add($this->commandLoader->get($name)));
+        return isset($this->commands[$name]) || ($this->commandLoader?->has($name) && $this->addCommand($this->commandLoader->get($name)));
     }
 
     /**
@@ -1322,7 +1349,7 @@ class Application implements ResetInterface
         $this->initialized = true;
 
         foreach ($this->getDefaultCommands() as $command) {
-            $this->add($command);
+            $this->addCommand($command);
         }
     }
 }

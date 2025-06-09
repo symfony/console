@@ -33,7 +33,7 @@ class CompleteCommandTest extends TestCase
         $this->command = new CompleteCommand();
 
         $this->application = new Application();
-        $this->application->add(new CompleteCommandTest_HelloCommand());
+        $this->application->addCommand(new CompleteCommandTest_HelloCommand());
 
         $this->command->setApplication($this->application);
         $this->tester = new CommandTester($this->command);
