@@ -77,7 +77,7 @@ class HelpCommandTest extends TestCase
     {
         require_once realpath(__DIR__.'/../Fixtures/FooCommand.php');
         $application = new Application();
-        $application->add(new \FooCommand());
+        $application->addCommand(new \FooCommand());
         $tester = new CommandCompletionTester($application->get('help'));
         $suggestions = $tester->complete($input, 2);
         $this->assertSame($expectedSuggestions, $suggestions);

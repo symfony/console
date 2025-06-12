@@ -104,7 +104,7 @@ class CommandTesterTest extends TestCase
             return 0;
         });
 
-        $application->add($command);
+        $application->addCommand($command);
 
         $tester = new CommandTester($application->find('foo'));
 

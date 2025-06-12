@@ -66,10 +66,10 @@ class Command implements SignalableCommandInterface
         $attribute = ((new \ReflectionClass(static::class))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
 
         if (null === $name) {
-            $defaultName = $attribute?->name;
+            $name = $attribute?->name;
         }
 
-        if (null === $name && null !== $name = $defaultName) {
+        if (null !== $name) {
             $aliases = explode('|', $name);
 
             if ('' === $name = array_shift($aliases)) {

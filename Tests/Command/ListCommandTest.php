@@ -54,7 +54,7 @@ EOF;
     {
         require_once realpath(__DIR__.'/../Fixtures/FooCommand.php');
         $application = new Application();
-        $application->add(new \FooCommand());
+        $application->addCommand(new \FooCommand());
         $commandTester = new CommandTester($command = $application->get('list'));
         $commandTester->execute(['command' => $command->getName(), 'namespace' => 'foo', '--raw' => true]);
         $output = <<<'EOF'
@@ -69,7 +69,7 @@ EOF;
     {
         require_once realpath(__DIR__.'/../Fixtures/Foo6Command.php');
         $application = new Application();
-        $application->add(new \Foo6Command());
+        $application->addCommand(new \Foo6Command());
         $commandTester = new CommandTester($command = $application->get('list'));
         $commandTester->execute(['command' => $command->getName()], ['decorated' => false]);
         $output = <<<'EOF'
@@ -102,7 +102,7 @@ EOF;
     {
         require_once realpath(__DIR__.'/../Fixtures/Foo6Command.php');
         $application = new Application();
-        $application->add(new \Foo6Command());
+        $application->addCommand(new \Foo6Command());
         $commandTester = new CommandTester($command = $application->get('list'));
         $commandTester->execute(['command' => $command->getName(), '--raw' => true]);
         $output = <<<'EOF'
@@ -122,7 +122,7 @@ EOF;
     {
         require_once realpath(__DIR__.'/../Fixtures/FooCommand.php');
         $application = new Application();
-        $application->add(new \FooCommand());
+        $application->addCommand(new \FooCommand());
         $tester = new CommandCompletionTester($application->get('list'));
         $suggestions = $tester->complete($input, 2);
         $this->assertSame($expectedSuggestions, $suggestions);
