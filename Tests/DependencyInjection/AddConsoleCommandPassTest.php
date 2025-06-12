@@ -315,6 +315,7 @@ class AddConsoleCommandPassTest extends TestCase
         $definition->addTag('console.command', [
             'command' => 'invokable',
             'description' => 'The command description',
+            'usages' => ['usage1', 'usage2'],
             'help' => 'The %command.name% command help content.',
         ]);
         $container->setDefinition('invokable_command', $definition);
@@ -325,6 +326,8 @@ class AddConsoleCommandPassTest extends TestCase
         self::assertTrue($container->has('invokable_command.command'));
         self::assertSame('The command description', $command->getDescription());
         self::assertSame('The %command.name% command help content.', $command->getHelp());
+        self::assertCount(2, $command->getUsages());
+        $this->assertStringContainsString('usage1', $command->getUsages()[0]);
     }
 
     public function testProcessInvokableSignalableCommand()

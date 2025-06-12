@@ -564,6 +564,10 @@ class Application implements ResetInterface
                 ->setDescription($attribute->description ?? '')
                 ->setHelp($attribute->help ?? '')
                 ->setCode($command);
+
+            foreach ($attribute->usages as $usage) {
+                $command->addUsage($usage);
+            }
         }
 
         $command->setApplication($this);
