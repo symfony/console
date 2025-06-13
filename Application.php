@@ -532,16 +532,6 @@ class Application implements ResetInterface
     }
 
     /**
-     * @deprecated since Symfony 7.4, use Application::addCommand() instead
-     */
-    public function add(Command $command): ?Command
-    {
-        trigger_deprecation('symfony/console', '7.4', 'The "%s()" method is deprecated and will be removed in Symfony 8.0, use "%s::addCommand()" instead.', __METHOD__, self::class);
-
-        return $this->addCommand($command);
-    }
-
-    /**
      * Adds a command object.
      *
      * If a command with the same name already exists, it will be overridden.

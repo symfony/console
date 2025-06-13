@@ -7,6 +7,7 @@ CHANGELOG
  * Remove methods `Command::getDefaultName()` and `Command::getDefaultDescription()` in favor of the `#[AsCommand]` attribute
  * Ensure closures set via `Command::setCode()` method have proper parameter and return types
  * Add method `isSilent()` to `OutputInterface`
+ * Remove deprecated `Symfony\Component\Console\Application::add()` method in favor of `Symfony\Component\Console\Application::addCommand()`
 
 7.4
 ---
