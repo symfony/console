@@ -1352,8 +1352,14 @@ class Application implements ResetInterface
         }
         $this->initialized = true;
 
+        if ((new \ReflectionMethod($this, 'add'))->getDeclaringClass()->getName() !== (new \ReflectionMethod($this, 'addCommand'))->getDeclaringClass()->getName()) {
+            $adder = $this->add(...);
+        } else {
+            $adder = $this->addCommand(...);
+        }
+
         foreach ($this->getDefaultCommands() as $command) {
-            $this->addCommand($command);
+            $adder($command);
         }
     }
 }
