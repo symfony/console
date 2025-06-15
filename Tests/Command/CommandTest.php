@@ -457,6 +457,8 @@ class CommandTest extends TestCase
         $this->assertSame('foo', $command->getName());
         $this->assertSame('desc', $command->getDescription());
         $this->assertSame('help', $command->getHelp());
+        $this->assertCount(2, $command->getUsages());
+        $this->assertStringContainsString('usage1', $command->getUsages()[0]);
         $this->assertTrue($command->isHidden());
         $this->assertSame(['f'], $command->getAliases());
     }
@@ -495,7 +497,7 @@ function createClosure()
     };
 }
 
-#[AsCommand(name: 'foo', description: 'desc', hidden: true, aliases: ['f'], help: 'help')]
+#[AsCommand(name: 'foo', description: 'desc', usages: ['usage1', 'usage2'], hidden: true, aliases: ['f'], help: 'help')]
 class Php8Command extends Command
 {
 }
