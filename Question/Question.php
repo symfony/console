@@ -24,8 +24,17 @@ class Question
     private ?int $attempts = null;
     private bool $hidden = false;
     private bool $hiddenFallback = true;
+    /**
+     * @var (\Closure(string):string[])|null
+     */
     private ?\Closure $autocompleterCallback = null;
+    /**
+     * @var (\Closure(mixed):mixed)|null
+     */
     private ?\Closure $validator = null;
+    /**
+     * @var (\Closure(mixed):mixed)|null
+     */
     private ?\Closure $normalizer = null;
     private bool $trimmable = true;
     private bool $multiline = false;
@@ -160,6 +169,8 @@ class Question
 
     /**
      * Gets the callback function used for the autocompleter.
+     *
+     * @return (callable(string):string[])|null
      */
     public function getAutocompleterCallback(): ?callable
     {
@@ -170,6 +181,8 @@ class Question
      * Sets the callback function used for the autocompleter.
      *
      * The callback is passed the user input as argument and should return an iterable of corresponding suggestions.
+     *
+     * @param (callable(string):string[])|null $callback
      *
      * @return $this
      */
@@ -187,6 +200,8 @@ class Question
     /**
      * Sets a validator for the question.
      *
+     * @param (callable(mixed):mixed)|null $validator
+     *
      * @return $this
      */
     public function setValidator(?callable $validator): static
@@ -198,6 +213,8 @@ class Question
 
     /**
      * Gets the validator for the question.
+     *
+     * @return (callable(mixed):mixed)|null
      */
     public function getValidator(): ?callable
     {
@@ -237,7 +254,7 @@ class Question
     /**
      * Sets a normalizer for the response.
      *
-     * The normalizer can be a callable (a string), a closure or a class implementing __invoke.
+     * @param callable(mixed):mixed $normalizer
      *
      * @return $this
      */
@@ -251,7 +268,7 @@ class Question
     /**
      * Gets the normalizer for the response.
      *
-     * The normalizer can ba a callable (a string), a closure or a class implementing __invoke.
+     * @return (callable(mixed):mixed)|null
      */
     public function getNormalizer(): ?callable
     {
