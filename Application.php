@@ -1343,7 +1343,7 @@ class Application implements ResetInterface
         $this->initialized = true;
 
         foreach ($this->getDefaultCommands() as $command) {
-            $this->add($command);
+            $this->addCommand($command);
         }
     }
 }
