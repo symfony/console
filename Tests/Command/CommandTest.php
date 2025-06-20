@@ -463,14 +463,6 @@ class CommandTest extends TestCase
         $this->assertSame(['f'], $command->getAliases());
     }
 
-    public function testAttributeOverridesProperty()
-    {
-        $command = new MyAnnotatedCommand();
-
-        $this->assertSame('my:command', $command->getName());
-        $this->assertSame('This is a command I wrote all by myself', $command->getDescription());
-    }
-
     public function testDefaultCommand()
     {
         $apl = new Application();
@@ -507,10 +499,3 @@ class Php8Command2 extends Command
 {
 }
 
-#[AsCommand(name: 'my:command', description: 'This is a command I wrote all by myself')]
-class MyAnnotatedCommand extends Command
-{
-    protected static $defaultName = 'i-shall-be-ignored';
-
-    protected static $defaultDescription = 'This description should be ignored.';
-}
