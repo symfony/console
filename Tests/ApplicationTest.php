@@ -48,6 +48,8 @@ use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\SignalRegistry\SignalRegistry;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\Console\Tester\ApplicationTester;
+use Symfony\Component\Console\Tests\Fixtures\InvokableExtendingCommandTestCommand;
+use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\MockableAppliationWithTerminalWidth;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -257,7 +259,7 @@ class ApplicationTest extends TestCase
         $application->addCommand($foo = new InvokableTestCommand());
         $commands = $application->all();
 
-        $this->assertInstanceOf(Command::class, $command = $commands['invokable']);
+        $this->assertInstanceOf(Command::class, $command = $commands['invokable:test']);
         $this->assertEquals(new InvokableCommand($command, $foo), (new \ReflectionObject($command))->getProperty('code')->getValue($command));
     }
 
@@ -2567,14 +2569,6 @@ class DisabledCommand extends Command
     public function isEnabled(): bool
     {
         return false;
-    }
-}
-
-#[AsCommand(name: 'invokable')]
-class InvokableTestCommand
-{
-    public function __invoke(): int
-    {
     }
 }
 
