@@ -542,22 +542,7 @@ class Application implements ResetInterface
         $this->init();
 
         if (!$command instanceof Command) {
-            if (!\is_object($command) || $command instanceof \Closure) {
-                throw new InvalidArgumentException(\sprintf('The command must be an instance of "%s" or an invokable object.', Command::class));
-            }
-
-            /** @var AsCommand $attribute */
-            $attribute = ((new \ReflectionObject($command))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance()
-                ?? throw new LogicException(\sprintf('The command must use the "%s" attribute.', AsCommand::class));
-
-            $command = (new Command($attribute->name))
-                ->setDescription($attribute->description ?? '')
-                ->setHelp($attribute->help ?? '')
-                ->setCode($command);
-
-            foreach ($attribute->usages as $usage) {
-                $command->addUsage($usage);
-            }
+            $command = new Command(null, $command);
         }
 
         $command->setApplication($this);

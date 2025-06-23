@@ -27,6 +27,7 @@ use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 
 class CommandTest extends TestCase
 {
@@ -302,6 +303,13 @@ class CommandTest extends TestCase
         $tester->execute([], ['interactive' => true]);
 
         $this->assertEquals('interact called'.\PHP_EOL.'execute called'.\PHP_EOL, $tester->getDisplay(), '->run() calls the interact() method if the input is interactive');
+    }
+
+    public function testInvokableCommand()
+    {
+        $tester = new CommandTester(new InvokableTestCommand());
+
+        $this->assertSame(Command::SUCCESS, $tester->execute([]));
     }
 
     public function testRunNonInteractive()

@@ -16,7 +16,8 @@ CHANGELOG
  * Introduce `Symfony\Component\Console\Application::addCommand()` to simplify using invokable commands when the component is used standalone
  * Deprecate `Symfony\Component\Console\Application::add()` in favor of `Symfony\Component\Console\Application::addCommand()`
  * Add `BackedEnum` support with `#[Argument]` and `#[Option]` inputs in invokable commands
- * Allow Usages to be specified via #[AsCommand] attribute.
+ * Allow Usages to be specified via `#[AsCommand]` attribute.
+ * Allow passing invokable commands to `Symfony\Component\Console\Tester\CommandTester`
 
 7.3
 ---

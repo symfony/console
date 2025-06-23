@@ -59,9 +59,30 @@ class Command implements SignalableCommandInterface
      *
      * @throws LogicException When the command name is empty
      */
-    public function __construct(?string $name = null)
+    public function __construct(?string $name = null, ?callable $code = null)
     {
         $this->definition = new InputDefinition();
+
+        if ($code !== null) {
+            if (!\is_object($code) || $code instanceof \Closure) {
+                throw new InvalidArgumentException(\sprintf('The command must be an instance of "%s" or an invokable object.', Command::class));
+            }
+
+            /** @var AsCommand $attribute */
+            $attribute = ((new \ReflectionObject($code))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance()
+                ?? throw new LogicException(\sprintf('The command must use the "%s" attribute.', AsCommand::class));
+
+            $this->setName($name ?? $attribute->name)
+                ->setDescription($attribute->description ?? '')
+                ->setHelp($attribute->help ?? '')
+                ->setCode($code);
+
+            foreach ($attribute->usages as $usage) {
+                $this->addUsage($usage);
+            }
+
+            return;
+        }
 
         $attribute = ((new \ReflectionClass(static::class))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
 

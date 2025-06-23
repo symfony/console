@@ -23,6 +23,8 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Console\Tests\Fixtures\InvokableExtendingCommandTestCommand;
+use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 
 class CommandTesterTest extends TestCase
 {
@@ -266,5 +268,25 @@ class CommandTesterTest extends TestCase
         );
 
         $this->assertSame('foo', $tester->getErrorOutput());
+    }
+
+    public function testAInvokableCommand()
+    {
+        $command = new InvokableTestCommand();
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function testAInvokableExtendedCommand()
+    {
+        $command = new InvokableExtendingCommandTestCommand();
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
     }
 }
