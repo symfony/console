@@ -266,10 +266,10 @@ class ApplicationTest extends TestCase
     public function testAddCommandWithInvokableExtendedCommand()
     {
         $application = new Application();
-        $application->addCommand($foo = new InvokableExtendedTestCommand());
+        $application->addCommand($foo = new InvokableExtendingCommandTestCommand());
         $commands = $application->all();
 
-        $this->assertEquals($foo, $commands['invokable-extended']);
+        $this->assertEquals($foo, $commands['invokable:test']);
     }
 
     /**
@@ -2569,14 +2569,6 @@ class DisabledCommand extends Command
     public function isEnabled(): bool
     {
         return false;
-    }
-}
-
-#[AsCommand(name: 'invokable-extended')]
-class InvokableExtendedTestCommand extends Command
-{
-    public function __invoke(): int
-    {
     }
 }
 
