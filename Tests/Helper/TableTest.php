@@ -616,12 +616,12 @@ TABLE
                 [],
                 [
                     [
-                        new TableCell('<error>Dont break'."\n".'here</error>', ['colspan' => 2]),
+                        new TableCell('<error>Don\'t break'."\n".'here</error>', ['colspan' => 2]),
                     ],
                     new TableSeparator(),
                     [
                         'foo',
-                        new TableCell('<error>Dont break'."\n".'here</error>', ['rowspan' => 2]),
+                        new TableCell('<error>Don\'t break'."\n".'here</error>', ['rowspan' => 2]),
                     ],
                     [
                         'bar',
