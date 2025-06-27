@@ -1308,9 +1308,9 @@ TABLE
                 'footer',
                 'default',
                 <<<'TABLE'
-+---------------+---- Multiline
++---------------+--- Multiline
 header
-here -+------------------+
+here +------------------+
 | ISBN          | Title                    | Author           |
 +---------------+--------------------------+------------------+
 | 99921-58-10-7 | Divine Comedy            | Dante Alighieri  |
@@ -1590,17 +1590,17 @@ EOTXT;
         $expected =
             <<<TABLE
 +-----------------+-----------------+-----------------+
-| Lorem ipsum dolor sit amet, consectetur adipi       |
-| scing elit, sed do eiusmod tempor                   |
+| Lorem ipsum dolor sit amet, consectetur adipiscing  |
+| elit, sed do eiusmod tempor                         |
 +-----------------+-----------------+-----------------+
-| Lorem ipsum dolor sit amet, consectetur             |
-| adipiscing elit, sed do eiusmod tempor              |
+| Lorem ipsum dolor sit amet, consectetur adipiscing  |
+| elit, sed do eiusmod tempor                         |
 +-----------------+-----------------+-----------------+
-| Lorem ipsum dolor sit amet, co    | hello world     |
-| nsectetur                         |                 |
+| Lorem ipsum dolor sit amet, conse | hello world     |
+| ctetur                            |                 |
 +-----------------+-----------------+-----------------+
-| hello world     | Lorem ipsum dolor sit amet, co    |
-|                 | nsectetur adipiscing elit         |
+| hello world     | Lorem ipsum dolor sit amet, conse |
+|                 | ctetur adipiscing elit            |
 +-----------------+-----------------+-----------------+
 | hello           | world           | Lorem ipsum     |
 |                 |                 | dolor sit amet, |
@@ -2089,6 +2089,38 @@ TABLE
 └───────┴───────┘
 
 TABLE,
+            $this->getOutputContent($output)
+        );
+    }
+
+    public function testGithubIssue60038WidthOfCellWithEmoji()
+    {
+        $table = (new Table($output = $this->getOutputStream()))
+            ->setHeaderTitle('Test Title')
+            ->setHeaders(['Title', 'Author'])
+            ->setRows([
+                ["🎭 💫 ☯"." Divine Comedy", "Dante Alighieri"],
+                // the snowflake (e2 9d 84 ef b8 8f) has a variant selector
+                ["👑 ❄️  🗡"." Game of Thrones", "George R.R. Martin"],
+                // the snowflake in text style (e2 9d 84 ef b8 8e) has a variant selector
+                ["❄︎❄︎❄︎ snowflake in text style ❄︎❄︎❄︎", ""],
+                ["And a very long line to show difference in previous lines", ""],
+            ])
+        ;
+        $table->render();
+
+        $this->assertSame(<<<TABLE
++---------------------------------- Test Title -------------+--------------------+
+| Title                                                     | Author             |
++-----------------------------------------------------------+--------------------+
+| 🎭 💫 ☯ Divine Comedy                                     | Dante Alighieri    |
+| 👑 ❄️  🗡 Game of Thrones                                   | George R.R. Martin |
+| ❄︎❄︎❄︎ snowflake in text style ❄︎❄︎❄︎                           |                    |
+| And a very long line to show difference in previous lines |                    |
++-----------------------------------------------------------+--------------------+
+
+TABLE
+            ,
             $this->getOutputContent($output)
         );
     }
