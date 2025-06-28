@@ -988,7 +988,7 @@ class ApplicationTest extends TestCase
         $application->setAutoExit(false);
         putenv('COLUMNS=22');
         $application->register('foo')->setCode(function () {
-            throw new \Exception('don\'t break here <info>!</info>');
+            throw new \Exception('dont break here <info>!</info>');
         });
         $tester = new ApplicationTester($application);
 
