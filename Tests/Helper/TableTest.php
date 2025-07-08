@@ -2099,12 +2099,12 @@ TABLE,
             ->setHeaderTitle('Test Title')
             ->setHeaders(['Title', 'Author'])
             ->setRows([
-                ["🎭 💫 ☯"." Divine Comedy", "Dante Alighieri"],
+                ['🎭 💫 ☯ Divine Comedy', 'Dante Alighieri'],
                 // the snowflake (e2 9d 84 ef b8 8f) has a variant selector
-                ["👑 ❄️  🗡"." Game of Thrones", "George R.R. Martin"],
+                ['👑 ❄️  🗡 Game of Thrones', 'George R.R. Martin'],
                 // the snowflake in text style (e2 9d 84 ef b8 8e) has a variant selector
-                ["❄︎❄︎❄︎ snowflake in text style ❄︎❄︎❄︎", ""],
-                ["And a very long line to show difference in previous lines", ""],
+                ['❄︎❄︎❄︎ snowflake in text style ❄︎❄︎❄︎', ''],
+                ['And a very long line to show difference in previous lines', ''],
             ])
         ;
         $table->render();

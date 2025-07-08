@@ -240,6 +240,7 @@ class InvokableCommandTest extends TestCase
     {
         $command = new class extends Command {
             public string $called;
+
             protected function execute(InputInterface $input, OutputInterface $output): int
             {
                 $this->called = __FUNCTION__;

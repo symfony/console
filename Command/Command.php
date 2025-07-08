@@ -91,9 +91,9 @@ class Command implements SignalableCommandInterface
     {
         $this->definition = new InputDefinition();
 
-        if ($code !== null) {
+        if (null !== $code) {
             if (!\is_object($code) || $code instanceof \Closure) {
-                throw new InvalidArgumentException(\sprintf('The command must be an instance of "%s" or an invokable object.', Command::class));
+                throw new InvalidArgumentException(\sprintf('The command must be an instance of "%s" or an invokable object.', self::class));
             }
 
             /** @var AsCommand $attribute */
@@ -159,7 +159,7 @@ class Command implements SignalableCommandInterface
             $this->addUsage($usage);
         }
 
-        if (\is_callable($this) && (new \ReflectionMethod($this, 'execute'))->getDeclaringClass()->name === self::class) {
+        if (\is_callable($this) && self::class === (new \ReflectionMethod($this, 'execute'))->getDeclaringClass()->name) {
             $this->code = new InvokableCommand($this, $this(...));
         }
 
