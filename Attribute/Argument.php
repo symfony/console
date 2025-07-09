@@ -116,7 +116,7 @@ class Argument
     {
         $value = $input->getArgument($this->name);
 
-        if (is_subclass_of($this->typeName, \BackedEnum::class) && (is_string($value) || is_int($value))) {
+        if (is_subclass_of($this->typeName, \BackedEnum::class) && (\is_string($value) || \is_int($value))) {
             return ($this->typeName)::tryFrom($value) ?? throw InvalidArgumentException::fromEnumValue($this->name, $value, $this->suggestedValues);
         }
 

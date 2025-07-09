@@ -146,7 +146,7 @@ class Option
             return true;
         }
 
-        if (is_subclass_of($this->typeName, \BackedEnum::class) && (is_string($value) || is_int($value))) {
+        if (is_subclass_of($this->typeName, \BackedEnum::class) && (\is_string($value) || \is_int($value))) {
             return ($this->typeName)::tryFrom($value) ?? throw InvalidOptionException::fromEnumValue($this->name, $value, $this->suggestedValues);
         }
 
@@ -168,7 +168,7 @@ class Option
     private function handleUnion(\ReflectionUnionType $type): self
     {
         $types = array_map(
-            static fn(\ReflectionType $t) => $t instanceof \ReflectionNamedType ? $t->getName() : null,
+            static fn (\ReflectionType $t) => $t instanceof \ReflectionNamedType ? $t->getName() : null,
             $type->getTypes(),
         );
 
