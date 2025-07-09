@@ -464,6 +464,8 @@ class CommandTest extends TestCase
         $this->assertStringContainsString('usage1', $command->getUsages()[0]);
         $this->assertTrue($command->isHidden());
         $this->assertSame(['f'], $command->getAliases());
+        // Standard commands don't have code.
+        $this->assertNull($command->getCode());
     }
 
     #[IgnoreDeprecations]
