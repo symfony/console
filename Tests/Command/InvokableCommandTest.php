@@ -156,6 +156,7 @@ class InvokableCommandTest extends TestCase
     {
         $command = new class extends Command {
             public string $called;
+
             protected function execute(InputInterface $input, OutputInterface $output): int
             {
                 $this->called = __FUNCTION__;
@@ -179,6 +180,7 @@ class InvokableCommandTest extends TestCase
     {
         $command = new class extends Command {
             public string $called;
+
             public function __invoke(): int
             {
                 $this->called = __FUNCTION__;
@@ -195,7 +197,9 @@ class InvokableCommandTest extends TestCase
     {
         $command = new Command('foo');
         $command->setCode(new class {
-            public function __invoke() {}
+            public function __invoke()
+            {
+            }
         });
 
         $this->expectException(\TypeError::class);
@@ -333,16 +337,16 @@ class InvokableCommandTest extends TestCase
     public static function provideInvalidOptionDefinitions(): \Generator
     {
         yield 'no-default' => [
-            function (#[Option] string $a) {}
+            function (#[Option] string $a) {},
         ];
         yield 'nullable-bool-default-true' => [
-            function (#[Option] ?bool $a = true) {}
+            function (#[Option] ?bool $a = true) {},
         ];
         yield 'nullable-bool-default-false' => [
-            function (#[Option] ?bool $a = false) {}
+            function (#[Option] ?bool $a = false) {},
         ];
         yield 'invalid-union-type' => [
-            function (#[Option] array|bool $a = false) {}
+            function (#[Option] array|bool $a = false) {},
         ];
         yield 'union-type-cannot-allow-null' => [
             function (#[Option] string|bool|null $a = null) {},

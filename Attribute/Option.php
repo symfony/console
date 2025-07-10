@@ -158,7 +158,7 @@ class Option
     private function handleUnion(\ReflectionUnionType $type): self
     {
         $types = array_map(
-            static fn(\ReflectionType $t) => $t instanceof \ReflectionNamedType ? $t->getName() : null,
+            static fn (\ReflectionType $t) => $t instanceof \ReflectionNamedType ? $t->getName() : null,
             $type->getTypes(),
         );
 
