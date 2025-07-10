@@ -38,6 +38,7 @@ class Question
     private ?\Closure $normalizer = null;
     private bool $trimmable = true;
     private bool $multiline = false;
+    private ?int $timeout = null;
 
     /**
      * @param string                     $question The question to ask to the user
@@ -81,6 +82,27 @@ class Question
     public function setMultiline(bool $multiline): static
     {
         $this->multiline = $multiline;
+
+        return $this;
+    }
+
+    /**
+     * Returns the timeout in seconds.
+     */
+    public function getTimeout(): ?int
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * Sets the maximum time the user has to answer the question.
+     * If the user does not answer within this time, an exception will be thrown.
+     *
+     * @return $this
+     */
+    public function setTimeout(?int $seconds): static
+    {
+        $this->timeout = $seconds;
 
         return $this;
     }
