@@ -31,7 +31,7 @@ class InputArgument
 
     private string $name;
     private int $mode;
-    private string|int|bool|array|null|float $default;
+    private string|int|bool|array|float|null $default;
     private array|\Closure $suggestedValues;
     private string $description;
 
@@ -49,7 +49,7 @@ class InputArgument
         if (null === $mode) {
             $mode = self::OPTIONAL;
         } elseif ($mode > 7 || $mode < 1) {
-            throw new InvalidArgumentException(sprintf('Argument mode "%s" is not valid.', $mode));
+            throw new InvalidArgumentException(\sprintf('Argument mode "%s" is not valid.', $mode));
         }
 
         $this->name = $name;
@@ -137,7 +137,7 @@ class InputArgument
     {
         $values = $this->suggestedValues;
         if ($values instanceof \Closure && !\is_array($values = $values($input))) {
-            throw new LogicException(sprintf('Closure for argument "%s" must return an array. Got "%s".', $this->name, get_debug_type($values)));
+            throw new LogicException(\sprintf('Closure for argument "%s" must return an array. Got "%s".', $this->name, get_debug_type($values)));
         }
         if ($values) {
             $suggestions->suggestValues($values);

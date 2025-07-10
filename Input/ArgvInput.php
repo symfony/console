@@ -122,7 +122,7 @@ class ArgvInput extends Input
         for ($i = 0; $i < $len; ++$i) {
             if (!$this->definition->hasShortcut($name[$i])) {
                 $encoding = mb_detect_encoding($name, null, true);
-                throw new RuntimeException(sprintf('The "-%s" option does not exist.', false === $encoding ? $name[$i] : mb_substr($name, $i, 1, $encoding)));
+                throw new RuntimeException(\sprintf('The "-%s" option does not exist.', false === $encoding ? $name[$i] : mb_substr($name, $i, 1, $encoding)));
             }
 
             $option = $this->definition->getOptionForShortcut($name[$i]);
@@ -183,14 +183,14 @@ class ArgvInput extends Input
 
             if (\count($all)) {
                 if ($symfonyCommandName) {
-                    $message = sprintf('Too many arguments to "%s" command, expected arguments "%s".', $symfonyCommandName, implode('" "', array_keys($all)));
+                    $message = \sprintf('Too many arguments to "%s" command, expected arguments "%s".', $symfonyCommandName, implode('" "', array_keys($all)));
                 } else {
-                    $message = sprintf('Too many arguments, expected arguments "%s".', implode('" "', array_keys($all)));
+                    $message = \sprintf('Too many arguments, expected arguments "%s".', implode('" "', array_keys($all)));
                 }
             } elseif ($symfonyCommandName) {
-                $message = sprintf('No arguments expected for "%s" command, got "%s".', $symfonyCommandName, $token);
+                $message = \sprintf('No arguments expected for "%s" command, got "%s".', $symfonyCommandName, $token);
             } else {
-                $message = sprintf('No arguments expected, got "%s".', $token);
+                $message = \sprintf('No arguments expected, got "%s".', $token);
             }
 
             throw new RuntimeException($message);
@@ -205,7 +205,7 @@ class ArgvInput extends Input
     private function addShortOption(string $shortcut, mixed $value): void
     {
         if (!$this->definition->hasShortcut($shortcut)) {
-            throw new RuntimeException(sprintf('The "-%s" option does not exist.', $shortcut));
+            throw new RuntimeException(\sprintf('The "-%s" option does not exist.', $shortcut));
         }
 
         $this->addLongOption($this->definition->getOptionForShortcut($shortcut)->getName(), $value);
@@ -220,12 +220,12 @@ class ArgvInput extends Input
     {
         if (!$this->definition->hasOption($name)) {
             if (!$this->definition->hasNegation($name)) {
-                throw new RuntimeException(sprintf('The "--%s" option does not exist.', $name));
+                throw new RuntimeException(\sprintf('The "--%s" option does not exist.', $name));
             }
 
             $optionName = $this->definition->negationToName($name);
             if (null !== $value) {
-                throw new RuntimeException(sprintf('The "--%s" option does not accept a value.', $name));
+                throw new RuntimeException(\sprintf('The "--%s" option does not accept a value.', $name));
             }
             $this->options[$optionName] = false;
 
@@ -235,7 +235,7 @@ class ArgvInput extends Input
         $option = $this->definition->getOption($name);
 
         if (null !== $value && !$option->acceptValue()) {
-            throw new RuntimeException(sprintf('The "--%s" option does not accept a value.', $name));
+            throw new RuntimeException(\sprintf('The "--%s" option does not accept a value.', $name));
         }
 
         if (\in_array($value, ['', null], true) && $option->acceptValue() && \count($this->parsed)) {
@@ -251,7 +251,7 @@ class ArgvInput extends Input
 
         if (null === $value) {
             if ($option->isValueRequired()) {
-                throw new RuntimeException(sprintf('The "--%s" option requires a value.', $name));
+                throw new RuntimeException(\sprintf('The "--%s" option requires a value.', $name));
             }
 
             if (!$option->isArray() && !$option->isValueOptional()) {

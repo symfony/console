@@ -142,18 +142,18 @@ abstract class Helper implements HelperInterface
     public static function formatMemory(int $memory)
     {
         if ($memory >= 1024 * 1024 * 1024) {
-            return sprintf('%.1f GiB', $memory / 1024 / 1024 / 1024);
+            return \sprintf('%.1f GiB', $memory / 1024 / 1024 / 1024);
         }
 
         if ($memory >= 1024 * 1024) {
-            return sprintf('%.1f MiB', $memory / 1024 / 1024);
+            return \sprintf('%.1f MiB', $memory / 1024 / 1024);
         }
 
         if ($memory >= 1024) {
-            return sprintf('%d KiB', $memory / 1024);
+            return \sprintf('%d KiB', $memory / 1024);
         }
 
-        return sprintf('%d B', $memory);
+        return \sprintf('%d B', $memory);
     }
 
     /**

@@ -39,7 +39,7 @@ class FactoryCommandLoader implements CommandLoaderInterface
     public function get(string $name): Command
     {
         if (!isset($this->factories[$name])) {
-            throw new CommandNotFoundException(sprintf('Command "%s" does not exist.', $name));
+            throw new CommandNotFoundException(\sprintf('Command "%s" does not exist.', $name));
         }
 
         $factory = $this->factories[$name];
