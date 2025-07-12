@@ -565,7 +565,7 @@ EOD;
 
         $error = 'This is not a color!';
         $validator = function ($color) use ($error) {
-            if (!\in_array($color, ['white', 'black'])) {
+            if (!\in_array($color, ['white', 'black'], true)) {
                 throw new \InvalidArgumentException($error);
             }
 
