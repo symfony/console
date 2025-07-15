@@ -577,7 +577,7 @@ class QuestionHelper extends Helper
 
         // For seekable and writable streams, add all the same data to the
         // cloned stream and then seek to the same offset.
-        if (true === $seekable && !\in_array($mode, ['r', 'rb', 'rt'])) {
+        if (true === $seekable && !\in_array($mode, ['r', 'rb', 'rt'], true)) {
             $offset = ftell($inputStream);
             rewind($inputStream);
             stream_copy_to_stream($inputStream, $cloneStream);

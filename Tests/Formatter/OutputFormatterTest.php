@@ -177,7 +177,7 @@ class OutputFormatterTest extends TestCase
             $expected = $tag.$input.'</'.$styleString.'>';
             $this->assertSame($expected, $formatter->format($expected));
         } else {
-            /* @var OutputFormatterStyle $result */
+            /** @var OutputFormatterStyle $result */
             $this->assertInstanceOf(OutputFormatterStyle::class, $result);
             $this->assertSame($expected, $formatter->format($tag.$input.'</>'));
             $this->assertSame($expected, $formatter->format($tag.$input.'</'.$styleString.'>'));
