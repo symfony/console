@@ -223,12 +223,12 @@ class ApplicationTest extends TestCase
         $this->assertStringContainsString('It works!', $tester->getDisplay(true));
     }
 
-    public function testAdd()
+    public function testAddCommand()
     {
         $application = new Application();
         $application->addCommand($foo = new \FooCommand());
         $commands = $application->all();
-        $this->assertEquals($foo, $commands['foo:bar'], '->add() registers a command');
+        $this->assertEquals($foo, $commands['foo:bar'], '->addCommand() registers a command');
 
         $application = new Application();
         $application->addCommands([$foo = new \FooCommand(), $foo1 = new \Foo1Command()]);
