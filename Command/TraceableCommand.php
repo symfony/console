@@ -292,7 +292,7 @@ final class TraceableCommand extends Command
         $event = $this->stopwatch->start($this->getName(), 'command');
 
         try {
-            $this->exitCode = parent::run($input, $output);
+            $this->exitCode = $this->command->run($input, $output);
         } finally {
             $event->stop();
 
