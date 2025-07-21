@@ -9,6 +9,7 @@ CHANGELOG
  * Ensure closures set via `Command::setCode()` method have proper parameter and return types
  * Add method `isSilent()` to `OutputInterface`
  * Remove deprecated `Symfony\Component\Console\Application::add()` method in favor of `Symfony\Component\Console\Application::addCommand()`
+ * Add argument `$finishedIndicator` to `ProgressIndicator::finish()`
 
 7.4
 ---
