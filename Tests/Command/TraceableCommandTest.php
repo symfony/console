@@ -59,7 +59,8 @@ class TraceableCommandTest extends TestCase
 
     public function assertLoopOutputCorrectness(string $output)
     {
-        self::assertMatchesRegularExpression('~3/3\s+\[▓+]\s+100%~u', $output);
+        $completeChar = '\\' !== \DIRECTORY_SEPARATOR ? '▓' : '=';
+        self::assertMatchesRegularExpression('~3/3\s+\['.$completeChar.'+]\s+100%~u', $output);
         self::assertStringContainsString('Loop finished.', $output);
         self::assertEquals(3, substr_count($output, 'Hello world'));
     }
