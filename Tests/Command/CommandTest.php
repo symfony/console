@@ -12,13 +12,11 @@
 namespace Symfony\Component\Console\Tests\Command;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Bridge\PhpUnit\ExpectUserDeprecationMessageTrait;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Helper\FormatterHelper;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,8 +29,6 @@ use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 
 class CommandTest extends TestCase
 {
-    use ExpectUserDeprecationMessageTrait;
-
     protected static string $fixturesPath;
 
     public static function setUpBeforeClass(): void
@@ -506,4 +502,3 @@ class Php8Command extends Command
 class Php8Command2 extends Command
 {
 }
-
