@@ -94,7 +94,7 @@
                         "is_value_required": false,
                         "is_multiple": false,
                         "description": "Do not ask any interactive question",
-                        "default": false
+                        "default": null
                     },
                     "shell": {
                         "name": "--shell",
@@ -224,7 +224,7 @@
                         "is_value_required": false,
                         "is_multiple": false,
                         "description": "Do not ask any interactive question",
-                        "default": false
+                        "default": null
                     },
                     "debug": {
                         "name": "--debug",
@@ -345,7 +345,7 @@
                         "is_value_required": false,
                         "is_multiple": false,
                         "description": "Do not ask any interactive question",
-                        "default": false
+                        "default": null
                     }
                 }
             }
@@ -457,7 +457,7 @@
                         "is_value_required": false,
                         "is_multiple": false,
                         "description": "Do not ask any interactive question",
-                        "default": false
+                        "default": null
                     },
                     "short": {
                         "name": "--short",
@@ -554,7 +554,7 @@
                         "is_value_required": false,
                         "is_multiple": false,
                         "description": "Do not ask any interactive question",
-                        "default": false
+                        "default": null
                     }
                 }
             }
@@ -659,7 +659,7 @@
                         "is_value_required": false,
                         "is_multiple": false,
                         "description": "Do not ask any interactive question",
-                        "default": false
+                        "default": null
                     }
                 }
             }
@@ -745,7 +745,7 @@
                         "is_value_required": false,
                         "is_multiple": false,
                         "description": "Do not ask any interactive question",
-                        "default": false
+                        "default": null
                     }
                 }
             }
@@ -833,7 +833,7 @@
                         "is_value_required": false,
                         "is_multiple": false,
                         "description": "Do not ask any interactive question",
-                        "default": false
+                        "default": null
                     }
                 }
             }
