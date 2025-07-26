@@ -365,6 +365,8 @@ EOF
         $this->assertSame("Lore\nm \e[37;41mip\e[39;49m\n\e[37;41msum\e[39;49m \ndolo\nr \e[32msi\e[39m\n\e[32mt\e[39m am\net", $formatter->formatAndWrap('Lorem <error>ipsum</error> dolor <info>sit</info> amet', 4));
         $this->assertSame("Lorem \e[37;41mip\e[39;49m\n\e[37;41msum\e[39;49m dolo\nr \e[32msit\e[39m am\net", $formatter->formatAndWrap('Lorem <error>ipsum</error> dolor <info>sit</info> amet', 8));
         $this->assertSame("Lorem \e[37;41mipsum\e[39;49m dolor \e[32m\e[39m\n\e[32msit\e[39m, \e[37;41mamet\e[39;49m et \e[32mlauda\e[39m\n\e[32mntium\e[39m architecto", $formatter->formatAndWrap('Lorem <error>ipsum</error> dolor <info>sit</info>, <error>amet</error> et <info>laudantium</info> architecto', 18));
+        $this->assertSame("\e[37;41mnon-empty-array\e[39;49m\e[37;41m<mixed, mixed>\e[39;49m given.\n🪪\n  argument.type", $formatter->formatAndWrap("<error>non-empty-array<mixed, mixed></error> given.\n🪪  argument.type", 38));
+        $this->assertSame("Usuário <strong>{{user_name}}</strong> não é válid\no.", $formatter->formatAndWrap('Usuário <strong>{{user_name}}</strong> não é válido.', 50));
 
         $formatter = new OutputFormatter();
 
@@ -376,6 +378,8 @@ EOF
         $this->assertSame("Â rèälly\nlöng tîtlè\nthät cöüld\nnèêd\nmúltîplê\nlínès", $formatter->formatAndWrap('Â rèälly löng tîtlè thät cöüld nèêd múltîplê línès', 10));
         $this->assertSame("Â rèälly\nlöng tîtlè\nthät cöüld\nnèêd\nmúltîplê\n línès", $formatter->formatAndWrap("Â rèälly löng tîtlè thät cöüld nèêd múltîplê\n línès", 10));
         $this->assertSame('', $formatter->formatAndWrap(null, 5));
+        $this->assertSame("non-empty-array<mixed, mixed> given.\n🪪\n  argument.type", $formatter->formatAndWrap("<error>non-empty-array<mixed, mixed></error> given.\n🪪  argument.type", 38));
+        $this->assertSame("Usuário <strong>{{user_name}}</strong> não é válid\no.", $formatter->formatAndWrap('Usuário <strong>{{user_name}}</strong> não é válido.', 50));
     }
 }
 

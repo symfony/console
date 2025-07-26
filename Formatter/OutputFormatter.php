@@ -12,6 +12,7 @@
 namespace Symfony\Component\Console\Formatter;
 
 use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Helper\Helper;
 
 use function Symfony\Component\String\b;
 
@@ -146,9 +147,11 @@ class OutputFormatter implements WrappableOutputFormatterInterface
                 continue;
             }
 
+            // convert byte position to character position.
+            $pos = Helper::length(substr($message, 0, $pos));
             // add the text up to the next tag
-            $output .= $this->applyCurrentStyle(substr($message, $offset, $pos - $offset), $output, $width, $currentLineLength);
-            $offset = $pos + \strlen($text);
+            $output .= $this->applyCurrentStyle(Helper::substr($message, $offset, $pos - $offset), $output, $width, $currentLineLength);
+            $offset = $pos + Helper::length($text);
 
             // opening tag?
             if ($open = '/' !== $text[1]) {
@@ -169,7 +172,7 @@ class OutputFormatter implements WrappableOutputFormatterInterface
             }
         }
 
-        $output .= $this->applyCurrentStyle(substr($message, $offset), $output, $width, $currentLineLength);
+        $output .= $this->applyCurrentStyle(Helper::substr($message, $offset), $output, $width, $currentLineLength);
 
         return strtr($output, ["\0" => '\\', '\\<' => '<', '\\>' => '>']);
     }
@@ -236,8 +239,8 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         }
 
         if ($currentLineLength) {
-            $prefix = substr($text, 0, $i = $width - $currentLineLength)."\n";
-            $text = substr($text, $i);
+            $prefix = Helper::substr($text, 0, $i = $width - $currentLineLength)."\n";
+            $text = Helper::substr($text, $i);
         } else {
             $prefix = '';
         }
@@ -253,7 +256,7 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         $lines = explode("\n", $text);
 
         foreach ($lines as $line) {
-            $currentLineLength += \strlen($line);
+            $currentLineLength += Helper::length($line);
             if ($width <= $currentLineLength) {
                 $currentLineLength = 0;
             }
