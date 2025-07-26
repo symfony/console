@@ -195,6 +195,26 @@ Root
 TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
+    public function testRenderNodeWithMultipleChildrenWithStringConversion()
+    {
+        $rootNode = new TreeNode('Root');
+
+        $rootNode->addChild('Child 1');
+        $rootNode->addChild('Child 2');
+        $rootNode->addChild('Child 3');
+
+        $output = new BufferedOutput();
+        $tree = TreeHelper::createTree($output, $rootNode);
+
+        $tree->render();
+        $this->assertSame(<<<TREE
+Root
+├── Child 1
+├── Child 2
+└── Child 3
+TREE, self::normalizeLineBreaks(trim($output->fetch())));
+    }
+
     public function testRenderTreeWithDuplicateNodeNames()
     {
         $rootNode = new TreeNode('Root');
