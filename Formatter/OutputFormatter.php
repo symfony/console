@@ -239,8 +239,18 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         }
 
         if ($currentLineLength) {
-            $prefix = Helper::substr($text, 0, $i = $width - $currentLineLength)."\n";
-            $text = Helper::substr($text, $i);
+            $lines = explode("\n", $text, 2);
+            $prefix = Helper::substr($lines[0], 0, $i = $width - $currentLineLength)."\n";
+            $text = Helper::substr($lines[0], $i);
+
+            if (isset($lines[1])) {
+                // $prefix may contain the full first line in which the \n is already a part of $prefix.
+                if ('' !== $text) {
+                    $text .= "\n";
+                }
+
+                $text .= $lines[1];
+            }
         } else {
             $prefix = '';
         }
@@ -255,8 +265,8 @@ class OutputFormatter implements WrappableOutputFormatterInterface
 
         $lines = explode("\n", $text);
 
-        foreach ($lines as $line) {
-            $currentLineLength += Helper::length($line);
+        foreach ($lines as $i => $line) {
+            $currentLineLength = 0 === $i ? $currentLineLength + Helper::length($line) : Helper::length($line);
             if ($width <= $currentLineLength) {
                 $currentLineLength = 0;
             }
