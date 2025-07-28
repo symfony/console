@@ -889,7 +889,7 @@ class ApplicationTest extends TestCase
 
         try {
             $tester->run(['command' => 'boom']);
-            $this->fail('The exception is not catched.');
+            $this->fail('The exception is not caught.');
         } catch (\Throwable $e) {
             $this->assertInstanceOf(\Error::class, $e);
             $this->assertSame('This is an error.', $e->getMessage());
