@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Console\Tests\DependencyInjection;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -28,9 +29,7 @@ use Symfony\Component\DependencyInjection\TypedReference;
 
 class AddConsoleCommandPassTest extends TestCase
 {
-    /**
-     * @dataProvider visibilityProvider
-     */
+    #[DataProvider('visibilityProvider')]
     public function testProcess($public)
     {
         $container = new ContainerBuilder();

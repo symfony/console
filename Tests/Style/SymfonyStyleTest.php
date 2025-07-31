@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Console\Tests\Style;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -47,9 +48,7 @@ class SymfonyStyleTest extends TestCase
         putenv($this->colSize ? 'COLUMNS='.$this->colSize : 'COLUMNS');
     }
 
-    /**
-     * @dataProvider inputCommandToOutputFilesProvider
-     */
+    #[DataProvider('inputCommandToOutputFilesProvider')]
     public function testOutputs($inputCommandFilepath, $outputFilepath)
     {
         $code = require $inputCommandFilepath;
@@ -58,9 +57,7 @@ class SymfonyStyleTest extends TestCase
         $this->assertStringEqualsFile($outputFilepath, $this->tester->getDisplay(true));
     }
 
-    /**
-     * @dataProvider inputInteractiveCommandToOutputFilesProvider
-     */
+    #[DataProvider('inputInteractiveCommandToOutputFilesProvider')]
     public function testInteractiveOutputs($inputCommandFilepath, $outputFilepath)
     {
         $code = require $inputCommandFilepath;

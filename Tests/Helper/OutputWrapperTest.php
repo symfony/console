@@ -11,14 +11,13 @@
 
 namespace Symfony\Component\Console\Tests\Helper;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Helper\OutputWrapper;
 
 class OutputWrapperTest extends TestCase
 {
-    /**
-     * @dataProvider textProvider
-     */
+    #[DataProvider('textProvider')]
     public function testBasicWrap(string $text, int $width, bool $allowCutUrls, string $expected)
     {
         $wrapper = new OutputWrapper($allowCutUrls);
