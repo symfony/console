@@ -80,6 +80,10 @@ abstract class Helper implements HelperInterface
     {
         $string ??= '';
 
+        if (preg_match('//u', $string)) {
+            return (new UnicodeString($string))->slice($from, $length);
+        }
+
         if (false === $encoding = mb_detect_encoding($string, null, true)) {
             return substr($string, $from, $length);
         }
