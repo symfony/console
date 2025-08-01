@@ -1294,7 +1294,6 @@ TABLE;
 
 TABLE
                 ,
-                true,
             ],
             'header contains multiple lines' => [
                 'Multiline'."\n".'header'."\n".'here',
