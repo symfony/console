@@ -368,6 +368,7 @@ EOF
         $this->assertSame("foobar\e[37;41mbaz\e[39;49m\n\e[37;41mnewline\e[39;49m", $formatter->formatAndWrap("foobar<error>baz\nnewline</error>", 11));
         $this->assertSame("foobar\e[37;41mbazne\e[39;49m\n\e[37;41mwline\e[39;49m", $formatter->formatAndWrap("foobar<error>bazne\nwline</error>", 11));
         $this->assertSame("foobar\e[37;41mbazne\e[39;49m\n\e[37;41mw\e[39;49m\n\e[37;41mline\e[39;49m", $formatter->formatAndWrap("foobar<error>baznew\nline</error>", 11));
+        $this->assertSame("\e[37;41m👩‍🌾\e[39;49m", $formatter->formatAndWrap('<error>👩‍🌾</error>', 1));
 
         $formatter = new OutputFormatter();
 
@@ -387,6 +388,7 @@ EOF
         $this->assertSame("foobarbaz\nnewline", $formatter->formatAndWrap("foobar<error>baz\nnewline</error>", 11));
         $this->assertSame("foobarbazne\nwline", $formatter->formatAndWrap("foobar<error>bazne\nwline</error>", 11));
         $this->assertSame("foobarbazne\nw\nline", $formatter->formatAndWrap("foobar<error>baznew\nline</error>", 11));
+        $this->assertSame('👩‍🌾', $formatter->formatAndWrap('👩‍🌾', 1));
     }
 }
 
