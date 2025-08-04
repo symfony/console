@@ -12,6 +12,7 @@
 namespace Symfony\Component\Console\Tests\Command;
 
 use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\Option;
@@ -292,9 +293,7 @@ class InvokableCommandTest extends TestCase
         $command->run(new ArrayInput([]), new NullOutput());
     }
 
-    /**
-     * @dataProvider provideInputArguments
-     */
+    #[DataProvider('provideInputArguments')]
     public function testInputArguments(array $parameters, array $expected)
     {
         $command = new Command('foo');
@@ -322,9 +321,7 @@ class InvokableCommandTest extends TestCase
         yield 'required & without-value' => [['a' => 'x', 'b' => null, 'c' => null, 'd' => null], ['x', null, '', []]];
     }
 
-    /**
-     * @dataProvider provideBinaryInputOptions
-     */
+    #[DataProvider('provideBinaryInputOptions')]
     public function testBinaryInputOptions(array $parameters, array $expected)
     {
         $command = new Command('foo');
@@ -350,9 +347,7 @@ class InvokableCommandTest extends TestCase
         yield 'negative' => [['--no-a' => null, '--no-c' => null], [false, false, false]];
     }
 
-    /**
-     * @dataProvider provideNonBinaryInputOptions
-     */
+    #[DataProvider('provideNonBinaryInputOptions')]
     public function testNonBinaryInputOptions(array $parameters, array $expected)
     {
         $command = new Command('foo');
@@ -405,9 +400,7 @@ class InvokableCommandTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideInvalidOptionDefinitions
-     */
+    #[DataProvider('provideInvalidOptionDefinitions')]
     public function testInvalidOptionDefinition(callable $code)
     {
         $command = new Command('foo');

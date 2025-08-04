@@ -11,6 +11,8 @@
 
 namespace Symfony\Component\Console\Tests\Command;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWithJson;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -134,9 +136,7 @@ class CommandTest extends TestCase
         $this->assertEquals('foobar:bar', $command->getName(), '->setName() sets the command name');
     }
 
-    /**
-     * @dataProvider provideInvalidCommandNames
-     */
+    #[DataProvider('provideInvalidCommandNames')]
     public function testInvalidCommandNames($name)
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -202,10 +202,8 @@ class CommandTest extends TestCase
         $this->assertEquals(['name1'], $command->getAliases(), '->setAliases() sets the aliases');
     }
 
-    /**
-     * @testWith ["name|alias1|alias2", "name", ["alias1", "alias2"], false]
-     *           ["|alias1|alias2", "alias1", ["alias2"], true]
-     */
+    #[TestWithJson('["name|alias1|alias2", "name", ["alias1", "alias2"], false]')]
+    #[TestWithJson('["|alias1|alias2", "alias1", ["alias2"], true]')]
     public function testSetAliasesAndHiddenViaName(string $name, string $expectedName, array $expectedAliases, bool $expectedHidden)
     {
         $command = new Command($name);
@@ -387,9 +385,7 @@ class CommandTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getSetCodeBindToClosureTests
-     */
+    #[DataProvider('getSetCodeBindToClosureTests')]
     public function testSetCodeBindToClosure($previouslyBound, $expected)
     {
         $code = createClosure();

@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Console\Tests\Descriptor;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
@@ -18,9 +19,7 @@ use Symfony\Component\Console\Descriptor\ApplicationDescription;
 
 final class ApplicationDescriptionTest extends TestCase
 {
-    /**
-     * @dataProvider getNamespacesProvider
-     */
+    #[DataProvider('getNamespacesProvider')]
     public function testGetNamespaces(array $expected, array $names)
     {
         $application = new TestApplication();

@@ -11,6 +11,10 @@
 
 namespace Symfony\Component\Console\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -272,9 +276,7 @@ class ApplicationTest extends TestCase
         $this->assertEquals($foo, $commands['invokable:test']);
     }
 
-    /**
-     * @dataProvider provideInvalidInvokableCommands
-     */
+    #[DataProvider('provideInvalidInvokableCommands')]
     public function testAddCommandThrowsExceptionOnInvalidCommand(callable $command, string $expectedException, string $expectedExceptionMessage)
     {
         $application = new Application();
@@ -492,9 +494,7 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf(\FooCommand::class, $application->find('a'), '->find() returns a command if the abbreviation exists for an alias');
     }
 
-    /**
-     * @dataProvider provideAmbiguousAbbreviations
-     */
+    #[DataProvider('provideAmbiguousAbbreviations')]
     public function testFindWithAmbiguousAbbreviations($abbreviation, $expectedExceptionMessage)
     {
         putenv('COLUMNS=120');
@@ -567,9 +567,7 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf(\Foo4Command::class, $application->find('f::t'));
     }
 
-    /**
-     * @dataProvider provideInvalidCommandNamesSingle
-     */
+    #[DataProvider('provideInvalidCommandNamesSingle')]
     public function testFindAlternativeExceptionMessageSingle($name)
     {
         $application = new Application();
@@ -841,10 +839,8 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf(\FooCommand::class, $application->find('foo:'));
     }
 
-    /**
-     * @testWith [true]
-     *           [false]
-     */
+    #[TestWith([true])]
+    #[TestWith([false])]
     public function testSetCatchExceptions(bool $catchErrors)
     {
         $application = new Application();
@@ -873,10 +869,8 @@ class ApplicationTest extends TestCase
         }
     }
 
-    /**
-     * @testWith [true]
-     *           [false]
-     */
+    #[TestWith([true])]
+    #[TestWith([false])]
     public function testSetCatchErrors(bool $catchExceptions)
     {
         $application = new Application();
@@ -1015,9 +1009,7 @@ class ApplicationTest extends TestCase
         $this->assertStringMatchesFormatFile(self::$fixturesPath.'/application_renderexception_linebreaks.txt', $tester->getDisplay(true), '->renderException() keep multiple line breaks');
     }
 
-    /**
-     * @group transient-on-windows
-     */
+    #[Group('transient-on-windows')]
     public function testRenderAnonymousException()
     {
         $application = new Application();
@@ -1041,9 +1033,7 @@ class ApplicationTest extends TestCase
         $this->assertStringContainsString('Dummy type "class@anonymous" is invalid.', $tester->getDisplay(true));
     }
 
-    /**
-     * @group transient-on-windows
-     */
+    #[Group('transient-on-windows')]
     public function testRenderExceptionStackTraceContainsRootException()
     {
         $application = new Application();
@@ -1302,10 +1292,8 @@ class ApplicationTest extends TestCase
         $this->assertTrue($passedRightValue, '-> exit code 1 was passed in the console.terminate event');
     }
 
-    /**
-     * @testWith [-1]
-     *           [-32000]
-     */
+    #[TestWith([-1])]
+    #[TestWith([-32000])]
     public function testRunReturnsExitCodeOneForNegativeExceptionCode($exceptionCode)
     {
         $exception = new \Exception('', $exceptionCode);
@@ -1349,9 +1337,7 @@ class ApplicationTest extends TestCase
         $application->run($input, $output);
     }
 
-    /**
-     * @dataProvider getAddingAlreadySetDefinitionElementData
-     */
+    #[DataProvider('getAddingAlreadySetDefinitionElementData')]
     public function testAddingAlreadySetDefinitionElementData($def)
     {
         $application = new Application();
@@ -2039,9 +2025,7 @@ class ApplicationTest extends TestCase
         $app->get('test');
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testSignalListenerNotCalledByDefault()
     {
         $command = new SignableCommand(false);
@@ -2059,9 +2043,7 @@ class ApplicationTest extends TestCase
         $this->assertFalse($dispatcherCalled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testSignalListener()
     {
         $command = new SignableCommand();
@@ -2080,9 +2062,7 @@ class ApplicationTest extends TestCase
         $this->assertTrue($command->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testSignalSubscriberNotCalledByDefault()
     {
         $command = new BaseSignableCommand(false);
@@ -2097,9 +2077,7 @@ class ApplicationTest extends TestCase
         $this->assertFalse($subscriber->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testSignalSubscriber()
     {
         $command = new BaseSignableCommand();
@@ -2118,9 +2096,7 @@ class ApplicationTest extends TestCase
         $this->assertTrue($subscriber2->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testSignalDispatchWithoutEventToDispatch()
     {
         $command = new SignableCommand();
@@ -2132,9 +2108,7 @@ class ApplicationTest extends TestCase
         $this->assertTrue($command->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testSignalDispatchWithoutEventDispatcher()
     {
         $command = new SignableCommand();
@@ -2146,9 +2120,7 @@ class ApplicationTest extends TestCase
         $this->assertTrue($command->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testSetSignalsToDispatchEvent()
     {
         if (!\defined('SIGUSR1')) {
@@ -2280,9 +2252,7 @@ class ApplicationTest extends TestCase
         $this->assertTrue($terminateEventDispatched);
     }
 
-    /**
-     * @group tty
-     */
+    #[Group('tty')]
     public function testSignalableRestoresStty()
     {
         if (!Terminal::hasSttyAvailable()) {
@@ -2313,9 +2283,7 @@ class ApplicationTest extends TestCase
         $this->assertSame($previousSttyMode, $sttyMode);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testSignalableInvokableCommand()
     {
         $command = new Command();
@@ -2331,9 +2299,7 @@ class ApplicationTest extends TestCase
         $this->assertTrue($invokable->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testSignalableInvokableCommandThatExtendsBaseCommand()
     {
         $command = new class extends Command implements SignalableCommandInterface {
@@ -2348,9 +2314,7 @@ class ApplicationTest extends TestCase
         $this->assertTrue($command->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testAlarmSubscriberNotCalledByDefault()
     {
         $command = new BaseSignableCommand(false);
@@ -2366,9 +2330,7 @@ class ApplicationTest extends TestCase
         $this->assertFalse($subscriber->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testAlarmSubscriberNotCalledForOtherSignals()
     {
         $command = new SignableCommand();
@@ -2387,9 +2349,7 @@ class ApplicationTest extends TestCase
         $this->assertFalse($subscriber2->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testAlarmSubscriber()
     {
         $command = new BaseSignableCommand(signal: \SIGALRM);
@@ -2408,9 +2368,7 @@ class ApplicationTest extends TestCase
         $this->assertTrue($subscriber2->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testAlarmDispatchWithoutEventDispatcher()
     {
         $command = new AlarmableCommand(1);
@@ -2423,9 +2381,7 @@ class ApplicationTest extends TestCase
         $this->assertTrue($command->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testAlarmableCommandWithoutInterval()
     {
         $command = new AlarmableCommand(0);
@@ -2442,9 +2398,7 @@ class ApplicationTest extends TestCase
         $this->assertFalse($command->signaled);
     }
 
-    /**
-     * @requires extension pcntl
-     */
+    #[RequiresPhpExtension('pcntl')]
     public function testAlarmableCommandHandlerCalledAfterEventListener()
     {
         $command = new AlarmableCommand(1);
@@ -2461,12 +2415,9 @@ class ApplicationTest extends TestCase
         $this->assertSame([AlarmEventSubscriber::class, AlarmableCommand::class], $command->signalHandlers);
     }
 
-    /**
-     * @requires extension pcntl
-     *
-     * @testWith [false]
-     *           [4]
-     */
+    #[RequiresPhpExtension('pcntl')]
+    #[TestWith([false])]
+    #[TestWith([4])]
     public function testAlarmSubscriberCalledAfterSignalSubscriberAndInheritsExitCode(int|false $exitCode)
     {
         $command = new BaseSignableCommand(signal: \SIGALRM);

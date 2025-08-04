@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Console\Tests\Helper;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -38,9 +39,7 @@ class TableTest extends TestCase
         unset($this->stream);
     }
 
-    /**
-     * @dataProvider renderProvider
-     */
+    #[DataProvider('renderProvider')]
     public function testRender($headers, $rows, $style, $expected, $decorated = false)
     {
         $table = new Table($output = $this->getOutputStream($decorated));
@@ -54,9 +53,7 @@ class TableTest extends TestCase
         $this->assertEquals($expected, $this->getOutputContent($output));
     }
 
-    /**
-     * @dataProvider renderProvider
-     */
+    #[DataProvider('renderProvider')]
     public function testRenderAddRows($headers, $rows, $style, $expected, $decorated = false)
     {
         $table = new Table($output = $this->getOutputStream($decorated));
@@ -70,9 +67,7 @@ class TableTest extends TestCase
         $this->assertEquals($expected, $this->getOutputContent($output));
     }
 
-    /**
-     * @dataProvider renderProvider
-     */
+    #[DataProvider('renderProvider')]
     public function testRenderAddRowsOneByOne($headers, $rows, $style, $expected, $decorated = false)
     {
         $table = new Table($output = $this->getOutputStream($decorated));
@@ -1260,9 +1255,7 @@ TABLE;
         Table::getStyleDefinition('absent');
     }
 
-    /**
-     * @dataProvider renderSetTitle
-     */
+    #[DataProvider('renderSetTitle')]
     public function testSetTitle($headerTitle, $footerTitle, $style, $expected)
     {
         (new Table($output = $this->getOutputStream()))
@@ -1536,9 +1529,7 @@ EOTXT;
         yield [$headers, $rows, $expected];
     }
 
-    /**
-     * @dataProvider provideRenderHorizontalTests
-     */
+    #[DataProvider('provideRenderHorizontalTests')]
     public function testRenderHorizontal(array $headers, array $rows, string $expected)
     {
         $table = new Table($output = $this->getOutputStream());
@@ -1984,9 +1975,7 @@ EOTXT
         ];
     }
 
-    /**
-     * @dataProvider provideRenderVerticalTests
-     */
+    #[DataProvider('provideRenderVerticalTests')]
     public function testVerticalRender(string $expectedOutput, array $headers, array $rows, string $style = 'default', string $headerTitle = '', string $footerTitle = '')
     {
         $table = new Table($output = $this->getOutputStream());
