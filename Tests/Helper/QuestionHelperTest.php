@@ -740,7 +740,7 @@ EOD;
     public function testAskThrowsExceptionOnMissingInputForChoiceQuestion()
     {
         $this->expectException(MissingInputException::class);
-        $this->expectExceptionMessage('Aborted.');
+        $this->expectExceptionMessage('Aborted while asking: Choice');
         (new QuestionHelper())->ask($this->createStreamableInputInterfaceMock($this->getInputStream('')), $this->createOutputInterface(), new ChoiceQuestion('Choice', ['a', 'b']));
     }
 
