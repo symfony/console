@@ -41,7 +41,9 @@ class TreeStyleTest extends TestCase
             │   │   └── B12
             │   └── B2
             └── C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testBoxStyle()
@@ -63,7 +65,9 @@ class TreeStyleTest extends TestCase
             ┃  ┃  ┗╸ B12
             ┃  ┗╸ B2
             ┗╸ C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testBoxDoubleStyle()
@@ -85,7 +89,9 @@ class TreeStyleTest extends TestCase
             ║  ║  ╚═ B12
             ║  ╚═ B2
             ╚═ C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testCompactStyle()
@@ -107,7 +113,9 @@ class TreeStyleTest extends TestCase
             │ │ └ B12
             │ └ B2
             └ C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testLightStyle()
@@ -129,7 +137,9 @@ class TreeStyleTest extends TestCase
             |   |   `-- B12
             |   `-- B2
             `-- C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testMinimalStyle()
@@ -151,7 +161,9 @@ class TreeStyleTest extends TestCase
             . . . B12
             . . B2
             . C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRoundedStyle()
@@ -173,7 +185,9 @@ class TreeStyleTest extends TestCase
             │  │  ╰─ B12
             │  ╰─ B2
             ╰─ C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testCustomPrefix()
@@ -196,7 +210,9 @@ class TreeStyleTest extends TestCase
             C D D B F B12
             C D B F B2
             C B F C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     private static function createTree(OutputInterface $output, ?TreeStyle $style = null): TreeHelper
