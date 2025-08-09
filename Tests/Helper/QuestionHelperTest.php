@@ -444,14 +444,14 @@ class QuestionHelperTest extends AbstractQuestionHelperTestCase
     public function testAskMultilineResponseWithEOF()
     {
         $essay = <<<'EOD'
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque pretium lectus quis suscipit porttitor. Sed pretium bibendum vestibulum.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque pretium lectus quis suscipit porttitor. Sed pretium bibendum vestibulum.
 
-Etiam accumsan, justo vitae imperdiet aliquet, neque est sagittis mauris, sed interdum massa leo id leo.
+            Etiam accumsan, justo vitae imperdiet aliquet, neque est sagittis mauris, sed interdum massa leo id leo.
 
-Aliquam rhoncus, libero ac blandit convallis, est sapien hendrerit nulla, vitae aliquet tellus orci a odio. Aliquam gravida ante sit amet massa lacinia, ut condimentum purus venenatis.
+            Aliquam rhoncus, libero ac blandit convallis, est sapien hendrerit nulla, vitae aliquet tellus orci a odio. Aliquam gravida ante sit amet massa lacinia, ut condimentum purus venenatis.
 
-Vivamus et erat dictum, euismod neque in, laoreet odio. Aenean vitae tellus at leo vestibulum auctor id eget urna.
-EOD;
+            Vivamus et erat dictum, euismod neque in, laoreet odio. Aenean vitae tellus at leo vestibulum auctor id eget urna.
+            EOD;
 
         $response = $this->getInputStream($essay);
 
@@ -503,11 +503,11 @@ EOD;
     public function testAskMultilineResponseWithWithCursorInMiddleOfSeekableInputStream()
     {
         $input = <<<EOD
-This
-is
-some
-input
-EOD;
+            This
+            is
+            some
+            input
+            EOD;
         $response = $this->getInputStream($input);
         fseek($response, 8);
 

@@ -176,15 +176,15 @@ class SymfonyStyleTest extends TestCase
         $tree->render();
 
         $this->assertSame(<<<TREE
-root
-├── A
-├── B
-│   ├── B1
-│   │   ├── B11
-│   │   └── B12
-│   └── B2
-└── C
-TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            root
+            ├── A
+            ├── B
+            │   ├── B1
+            │   │   ├── B11
+            │   │   └── B12
+            │   └── B2
+            └── C
+            TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCreateTreeWithArray()
@@ -197,15 +197,15 @@ TREE, self::normalizeLineBreaks(trim($output->fetch())));
         $tree->render();
 
         $this->assertSame($tree = <<<TREE
-root
-├── A
-├── B
-│   ├── B1
-│   │   ├── B11
-│   │   └── B12
-│   └── B2
-└── C
-TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            root
+            ├── A
+            ├── B
+            │   ├── B1
+            │   │   ├── B11
+            │   │   └── B12
+            │   └── B2
+            └── C
+            TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCreateTreeWithIterable()
@@ -218,15 +218,15 @@ TREE, self::normalizeLineBreaks(trim($output->fetch())));
         $tree->render();
 
         $this->assertSame(<<<TREE
-root
-├── A
-├── B
-│   ├── B1
-│   │   ├── B11
-│   │   └── B12
-│   └── B2
-└── C
-TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            root
+            ├── A
+            ├── B
+            │   ├── B1
+            │   │   ├── B11
+            │   │   └── B12
+            │   └── B2
+            └── C
+            TREE, self::normalizeLineBreaks(trim($output->fetch())));
     }
 
     public function testCreateTreeWithConsoleOutput()
