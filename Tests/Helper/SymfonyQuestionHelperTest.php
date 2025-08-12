@@ -154,12 +154,12 @@ class SymfonyQuestionHelperTest extends AbstractQuestionHelperTestCase
         );
 
         $this->assertOutputContains(<<<EOT
- qqq:
-  [foo   ] foo
-  [żółw  ] bar
-  [łabądź] baz
- >
-EOT
+             qqq:
+              [foo   ] foo
+              [żółw  ] bar
+              [łabądź] baz
+             >
+            EOT
             , $output, true);
     }
 
@@ -175,10 +175,10 @@ EOT
         );
 
         $this->assertOutputContains(<<<EOT
- qqq:
-  [0] foo
- >ccc>
-EOT
+             qqq:
+              [0] foo
+             >ccc>
+            EOT
             , $output, true);
     }
 

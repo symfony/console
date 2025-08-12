@@ -34,18 +34,18 @@ class OutputWrapperTest extends TestCase
             20,
             false,
             <<<'EOS'
-            Árvíztűrőtükörfúrógé
-            p https://github.com/symfony/symfony Lorem ipsum
-            <comment>dolor</comment> sit amet,
-            consectetur
-            adipiscing elit.
-            Praesent vestibulum
-            nulla quis urna
-            maximus porttitor.
-            Donec ullamcorper
-            risus at <error>libero
-            ornare</error> efficitur.
-            EOS,
+                Árvíztűrőtükörfúrógé
+                p https://github.com/symfony/symfony Lorem ipsum
+                <comment>dolor</comment> sit amet,
+                consectetur
+                adipiscing elit.
+                Praesent vestibulum
+                nulla quis urna
+                maximus porttitor.
+                Donec ullamcorper
+                risus at <error>libero
+                ornare</error> efficitur.
+                EOS,
         ];
 
         yield 'Allow URL cut' => [
@@ -53,20 +53,20 @@ class OutputWrapperTest extends TestCase
             20,
             true,
             <<<'EOS'
-            Árvíztűrőtükörfúrógé
-            p
-            https://github.com/s
-            ymfony/symfony Lorem
-            ipsum <comment>dolor</comment> sit
-            amet, consectetur
-            adipiscing elit.
-            Praesent vestibulum
-            nulla quis urna
-            maximus porttitor.
-            Donec ullamcorper
-            risus at <error>libero
-            ornare</error> efficitur.
-            EOS,
+                Árvíztűrőtükörfúrógé
+                p
+                https://github.com/s
+                ymfony/symfony Lorem
+                ipsum <comment>dolor</comment> sit
+                amet, consectetur
+                adipiscing elit.
+                Praesent vestibulum
+                nulla quis urna
+                maximus porttitor.
+                Donec ullamcorper
+                risus at <error>libero
+                ornare</error> efficitur.
+                EOS,
         ];
     }
 }

@@ -51,48 +51,48 @@ class ProcessHelperTest extends TestCase
     public static function provideCommandsAndOutput(): array
     {
         $successOutputVerbose = <<<'EOT'
-  RUN  php -r "echo 42;"
-  RES  Command ran successfully
+              RUN  php -r "echo 42;"
+              RES  Command ran successfully
 
-EOT;
+            EOT;
         $successOutputDebug = <<<'EOT'
-  RUN  php -r "echo 42;"
-  OUT  42
-  RES  Command ran successfully
+              RUN  php -r "echo 42;"
+              OUT  42
+              RES  Command ran successfully
 
-EOT;
+            EOT;
         $successOutputDebugWithTags = <<<'EOT'
-  RUN  php -r "echo '<info>42</info>';"
-  OUT  <info>42</info>
-  RES  Command ran successfully
+              RUN  php -r "echo '<info>42</info>';"
+              OUT  <info>42</info>
+              RES  Command ran successfully
 
-EOT;
+            EOT;
         $successOutputProcessDebug = <<<'EOT'
-  RUN  'php' '-r' 'echo 42;'
-  OUT  42
-  RES  Command ran successfully
+              RUN  'php' '-r' 'echo 42;'
+              OUT  42
+              RES  Command ran successfully
 
-EOT;
+            EOT;
         $syntaxErrorOutputVerbose = <<<'EOT'
-  RUN  php -r "fwrite(STDERR, 'error message');usleep(50000);fwrite(STDOUT, 'out message');exit(252);"
-  RES  252 Command did not run successfully
+              RUN  php -r "fwrite(STDERR, 'error message');usleep(50000);fwrite(STDOUT, 'out message');exit(252);"
+              RES  252 Command did not run successfully
 
-EOT;
+            EOT;
         $syntaxErrorOutputDebug = <<<'EOT'
-  RUN  php -r "fwrite(STDERR, 'error message');usleep(500000);fwrite(STDOUT, 'out message');exit(252);"
-  ERR  error message
-  OUT  out message
-  RES  252 Command did not run successfully
+              RUN  php -r "fwrite(STDERR, 'error message');usleep(500000);fwrite(STDOUT, 'out message');exit(252);"
+              ERR  error message
+              OUT  out message
+              RES  252 Command did not run successfully
 
-EOT;
+            EOT;
 
         $PHP = '\\' === \DIRECTORY_SEPARATOR ? '"!PHP!"' : '"$PHP"';
         $successOutputPhp = <<<EOT
-  RUN  php -r $PHP
-  OUT  42
-  RES  Command ran successfully
+              RUN  php -r $PHP
+              OUT  42
+              RES  Command ran successfully
 
-EOT;
+            EOT;
 
         $errorMessage = 'An error occurred';
         $args = new Process(['php', '-r', 'echo 42;']);
