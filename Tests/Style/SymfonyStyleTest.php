@@ -184,7 +184,9 @@ class SymfonyStyleTest extends TestCase
             │   │   └── B12
             │   └── B2
             └── C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testCreateTreeWithArray()
@@ -205,7 +207,9 @@ class SymfonyStyleTest extends TestCase
             │   │   └── B12
             │   └── B2
             └── C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testCreateTreeWithIterable()
@@ -226,7 +230,9 @@ class SymfonyStyleTest extends TestCase
             │   │   └── B12
             │   └── B2
             └── C
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testCreateTreeWithConsoleOutput()

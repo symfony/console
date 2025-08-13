@@ -55,7 +55,9 @@ class TreeHelperTest extends TestCase
             Root
             ├── Child 1
             └── Child 2
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderThreeLevelTree()
@@ -78,7 +80,9 @@ class TreeHelperTest extends TestCase
             ├── Child 1
             │   └── SubChild 1
             └── Child 2
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderMultiLevelTree()
@@ -107,7 +111,9 @@ class TreeHelperTest extends TestCase
             │   │   └── SubSubChild 1
             │   └── SubChild 2
             └── Child 2
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderSingleNodeTree()
@@ -119,7 +125,9 @@ class TreeHelperTest extends TestCase
         $tree->render();
         $this->assertSame(<<<TREE
             Root
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderEmptyTree()
@@ -131,7 +139,9 @@ class TreeHelperTest extends TestCase
         $tree->render();
         $this->assertSame(<<<TREE
             Root
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderDeeplyNestedTree()
@@ -169,7 +179,9 @@ class TreeHelperTest extends TestCase
                           └── Level 8
                             └── Level 9
                               └── Level 10
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderNodeWithMultipleChildren()
@@ -192,7 +204,9 @@ class TreeHelperTest extends TestCase
             ├── Child 1
             ├── Child 2
             └── Child 3
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderNodeWithMultipleChildrenWithStringConversion()
@@ -212,7 +226,9 @@ class TreeHelperTest extends TestCase
             ├── Child 1
             ├── Child 2
             └── Child 3
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderTreeWithDuplicateNodeNames()
@@ -235,7 +251,9 @@ class TreeHelperTest extends TestCase
             ├── Child
             │   └── Child
             └── Child
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderTreeWithComplexNodeNames()
@@ -258,7 +276,9 @@ class TreeHelperTest extends TestCase
             ├── Child 1 (special)
             │   └── Node with spaces
             └── Child_2@#$
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testRenderTreeWithCycle()
@@ -310,7 +330,9 @@ class TreeHelperTest extends TestCase
             root
             ├── child1
             └── child2
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testCreateWithNestedArray()
@@ -329,7 +351,9 @@ class TreeHelperTest extends TestCase
             │   └── child2.2
             │      └── child2.2.1
             └── child3
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testCreateWithoutRoot()
@@ -343,7 +367,9 @@ class TreeHelperTest extends TestCase
         $this->assertSame(<<<TREE
             ├── child1
             └── child2
-            TREE, self::normalizeLineBreaks(trim($output->fetch())));
+            TREE,
+            self::normalizeLineBreaks(trim($output->fetch()))
+        );
     }
 
     public function testCreateWithEmptyArray()

@@ -603,8 +603,7 @@ class TableTest extends TestCase
                     | Dante Alighieri | J. R. R. Tolkien | J. R. R |
                     +-----------------+------------------+---------+
 
-                    TABLE
-                ,
+                    TABLE,
                 true,
             ],
             'Row with formatted cells containing a newline' => [
@@ -632,8 +631,7 @@ class TableTest extends TestCase
                     [39;49m| bar   | [39;49m[37;41mhere[39;49m       |
                     +-------+------------+
 
-                    TABLE
-                ,
+                    TABLE,
                 true,
             ],
             'TabeCellStyle with align. Also with rowspan and colspan > 1' => [
@@ -714,8 +712,7 @@ class TableTest extends TestCase
                     |             test              |                                      tttt |
                     +---------------+---------------+-------------------------------------------+
 
-                    TABLE
-                ,
+                    TABLE,
             ],
             'TabeCellStyle with fg,bg. Also with rowspan and colspan > 1' => [
                 [],
@@ -783,8 +780,7 @@ class TableTest extends TestCase
                     |             [37;41mtest[39;49m              |[31;42m                                      tttt [39;49m|
                     +---------------+---------------+-------------------------------------------+
 
-                    TABLE
-                ,
+                    TABLE,
                 true,
             ],
             'TabeCellStyle with cellFormat. Also with rowspan and colspan > 1' => [
@@ -838,8 +834,7 @@ class TableTest extends TestCase
                     |[37;41m test                           [39;49m| tttt                |
                     +----------------+---------------+---------------------+
 
-                    TABLE
-                ,
+                    TABLE,
                 true,
             ],
         ];
@@ -1292,8 +1287,7 @@ class TableTest extends TestCase
                     | 80-902734-1-6 | And Then There Were None | Agatha Christie  |
                     +---------------+--------- Page 1/2 -------+------------------+
 
-                    TABLE
-                ,
+                    TABLE,
             ],
             'header contains multiple lines' => [
                 'Multiline'."\n".'header'."\n".'here',
@@ -1627,8 +1621,7 @@ class TableTest extends TestCase
                 |  Price: 139.25               |
                 +------------------------------+
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author', 'Price'],
             $books,
         ];
@@ -1647,8 +1640,7 @@ class TableTest extends TestCase
                 | 139.25               |
                 +----------------------+
 
-                EOTXT
-            ,
+                EOTXT,
             [],
             $books,
         ];
@@ -1662,8 +1654,7 @@ class TableTest extends TestCase
                 |  Price: 9.95            |
                 +-------------------------+
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Títle', 'Author', 'Price'],
             [
                 [
@@ -1689,8 +1680,7 @@ class TableTest extends TestCase
                 |       : 139.25               |
                 +------------------------------+
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author'],
             $books,
         ];
@@ -1707,8 +1697,7 @@ class TableTest extends TestCase
                 | baz:     |
                 +----------+
 
-                EOTXT
-            ,
+                EOTXT,
             ['foo', 'bar', 'baz'],
             [
                 ['one', 'two'],
@@ -1728,8 +1717,7 @@ class TableTest extends TestCase
                 | baz: 3    |
                 +-----------+
 
-                EOTXT
-            ,
+                EOTXT,
             ['foo', 'bar', 'baz'],
             [
                 ['one', 'two', 'tree'],
@@ -1753,8 +1741,7 @@ class TableTest extends TestCase
                 |  Price: 139.25          |
                 +-------------------------+
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author', 'Price'],
             [
                 ['99921-58-10-7', 'Divine Comedy', 'Dante Alighieri', '9.95'],
@@ -1774,8 +1761,7 @@ class TableTest extends TestCase
                 | Author: Charles Dickens      |
                 +------------------------------+
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author'],
             [
                 ['<info>99921-58-10-7</info>', '<error>Divine Comedy</error>', '<fg=blue;bg=white>Dante Alighieri</fg=blue;bg=white>'],
@@ -1797,8 +1783,7 @@ class TableTest extends TestCase
                 | Author: Charles Dickens                                                               |
                 +---------------------------------------------------------------------------------------+
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author'],
             [
                 ['99921-58-10-7', 'Divine Comedy', 'Dante Alighieri'],
@@ -1829,8 +1814,7 @@ class TableTest extends TestCase
                 | Lorem ipsum dolor sit amet, consectetur                                        |
                 +--------------------------------------------------------------------------------+
 
-                EOTXT
-            ,
+                EOTXT,
             [],
             [
                 [new TableCell('Lorem ipsum dolor sit amet, <fg=white;bg=green>consectetur</> adipiscing elit, <fg=white;bg=red>sed</> do <fg=white;bg=red>eiusmod</> tempor', ['colspan' => 3])],
@@ -1861,8 +1845,7 @@ class TableTest extends TestCase
                    Price: 139.25                
                  ============================== 
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author', 'Price'],
             $books,
             'borderless',
@@ -1880,8 +1863,7 @@ class TableTest extends TestCase
                 Author: Charles Dickens      
                  Price: 139.25               
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author', 'Price'],
             $books,
             'compact',
@@ -1901,8 +1883,7 @@ class TableTest extends TestCase
                    Price: 139.25                
                  ------------------------------ 
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author', 'Price'],
             $books,
             'symfony-style-guide',
@@ -1922,8 +1903,7 @@ class TableTest extends TestCase
                 │  Price: 139.25               │
                 └──────────────────────────────┘
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author', 'Price'],
             $books,
             'box',
@@ -1943,8 +1923,7 @@ class TableTest extends TestCase
                 ║  Price: 139.25               ║
                 ╚══════════════════════════════╝
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author', 'Price'],
             $books,
             'box-double',
@@ -1964,8 +1943,7 @@ class TableTest extends TestCase
                 |  Price: 139.25               |
                 +---------- Page 1/2 ----------+
 
-                EOTXT
-            ,
+                EOTXT,
             ['ISBN', 'Title', 'Author', 'Price'],
             $books,
             'default',
@@ -2045,8 +2023,7 @@ class TableTest extends TestCase
             │ World │ 2 │ 4 │
             └───────┴───┴───┘
 
-            TABLE
-            ,
+            TABLE,
             $this->getOutputContent($output)
         );
     }
@@ -2107,8 +2084,7 @@ class TableTest extends TestCase
             | And a very long line to show difference in previous lines |                    |
             +-----------------------------------------------------------+--------------------+
 
-            TABLE
-            ,
+            TABLE,
             $this->getOutputContent($output)
         );
     }

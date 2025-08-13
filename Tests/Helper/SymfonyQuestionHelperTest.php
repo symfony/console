@@ -159,8 +159,10 @@ class SymfonyQuestionHelperTest extends AbstractQuestionHelperTestCase
               [żółw  ] bar
               [łabądź] baz
              >
-            EOT
-            , $output, true);
+            EOT,
+            $output,
+            true
+        );
     }
 
     public function testChoiceQuestionCustomPrompt()
@@ -178,8 +180,10 @@ class SymfonyQuestionHelperTest extends AbstractQuestionHelperTestCase
              qqq:
               [0] foo
              >ccc>
-            EOT
-            , $output, true);
+            EOT,
+            $output,
+            true
+        );
     }
 
     protected function getInputStream($input)

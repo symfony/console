@@ -304,48 +304,52 @@ class OutputFormatterTest extends TestCase
         $this->assertEquals(<<<EOF
             \033[32m
             some text\033[39m
-            EOF
-            , $formatter->format(<<<'EOF'
+            EOF,
+            $formatter->format(<<<'EOF'
                 <info>
                 some text</info>
                 EOF
-            ));
+            )
+        );
 
         $this->assertEquals(<<<EOF
             \033[32msome text
             \033[39m
-            EOF
-            , $formatter->format(<<<'EOF'
+            EOF,
+            $formatter->format(<<<'EOF'
                 <info>some text
                 </info>
                 EOF
-            ));
+            )
+        );
 
         $this->assertEquals(<<<EOF
             \033[32m
             some text
             \033[39m
-            EOF
-            , $formatter->format(<<<'EOF'
+            EOF,
+            $formatter->format(<<<'EOF'
                 <info>
                 some text
                 </info>
                 EOF
-            ));
+            )
+        );
 
         $this->assertEquals(<<<EOF
             \033[32m
             some text
             more text
             \033[39m
-            EOF
-            , $formatter->format(<<<'EOF'
+            EOF,
+            $formatter->format(<<<'EOF'
                 <info>
                 some text
                 more text
                 </info>
                 EOF
-            ));
+            )
+        );
     }
 
     public function testFormatAndWrap()
