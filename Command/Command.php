@@ -89,31 +89,19 @@ class Command implements SignalableCommandInterface
      */
     public function __construct(?string $name = null, ?callable $code = null)
     {
-        $this->definition = new InputDefinition();
-
         if (null !== $code) {
             if (!\is_object($code) || $code instanceof \Closure) {
                 throw new InvalidArgumentException(\sprintf('The command must be an instance of "%s" or an invokable object.', self::class));
             }
-
             /** @var AsCommand $attribute */
             $attribute = ((new \ReflectionObject($code))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance()
                 ?? throw new LogicException(\sprintf('The command must use the "%s" attribute.', AsCommand::class));
-
-            $this->setName($name ?? $attribute->name)
-                ->setDescription($attribute->description ?? '')
-                ->setHelp($attribute->help ?? '')
-                ->setCode($code);
-
-            foreach ($attribute->usages as $usage) {
-                $this->addUsage($usage);
-            }
-
-            return;
+            $this->setCode($code);
+        } else {
+            $attribute = ((new \ReflectionClass(static::class))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
         }
 
-        $attribute = ((new \ReflectionClass(static::class))->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
-
+        $this->definition = new InputDefinition();
         if (null === $name) {
             if (self::class !== (new \ReflectionMethod($this, 'getDefaultName'))->class) {
                 trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultName()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', static::class);
@@ -159,7 +147,7 @@ class Command implements SignalableCommandInterface
             $this->addUsage($usage);
         }
 
-        if (\is_callable($this) && self::class === (new \ReflectionMethod($this, 'execute'))->getDeclaringClass()->name) {
+        if (!$code && \is_callable($this) && self::class === (new \ReflectionMethod($this, 'execute'))->getDeclaringClass()->name) {
             $this->code = new InvokableCommand($this, $this(...));
         }
 

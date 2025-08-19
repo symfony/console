@@ -304,7 +304,15 @@ class CommandTest extends TestCase
 
     public function testInvokableCommand()
     {
-        $tester = new CommandTester(new InvokableTestCommand());
+        $invokable = new InvokableTestCommand();
+        $command = new Command(null, $invokable);
+        $this->assertSame('invokable:test', $command->getName());
+        $this->assertSame(['inv-test'], $command->getAliases());
+        $this->assertSame(['invokable:test usage1', 'invokable:test usage2'], $command->getUsages());
+        $this->assertSame('desc', $command->getDescription());
+        $this->assertSame('help me', $command->getHelp());
+
+        $tester = new CommandTester($invokable);
 
         $this->assertSame(Command::SUCCESS, $tester->execute([]));
     }
