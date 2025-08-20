@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Console\Attribute;
 
+use Symfony\Component\Console\Attribute\Reflection\ReflectionMember;
 use Symfony\Component\Console\Completion\CompletionInput;
 use Symfony\Component\Console\Completion\Suggestion;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
@@ -19,7 +20,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\String\UnicodeString;
 
-#[\Attribute(\Attribute::TARGET_PARAMETER)]
+#[\Attribute(\Attribute::TARGET_PARAMETER | \Attribute::TARGET_PROPERTY)]
 class Argument
 {
     private const ALLOWED_TYPES = ['string', 'bool', 'int', 'float', 'array'];
@@ -27,7 +28,9 @@ class Argument
     private string|bool|int|float|array|null $default = null;
     private array|\Closure $suggestedValues;
     private ?int $mode = null;
-    private string $function = '';
+    /**
+     * @var string|class-string<\BackedEnum>
+     */
     private string $typeName = '';
 
     /**
@@ -48,52 +51,45 @@ class Argument
     /**
      * @internal
      */
-    public static function tryFrom(\ReflectionParameter $parameter): ?self
+    public static function tryFrom(\ReflectionParameter|\ReflectionProperty $member): ?self
     {
-        /** @var self $self */
-        if (null === $self = ($parameter->getAttributes(self::class, \ReflectionAttribute::IS_INSTANCEOF)[0] ?? null)?->newInstance()) {
+        $reflection = new ReflectionMember($member);
+
+        if (!$self = $reflection->getAttribute(self::class)) {
             return null;
         }
 
-        if (($function = $parameter->getDeclaringFunction()) instanceof \ReflectionMethod) {
-            $self->function = $function->class.'::'.$function->name;
-        } else {
-            $self->function = $function->name;
-        }
-
-        $type = $parameter->getType();
-        $name = $parameter->getName();
+        $type = $reflection->getType();
+        $name = $reflection->getName();
 
         if (!$type instanceof \ReflectionNamedType) {
-            throw new LogicException(\sprintf('The parameter "$%s" of "%s()" must have a named type. Untyped, Union or Intersection types are not supported for command arguments.', $name, $self->function));
+            throw new LogicException(\sprintf('The %s "$%s" of "%s" must have a named type. Untyped, Union or Intersection types are not supported for command arguments.', $reflection->getMemberName(), $name, $reflection->getSourceName()));
         }
 
         $self->typeName = $type->getName();
         $isBackedEnum = is_subclass_of($self->typeName, \BackedEnum::class);
 
         if (!\in_array($self->typeName, self::ALLOWED_TYPES, true) && !$isBackedEnum) {
-            throw new LogicException(\sprintf('The type "%s" on parameter "$%s" of "%s()" is not supported as a command argument. Only "%s" types and backed enums are allowed.', $self->typeName, $name, $self->function, implode('", "', self::ALLOWED_TYPES)));
+            throw new LogicException(\sprintf('The type "%s" on %s "$%s" of "%s" is not supported as a command argument. Only "%s" types and backed enums are allowed.', $self->typeName, $reflection->getMemberName(), $name, $reflection->getSourceName(), implode('", "', self::ALLOWED_TYPES)));
         }
 
         if (!$self->name) {
             $self->name = (new UnicodeString($name))->kebab();
         }
 
-        if ($parameter->isDefaultValueAvailable()) {
-            $self->default = $parameter->getDefaultValue() instanceof \BackedEnum ? $parameter->getDefaultValue()->value : $parameter->getDefaultValue();
-        }
+        $self->default = $reflection->hasDefaultValue() ? $reflection->getDefaultValue() : null;
 
-        $self->mode = $parameter->isDefaultValueAvailable() || $parameter->allowsNull() ? InputArgument::OPTIONAL : InputArgument::REQUIRED;
+        $self->mode = ($reflection->hasDefaultValue() || $reflection->isNullable()) ? InputArgument::OPTIONAL : InputArgument::REQUIRED;
         if ('array' === $self->typeName) {
             $self->mode |= InputArgument::IS_ARRAY;
         }
 
-        if (\is_array($self->suggestedValues) && !\is_callable($self->suggestedValues) && 2 === \count($self->suggestedValues) && ($instance = $parameter->getDeclaringFunction()->getClosureThis()) && $instance::class === $self->suggestedValues[0] && \is_callable([$instance, $self->suggestedValues[1]])) {
+        if (\is_array($self->suggestedValues) && !\is_callable($self->suggestedValues) && 2 === \count($self->suggestedValues) && ($instance = $reflection->getSourceThis()) && $instance::class === $self->suggestedValues[0] && \is_callable([$instance, $self->suggestedValues[1]])) {
             $self->suggestedValues = [$instance, $self->suggestedValues[1]];
         }
 
         if ($isBackedEnum && !$self->suggestedValues) {
-            $self->suggestedValues = array_column(($self->typeName)::cases(), 'value');
+            $self->suggestedValues = array_column($self->typeName::cases(), 'value');
         }
 
         return $self;
@@ -117,7 +113,7 @@ class Argument
         $value = $input->getArgument($this->name);
 
         if (is_subclass_of($this->typeName, \BackedEnum::class) && (\is_string($value) || \is_int($value))) {
-            return ($this->typeName)::tryFrom($value) ?? throw InvalidArgumentException::fromEnumValue($this->name, $value, $this->suggestedValues);
+            return $this->typeName::tryFrom($value) ?? throw InvalidArgumentException::fromEnumValue($this->name, $value, $this->suggestedValues);
         }
 
         return $value;

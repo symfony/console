@@ -11,12 +11,15 @@
 
 namespace Symfony\Component\Console\Tests\Tester;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
@@ -25,6 +28,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Tests\Fixtures\InvokableExtendingCommandTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
+use Symfony\Component\Console\Tests\Fixtures\InvokableWithInputTestCommand;
 
 class CommandTesterTest extends TestCase
 {
@@ -288,5 +292,135 @@ class CommandTesterTest extends TestCase
         $tester->execute([]);
 
         $tester->assertCommandIsSuccessful();
+    }
+
+    public function testInvokableDefinitionWithInputAttribute()
+    {
+        $application = new Application();
+        $application->addCommand(new InvokableWithInputTestCommand());
+        $application->setAutoExit(false);
+
+        $bufferedOutput = new BufferedOutput();
+        $statusCode = $application->run(new ArrayInput(['command' => 'help', 'command_name' => 'invokable:input:test']), $bufferedOutput);
+
+        $expectedOutput = <<<TXT
+            Usage:
+              invokable:input:test [options] [--] <username> <email> <password>
+
+            Arguments:
+              username %S
+              email %S
+              password %S
+
+            Options:
+                  --group=GROUP                           [default: "users"]
+                  --group-description=GROUP-DESCRIPTION   [default: "Standard Users"]
+                  --admin %S
+                  --active|--no-active %S
+                  --status=STATUS                         [default: "unverified"]
+            %A
+            TXT;
+
+        self::assertSame(0, $statusCode);
+        self::assertStringMatchesFormat($expectedOutput, $bufferedOutput->fetch());
+    }
+
+    #[DataProvider('getInvokableWithInputData')]
+    public function testInvokableWithInputAttribute(array $input, string $output)
+    {
+        $command = new InvokableWithInputTestCommand();
+
+        $tester = new CommandTester($command);
+        $tester->execute($input);
+
+        $tester->assertCommandIsSuccessful();
+        self::assertSame($output, $tester->getDisplay(true));
+    }
+
+    public static function getInvokableWithInputData(): iterable
+    {
+        yield 'all set' => [
+            'input' => [
+                'username' => 'user1',
+                'email' => 'user1@example.com',
+                'password' => 'password123',
+                '--admin' => true,
+                '--active' => false,
+                '--status' => 'verified',
+                '--group' => 'admins',
+                '--group-description' => 'Super Administrators',
+            ],
+            'output' => <<<TXT
+                user1
+                user1@example.com
+                password123
+                yes
+                no
+                verified
+                admins
+                Super Administrators
+
+                TXT,
+        ];
+
+        yield 'only required arguments' => [
+            'input' => [
+                'username' => 'test',
+                'email' => 'test@example.com',
+                'password' => 'password123',
+            ],
+            'output' => <<<TXT
+                test
+                test@example.com
+                password123
+                no
+                yes
+                unverified
+                users
+                Standard Users
+
+                TXT,
+        ];
+
+        yield 'admin enabled with defaults' => [
+            'input' => [
+                'username' => 'admin',
+                'email' => 'admin@example.com',
+                'password' => 'admin123',
+                '--admin' => true,
+            ],
+            'output' => <<<TXT
+                admin
+                admin@example.com
+                admin123
+                yes
+                yes
+                unverified
+                users
+                Standard Users
+
+                TXT,
+        ];
+
+        yield 'custom group with defaults' => [
+            'input' => [
+                'username' => 'user',
+                'email' => 'user@custom.com',
+                'password' => 'custom123',
+                '--group' => 'moderators',
+                '--group-description' => 'System Moderators',
+            ],
+            'output' => <<<TXT
+                user
+                user@custom.com
+                custom123
+                no
+                yes
+                unverified
+                moderators
+                System Moderators
+
+                TXT,
+        ];
     }
 }
