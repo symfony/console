@@ -30,17 +30,19 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class InvokableCommand implements SignalableCommandInterface
 {
-    private readonly \Closure $code;
+    private readonly \Closure $closure;
     private readonly ?SignalableCommandInterface $signalableCommand;
     private readonly \ReflectionFunction $reflection;
+    private $code;
 
     public function __construct(
         private readonly Command $command,
         callable $code,
     ) {
-        $this->code = $this->getClosure($code);
+        $this->code = $code;
+        $this->closure = $this->getClosure($code);
         $this->signalableCommand = $code instanceof SignalableCommandInterface ? $code : null;
-        $this->reflection = new \ReflectionFunction($this->code);
+        $this->reflection = new \ReflectionFunction($this->closure);
     }
 
     /**
@@ -48,7 +50,7 @@ class InvokableCommand implements SignalableCommandInterface
      */
     public function __invoke(InputInterface $input, OutputInterface $output): int
     {
-        $statusCode = ($this->code)(...$this->getParameters($input, $output));
+        $statusCode = ($this->closure)(...$this->getParameters($input, $output));
 
         if (!\is_int($statusCode)) {
             throw new \TypeError(\sprintf('The command "%s" must return an integer value in the "%s" method, but "%s" was returned.', $this->command->getName(), $this->reflection->getName(), get_debug_type($statusCode)));
@@ -72,6 +74,11 @@ class InvokableCommand implements SignalableCommandInterface
                 $definition->addOption($option->toInputOption());
             }
         }
+    }
+
+    public function getCode(): callable
+    {
+        return $this->code;
     }
 
     private function getClosure(callable $code): \Closure

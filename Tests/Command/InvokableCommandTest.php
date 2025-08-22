@@ -27,6 +27,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 
 class InvokableCommandTest extends TestCase
 {
@@ -291,6 +292,14 @@ class InvokableCommandTest extends TestCase
         $this->expectExceptionMessage('The command "foo" must return an integer value in the "__invoke" method, but "null" was returned.');
 
         $command->run(new ArrayInput([]), new NullOutput());
+    }
+
+    public function testGetCode()
+    {
+        $invokableTestCommand = new InvokableTestCommand();
+        $command = new Command(null, $invokableTestCommand);
+
+        $this->assertSame($invokableTestCommand, $command->getCode());
     }
 
     #[DataProvider('provideInputArguments')]
