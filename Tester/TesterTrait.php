@@ -169,6 +169,10 @@ trait TesterTrait
 
         foreach ($inputs as $input) {
             fwrite($stream, $input.\PHP_EOL);
+
+            if (str_contains($input, \PHP_EOL)) {
+                fwrite($stream, "\x4");
+            }
         }
 
         rewind($stream);
