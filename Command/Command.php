@@ -345,6 +345,16 @@ class Command implements SignalableCommandInterface
     }
 
     /**
+     * Gets the code that is executed by the command.
+     *
+     * @return ?callable null if the code has not been set with setCode()
+     */
+    public function getCode(): ?callable
+    {
+        return $this->code?->getCode();
+    }
+
+    /**
      * Sets the code to execute when running this command.
      *
      * If this method is used, it overrides the code defined
