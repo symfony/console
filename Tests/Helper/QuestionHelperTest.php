@@ -519,7 +519,7 @@ EOD;
         $question->setMultiline(true);
 
         $this->assertSame("some\ninput", $dialog->ask($this->createStreamableInputInterfaceMock($response), $this->createOutputInterface(), $question));
-        $this->assertSame(8, ftell($response));
+        $this->assertSame(18, ftell($response));
     }
 
     /**
