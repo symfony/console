@@ -186,6 +186,8 @@ class Application implements ResetInterface
             }
         }
 
+        $prevShellVerbosity = getenv('SHELL_VERBOSITY');
+
         try {
             $this->configureIO($input, $output);
 
@@ -222,6 +224,22 @@ class Application implements ResetInterface
                 if ($finalHandler !== $renderException) {
                     $phpHandler[0]->setExceptionHandler($finalHandler);
                 }
+            }
+
+            // SHELL_VERBOSITY is set by Application::configureIO so we need to unset/reset it
+            // to its previous value to avoid one command verbosity to spread to other commands
+            if (false === $prevShellVerbosity) {
+                if (\function_exists('putenv')) {
+                    @putenv('SHELL_VERBOSITY');
+                }
+                unset($_ENV['SHELL_VERBOSITY']);
+                unset($_SERVER['SHELL_VERBOSITY']);
+            } else {
+                if (\function_exists('putenv')) {
+                    @putenv('SHELL_VERBOSITY='.$prevShellVerbosity);
+                }
+                $_ENV['SHELL_VERBOSITY'] = $prevShellVerbosity;
+                $_SERVER['SHELL_VERBOSITY'] = $prevShellVerbosity;
             }
         }
 

@@ -44,6 +44,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\Output;
@@ -2471,6 +2472,102 @@ class ApplicationTest extends TestCase
         $application->addCommand(new LazyCommand($command->getName(), [], '', false, fn () => $command, true));
 
         return $application;
+    }
+
+    public function testShellVerbosityIsRestoredAfterCommandExecutionWithInitialValue()
+    {
+        // Set initial SHELL_VERBOSITY
+        putenv('SHELL_VERBOSITY=-2');
+        $_ENV['SHELL_VERBOSITY'] = '-2';
+        $_SERVER['SHELL_VERBOSITY'] = '-2';
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->register('foo')
+            ->setCode(function (InputInterface $input, OutputInterface $output): int {
+                $output->write('SHELL_VERBOSITY: '.$_SERVER['SHELL_VERBOSITY']);
+
+                return 0;
+            });
+
+        $input = new ArrayInput(['command' => 'foo', '--verbose' => 3]);
+        $output = new BufferedOutput();
+
+        $application->run($input, $output);
+
+        $this->assertSame('SHELL_VERBOSITY: 3', $output->fetch());
+        $this->assertSame('-2', getenv('SHELL_VERBOSITY'));
+        $this->assertSame('-2', $_ENV['SHELL_VERBOSITY']);
+        $this->assertSame('-2', $_SERVER['SHELL_VERBOSITY']);
+
+        // Clean up for other tests
+        putenv('SHELL_VERBOSITY');
+        unset($_ENV['SHELL_VERBOSITY']);
+        unset($_SERVER['SHELL_VERBOSITY']);
+    }
+
+    public function testShellVerbosityIsRemovedAfterCommandExecutionWhenNotSetInitially()
+    {
+        // Ensure SHELL_VERBOSITY is not set initially
+        putenv('SHELL_VERBOSITY');
+        unset($_ENV['SHELL_VERBOSITY']);
+        unset($_SERVER['SHELL_VERBOSITY']);
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->register('foo')
+            ->setCode(function (InputInterface $input, OutputInterface $output): int {
+                $output->write('SHELL_VERBOSITY: '.$_SERVER['SHELL_VERBOSITY']);
+
+                return 0;
+            });
+
+        $input = new ArrayInput(['command' => 'foo', '--verbose' => 3]);
+        $output = new BufferedOutput();
+
+        $application->run($input, $output);
+
+        $this->assertSame('SHELL_VERBOSITY: 3', $output->fetch());
+        $this->assertFalse(getenv('SHELL_VERBOSITY'));
+        $this->assertArrayNotHasKey('SHELL_VERBOSITY', $_ENV);
+        $this->assertArrayNotHasKey('SHELL_VERBOSITY', $_SERVER);
+    }
+
+    public function testShellVerbosityDoesNotLeakBetweenCommandExecutions()
+    {
+        // Ensure no initial SHELL_VERBOSITY
+        putenv('SHELL_VERBOSITY');
+        unset($_ENV['SHELL_VERBOSITY']);
+        unset($_SERVER['SHELL_VERBOSITY']);
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->register('verbose-cmd')
+            ->setCode(function (InputInterface $input, OutputInterface $output): int {
+                $output->write('SHELL_VERBOSITY: '.$_SERVER['SHELL_VERBOSITY']);
+
+                return 0;
+            });
+        $application->register('normal-cmd')
+            ->setCode(function (InputInterface $input, OutputInterface $output): int {
+                $output->write('SHELL_VERBOSITY: '.$_SERVER['SHELL_VERBOSITY']);
+
+                return 0;
+            });
+
+        $output = new BufferedOutput();
+
+        $application->run(new ArrayInput(['command' => 'verbose-cmd', '--verbose' => true]), $output);
+
+        $this->assertSame('SHELL_VERBOSITY: 1', $output->fetch(), 'SHELL_VERBOSITY should be set to 1 for verbose command');
+        $this->assertFalse(getenv('SHELL_VERBOSITY'), 'SHELL_VERBOSITY should not be set after first command');
+
+        $application->run(new ArrayInput(['command' => 'normal-cmd']), $output);
+
+        $this->assertSame('SHELL_VERBOSITY: 0', $output->fetch(), 'SHELL_VERBOSITY should not leak to second command');
+        $this->assertFalse(getenv('SHELL_VERBOSITY'), 'SHELL_VERBOSITY should not leak to second command');
+        $this->assertArrayNotHasKey('SHELL_VERBOSITY', $_ENV);
+        $this->assertArrayNotHasKey('SHELL_VERBOSITY', $_SERVER);
     }
 }
 
