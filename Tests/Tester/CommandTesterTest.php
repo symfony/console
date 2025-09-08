@@ -224,7 +224,7 @@ class CommandTesterTest extends TestCase
         $tester = new CommandTester($command);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Aborted.');
+        $this->expectExceptionMessage('Aborted');
 
         $tester->execute([]);
     }
