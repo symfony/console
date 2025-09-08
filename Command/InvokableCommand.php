@@ -13,9 +13,11 @@ namespace Symfony\Component\Console\Command;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\Argument;
+use Symfony\Component\Console\Attribute\Input;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -70,8 +72,27 @@ class InvokableCommand implements SignalableCommandInterface
         foreach ($this->reflection->getParameters() as $parameter) {
             if ($argument = Argument::tryFrom($parameter)) {
                 $definition->addArgument($argument->toInputArgument());
-            } elseif ($option = Option::tryFrom($parameter)) {
+                continue;
+            }
+
+            if ($option = Option::tryFrom($parameter)) {
                 $definition->addOption($option->toInputOption());
+                continue;
+            }
+
+            if ($input = Input::tryFrom($parameter)) {
+                $inputArguments = array_map(fn (Argument $a) => $a->toInputArgument(), iterator_to_array($input->getArguments(), false));
+
+                // make sure optional arguments are defined after required ones
+                usort($inputArguments, fn (InputArgument $a, InputArgument $b) => (int) $b->isRequired() - (int) $a->isRequired());
+
+                foreach ($inputArguments as $inputArgument) {
+                    $definition->addArgument($inputArgument);
+                }
+
+                foreach ($input->getOptions() as $option) {
+                    $definition->addOption($option->toInputOption());
+                }
             }
         }
     }
@@ -115,6 +136,12 @@ class InvokableCommand implements SignalableCommandInterface
 
             if ($option = Option::tryFrom($parameter)) {
                 $parameters[] = $option->resolveValue($input);
+
+                continue;
+            }
+
+            if ($in = Input::tryFrom($parameter)) {
+                $parameters[] = $in->resolveValue($input);
 
                 continue;
             }
