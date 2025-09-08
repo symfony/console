@@ -145,6 +145,32 @@ class CommandTesterTest extends TestCase
         $this->assertEquals(implode('', $questions), $tester->getDisplay(true));
     }
 
+    public function testCommandWithMultilineInputs()
+    {
+        $question = 'What is your address?';
+
+        $command = new Command('foo');
+        $command->setHelperSet(new HelperSet([new QuestionHelper()]));
+        $command->setCode(function (InputInterface $input, OutputInterface $output) use ($question, $command): int {
+            $output->write($command->getHelper('question')->ask($input, $output, (new Question($question."\n"))->setMultiline(true)));
+            $output->write(stream_get_contents($input->getStream()));
+
+            return 0;
+        });
+
+        $tester = new CommandTester($command);
+
+        $address = <<<ADDRESS
+            31 Spooner Street
+            Quahog
+            ADDRESS;
+        $tester->setInputs([$address."\x04", $address]);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        $this->assertSame($question."\n".$address."\n".$address."\n", $tester->getDisplay());
+    }
+
     public function testCommandWithDefaultInputs()
     {
         $questions = [
@@ -224,7 +250,7 @@ class CommandTesterTest extends TestCase
         $tester = new CommandTester($command);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Aborted.');
+        $this->expectExceptionMessage('Aborted');
 
         $tester->execute([]);
     }
