@@ -16,7 +16,9 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -125,6 +127,32 @@ class CommandTesterTest extends TestCase
 
         $tester->assertCommandIsSuccessful();
         $this->assertEquals(implode('', $questions), $tester->getDisplay(true));
+    }
+
+    public function testCommandWithMultilineInputs()
+    {
+        $question = 'What is your address?';
+
+        $command = new Command('foo');
+        $command->setHelperSet(new HelperSet([new QuestionHelper()]));
+        $command->setCode(function (InputInterface $input, OutputInterface $output) use ($question, $command): int {
+            $output->write($command->getHelper('question')->ask($input, $output, (new Question($question."\n"))->setMultiline(true)));
+            $output->write(stream_get_contents($input->getStream()));
+
+            return 0;
+        });
+
+        $tester = new CommandTester($command);
+
+        $address = <<<ADDRESS
+            31 Spooner Street
+            Quahog
+            ADDRESS;
+        $tester->setInputs([$address."\x04", $address]);
+        $tester->execute([]);
+
+        $tester->assertCommandIsSuccessful();
+        $this->assertSame($question."\n".$address."\n".$address."\n", $tester->getDisplay());
     }
 
     public function testCommandWithDefaultInputs()
