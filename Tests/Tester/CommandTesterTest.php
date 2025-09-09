@@ -152,7 +152,7 @@ class CommandTesterTest extends TestCase
         $command = new Command('foo');
         $command->setHelperSet(new HelperSet([new QuestionHelper()]));
         $command->setCode(function (InputInterface $input, OutputInterface $output) use ($question, $command): int {
-            $output->write($command->getHelper('question')->ask($input, $output, (new Question($question."\n"))->setMultiline(true)));
+            $output->write($command->getHelper('question')->ask($input, $output, (new Question($question))->setMultiline(true)));
             $output->write(stream_get_contents($input->getStream()));
 
             return 0;
@@ -168,7 +168,7 @@ class CommandTesterTest extends TestCase
         $tester->execute([]);
 
         $tester->assertCommandIsSuccessful();
-        $this->assertSame($question."\n".$address."\n".$address."\n", $tester->getDisplay());
+        $this->assertSame($question.$address.$address.\PHP_EOL, $tester->getDisplay());
     }
 
     public function testCommandWithDefaultInputs()
