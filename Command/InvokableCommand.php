@@ -13,6 +13,7 @@ namespace Symfony\Component\Console\Command;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\Argument;
+use Symfony\Component\Console\Attribute\Interact;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Exception\LogicException;
@@ -20,6 +21,7 @@ use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Interaction\Interaction;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -32,9 +34,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class InvokableCommand implements SignalableCommandInterface
 {
-    private readonly \Closure $closure;
     private readonly ?SignalableCommandInterface $signalableCommand;
-    private readonly \ReflectionFunction $reflection;
+    private readonly \ReflectionFunction $invokable;
+    /**
+     * @var list<Interaction>|null
+     */
+    private ?array $interactions = null;
     private bool $triggerDeprecations = false;
     private $code;
 
@@ -43,9 +48,8 @@ class InvokableCommand implements SignalableCommandInterface
         callable $code,
     ) {
         $this->code = $code;
-        $this->closure = $this->getClosure($code);
         $this->signalableCommand = $code instanceof SignalableCommandInterface ? $code : null;
-        $this->reflection = new \ReflectionFunction($this->closure);
+        $this->invokable = new \ReflectionFunction($this->getClosure($code));
     }
 
     /**
@@ -53,7 +57,7 @@ class InvokableCommand implements SignalableCommandInterface
      */
     public function __invoke(InputInterface $input, OutputInterface $output): int
     {
-        $statusCode = ($this->closure)(...$this->getParameters($input, $output));
+        $statusCode = $this->invokable->invoke(...$this->getParameters($this->invokable, $input, $output));
 
         if (!\is_int($statusCode)) {
             if ($this->triggerDeprecations) {
@@ -62,7 +66,7 @@ class InvokableCommand implements SignalableCommandInterface
                 return 0;
             }
 
-            throw new \TypeError(\sprintf('The command "%s" must return an integer value in the "%s" method, but "%s" was returned.', $this->command->getName(), $this->reflection->getName(), get_debug_type($statusCode)));
+            throw new \TypeError(\sprintf('The command "%s" must return an integer value in the "%s" method, but "%s" was returned.', $this->command->getName(), $this->invokable->getName(), get_debug_type($statusCode)));
         }
 
         return $statusCode;
@@ -76,7 +80,7 @@ class InvokableCommand implements SignalableCommandInterface
      */
     public function configure(InputDefinition $definition): void
     {
-        foreach ($this->reflection->getParameters() as $parameter) {
+        foreach ($this->invokable->getParameters() as $parameter) {
             if ($argument = Argument::tryFrom($parameter)) {
                 $definition->addArgument($argument->toInputArgument());
                 continue;
@@ -133,10 +137,10 @@ class InvokableCommand implements SignalableCommandInterface
         return $code;
     }
 
-    private function getParameters(InputInterface $input, OutputInterface $output): array
+    private function getParameters(\ReflectionFunction $function, InputInterface $input, OutputInterface $output): array
     {
         $parameters = [];
-        foreach ($this->reflection->getParameters() as $parameter) {
+        foreach ($function->getParameters() as $parameter) {
             if ($argument = Argument::tryFrom($parameter)) {
                 $parameters[] = $argument->resolveValue($input);
 
@@ -187,5 +191,55 @@ class InvokableCommand implements SignalableCommandInterface
     public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
     {
         return $this->signalableCommand?->handleSignal($signal, $previousExitCode) ?? false;
+    }
+
+    public function isInteractive(): bool
+    {
+        if (null === $this->interactions) {
+            $this->collectInteractions();
+        }
+
+        return [] !== $this->interactions;
+    }
+
+    public function interact(InputInterface $input, OutputInterface $output): void
+    {
+        if (null === $this->interactions) {
+            $this->collectInteractions();
+        }
+
+        foreach ($this->interactions as $interaction) {
+            $interaction->interact($input, $output, $this->getParameters(...));
+        }
+    }
+
+    private function collectInteractions(): void
+    {
+        $invokableThis = $this->invokable->getClosureThis();
+
+        $this->interactions = [];
+        foreach ($this->invokable->getParameters() as $parameter) {
+            if ($spec = Argument::tryFrom($parameter)) {
+                if ($attribute = $spec->getInteractiveAttribute()) {
+                    $this->interactions[] = new Interaction($invokableThis, $attribute);
+                }
+
+                continue;
+            }
+
+            if ($spec = MapInput::tryFrom($parameter)) {
+                $this->interactions = [...$this->interactions, ...$spec->getPropertyInteractions(), ...$spec->getMethodInteractions()];
+            }
+        }
+
+        if (!$class = $this->invokable->getClosureCalledClass()) {
+            return;
+        }
+
+        foreach ($class->getMethods() as $method) {
+            if ($attribute = Interact::tryFrom($method)) {
+                $this->interactions[] = new Interaction($invokableThis, $attribute);
+            }
+        }
     }
 }
