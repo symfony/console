@@ -186,6 +186,45 @@ class QuestionHelperTest extends AbstractQuestionHelperTestCase
         $this->assertEquals('What time is it?', stream_get_contents($output->getStream()));
     }
 
+    public function testAskTimeout()
+    {
+        $dialog = new QuestionHelper();
+
+        $question = new Question('What is your name?');
+        $question->setTimeout(1);
+
+        $this->expectException(MissingInputException::class);
+        $this->expectExceptionMessage('Timed out after waiting for input for 1 second.');
+
+        try {
+            $startTime = microtime(true);
+            $dialog->ask($this->createStreamableInputInterfaceMock(\STDIN), $this->createOutputInterface(), $question);
+        } finally {
+            $elapsedTime = microtime(true) - $startTime;
+            self::assertGreaterThanOrEqual(1, $elapsedTime, 'The question should timeout after 1 second');
+        }
+    }
+
+    public function testAskTimeoutWithIncompatibleStream()
+    {
+        $dialog = new QuestionHelper();
+        $inputStream = $this->getInputStream('');
+
+        $question = new Question('What is your name?');
+        $question->setTimeout(1);
+
+        $this->expectException(MissingInputException::class);
+        $this->expectExceptionMessage('Aborted.');
+
+        try {
+            $startTime = microtime(true);
+            $dialog->ask($this->createStreamableInputInterfaceMock($inputStream), $this->createOutputInterface(), $question);
+        } finally {
+            $elapsedTime = microtime(true) - $startTime;
+            self::assertLessThan(1, $elapsedTime, 'Question should not wait for input on a non-interactive stream');
+        }
+    }
+
     public function testAskWithAutocomplete()
     {
         if (!Terminal::hasSttyAvailable()) {

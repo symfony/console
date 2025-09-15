@@ -502,6 +502,18 @@ class QuestionHelper extends Helper
      */
     private function readInput($inputStream, Question $question): string|false
     {
+        if (null !== $question->getTimeout() && $this->isInteractiveInput($inputStream)) {
+            $read = [$inputStream];
+            $write = null;
+            $except = null;
+            $timeoutSeconds = $question->getTimeout();
+            $changedStreams = stream_select($read, $write, $except, $timeoutSeconds);
+
+            if (0 === $changedStreams) {
+                throw new MissingInputException(\sprintf('Timed out after waiting for input for %d second%s.', $timeoutSeconds, 1 === $timeoutSeconds ? '' : 's'));
+            }
+        }
+
         if (!$question->isMultiline()) {
             $cp = $this->setIOCodepage();
             $ret = fgets($inputStream, 4096);
