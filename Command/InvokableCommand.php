@@ -13,7 +13,7 @@ namespace Symfony\Component\Console\Command;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\Argument;
-use Symfony\Component\Console\Attribute\Input;
+use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -87,7 +87,7 @@ class InvokableCommand implements SignalableCommandInterface
                 continue;
             }
 
-            if ($input = Input::tryFrom($parameter)) {
+            if ($input = MapInput::tryFrom($parameter)) {
                 $inputArguments = array_map(fn (Argument $a) => $a->toInputArgument(), iterator_to_array($input->getArguments(), false));
 
                 // make sure optional arguments are defined after required ones
@@ -149,7 +149,7 @@ class InvokableCommand implements SignalableCommandInterface
                 continue;
             }
 
-            if ($in = Input::tryFrom($parameter)) {
+            if ($in = MapInput::tryFrom($parameter)) {
                 $parameters[] = $in->resolveValue($input);
 
                 continue;
