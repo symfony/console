@@ -15,8 +15,11 @@ use Symfony\Component\Console\Attribute\Reflection\ReflectionMember;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputInterface;
 
+/**
+ * Maps a command input into an object (DTO).
+ */
 #[\Attribute(\Attribute::TARGET_PARAMETER | \Attribute::TARGET_PROPERTY)]
-final class Input
+final class MapInput
 {
     /**
      * @var array<string, Argument|Option|self>
