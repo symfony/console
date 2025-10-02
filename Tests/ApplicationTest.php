@@ -2228,6 +2228,31 @@ class ApplicationTest extends TestCase
      */
     public function testSignalableRestoresStty()
     {
+        $params = [__DIR__.'/Fixtures/application_signalable.php'];
+        $this->runRestoresSttyTest($params, 254, true);
+    }
+
+    /**
+     * @group tty
+     *
+     * @dataProvider provideTerminalInputHelperOption
+     */
+    public function testTerminalInputHelperRestoresStty(string $option)
+    {
+        $params = [__DIR__.'/Fixtures/application_sttyhelper.php', $option];
+        $this->runRestoresSttyTest($params, 0, false);
+    }
+
+    public static function provideTerminalInputHelperOption()
+    {
+        return [
+            ['--choice'],
+            ['--hidden'],
+        ];
+    }
+
+    private function runRestoresSttyTest(array $params, int $expectedExitCode, bool $equals)
+    {
         if (!Terminal::hasSttyAvailable()) {
             $this->markTestSkipped('stty not available');
         }
@@ -2238,22 +2263,29 @@ class ApplicationTest extends TestCase
 
         $previousSttyMode = shell_exec('stty -g');
 
-        $p = new Process(['php', __DIR__.'/Fixtures/application_signalable.php']);
+        array_unshift($params, 'php');
+        $p = new Process($params);
         $p->setTty(true);
         $p->start();
 
         for ($i = 0; $i < 10 && shell_exec('stty -g') === $previousSttyMode; ++$i) {
-            usleep(100000);
+            usleep(200000);
         }
 
         $this->assertNotSame($previousSttyMode, shell_exec('stty -g'));
         $p->signal(\SIGINT);
-        $p->wait();
+        $exitCode = $p->wait();
 
         $sttyMode = shell_exec('stty -g');
         shell_exec('stty '.$previousSttyMode);
 
         $this->assertSame($previousSttyMode, $sttyMode);
+
+        if ($equals) {
+            $this->assertEquals($expectedExitCode, $exitCode);
+        } else {
+            $this->assertNotEquals($expectedExitCode, $exitCode);
+        }
     }
 
     /**

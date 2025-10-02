@@ -247,11 +247,7 @@ class QuestionHelper extends Helper
         $ofs = -1;
         $matches = $autocomplete($ret);
         $numMatches = \count($matches);
-
-        $sttyMode = shell_exec('stty -g');
-        $isStdin = 'php://stdin' === (stream_get_meta_data($inputStream)['uri'] ?? null);
-        $r = [$inputStream];
-        $w = [];
+        $inputHelper = new TerminalInputHelper($inputStream);
 
         // Disable icanon (so we can fread each keypress) and echo (we'll do echoing here instead)
         shell_exec('stty -icanon -echo');
@@ -261,15 +257,13 @@ class QuestionHelper extends Helper
 
         // Read a keypress
         while (!feof($inputStream)) {
-            while ($isStdin && 0 === @stream_select($r, $w, $w, 0, 100)) {
-                // Give signal handlers a chance to run
-                $r = [$inputStream];
-            }
+            $inputHelper->waitForInput();
             $c = fread($inputStream, 1);
 
             // as opposed to fgets(), fread() returns an empty string when the stream content is empty, not false.
             if (false === $c || ('' === $ret && '' === $c && null === $question->getDefault())) {
-                shell_exec('stty '.$sttyMode);
+                // Restore the terminal so it behaves normally again
+                $inputHelper->finish();
                 throw new MissingInputException('Aborted.');
             } elseif ("\177" === $c) { // Backspace Character
                 if (0 === $numMatches && 0 !== $i) {
@@ -371,8 +365,8 @@ class QuestionHelper extends Helper
             }
         }
 
-        // Reset stty so it behaves normally again
-        shell_exec('stty '.$sttyMode);
+        // Restore the terminal so it behaves normally again
+        $inputHelper->finish();
 
         return $fullChoice;
     }
@@ -423,12 +417,16 @@ class QuestionHelper extends Helper
             return $value;
         }
 
+        $inputHelper = null;
+
         if (self::$stty && Terminal::hasSttyAvailable()) {
-            $sttyMode = shell_exec('stty -g');
+            $inputHelper = new TerminalInputHelper($inputStream);
             shell_exec('stty -echo');
         } elseif ($this->isInteractiveInput($inputStream)) {
             throw new RuntimeException('Unable to hide the response.');
         }
+
+        $inputHelper?->waitForInput();
 
         $value = fgets($inputStream, 4096);
 
@@ -437,9 +435,8 @@ class QuestionHelper extends Helper
             $errOutput->warning('The value was possibly truncated by your shell or terminal emulator');
         }
 
-        if (self::$stty && Terminal::hasSttyAvailable()) {
-            shell_exec('stty '.$sttyMode);
-        }
+        // Restore the terminal so it behaves normally again
+        $inputHelper?->finish();
 
         if (false === $value) {
             throw new MissingInputException('Aborted.');
