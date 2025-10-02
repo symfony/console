@@ -1029,14 +1029,6 @@ class Application implements ResetInterface
         if (($commandSignals = $command->getSubscribedSignals()) || $this->dispatcher && $this->signalsToDispatchEvent) {
             $signalRegistry = $this->getSignalRegistry();
 
-            if (Terminal::hasSttyAvailable()) {
-                $sttyMode = shell_exec('stty -g');
-
-                foreach ([\SIGINT, \SIGQUIT, \SIGTERM] as $signal) {
-                    $signalRegistry->register($signal, static fn () => shell_exec('stty '.$sttyMode));
-                }
-            }
-
             if ($this->dispatcher) {
                 // We register application signals, so that we can dispatch the event
                 foreach ($this->signalsToDispatchEvent as $signal) {
