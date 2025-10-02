@@ -1018,14 +1018,6 @@ class Application implements ResetInterface
                 throw new RuntimeException('Unable to subscribe to signal events. Make sure that the "pcntl" extension is installed and that "pcntl_*" functions are not disabled by your php.ini\'s "disable_functions" directive.');
             }
 
-            if (Terminal::hasSttyAvailable()) {
-                $sttyMode = shell_exec('stty -g');
-
-                foreach ([\SIGINT, \SIGTERM] as $signal) {
-                    $this->signalRegistry->register($signal, static fn () => shell_exec('stty '.$sttyMode));
-                }
-            }
-
             if ($this->dispatcher) {
                 // We register application signals, so that we can dispatch the event
                 foreach ($this->signalsToDispatchEvent as $signal) {
