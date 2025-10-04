@@ -313,6 +313,10 @@ class Command implements SignalableCommandInterface
 
         if ($input->isInteractive()) {
             $this->interact($input, $output);
+
+            if ($this->code?->isInteractive()) {
+                $this->code->interact($input, $output);
+            }
         }
 
         // The command name argument is often omitted when a command is executed directly with its run() method.
