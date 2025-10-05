@@ -26,6 +26,8 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\Console\Tester\ApplicationTester;
+use Symfony\Component\Process\Exception\ProcessSignaledException;
+use Symfony\Component\Process\Process;
 
 /**
  * @group tty
@@ -927,6 +929,28 @@ EOD;
         $stream = $output->getStream();
         rewind($stream);
         $this->assertStringEndsWith("\033[1D\033[K\033[2D\033[K\033[1D\033[K", stream_get_contents($stream));
+    }
+
+    /**
+     * @testWith ["single"]
+     *           ["multi"]
+     */
+    public function testExitCommandOnInputSIGINT(string $mode)
+    {
+        if (!\function_exists('pcntl_signal')) {
+            $this->markTestSkipped('pcntl signals not available');
+        }
+
+        $p = new Process(
+            ['php', dirname(__DIR__).'/Fixtures/application_test_sigint.php', $mode],
+            timeout: 2, // the process will auto shutdown if not killed by SIGINT, to prevent blocking
+        );
+        $p->setPty(true);
+        $p->start();
+
+        $this->expectException(ProcessSignaledException::class);
+        $this->expectExceptionMessage('The process has been signaled with signal "2".');
+        $p->wait();
     }
 
     protected function getInputStream($input)
