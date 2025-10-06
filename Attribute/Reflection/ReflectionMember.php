@@ -97,11 +97,6 @@ class ReflectionMember
         return $this->member instanceof \ReflectionParameter ? 'parameter' : 'property';
     }
 
-    public function isBackedEnumType(): bool
-    {
-        return $this->member->getType() instanceof \ReflectionNamedType && is_subclass_of($this->member->getType()->getName(), \BackedEnum::class);
-    }
-
     public function isParameter(): bool
     {
         return $this->member instanceof \ReflectionParameter;
