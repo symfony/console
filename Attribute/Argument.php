@@ -32,6 +32,7 @@ class Argument
      * @var string|class-string<\BackedEnum>
      */
     private string $typeName = '';
+    private ?InteractiveAttributeInterface $interactiveAttribute = null;
 
     /**
      * Represents a console command <argument> definition.
@@ -79,7 +80,8 @@ class Argument
 
         $self->default = $reflection->hasDefaultValue() ? $reflection->getDefaultValue() : null;
 
-        $self->mode = ($reflection->hasDefaultValue() || $reflection->isNullable()) ? InputArgument::OPTIONAL : InputArgument::REQUIRED;
+        $isOptional = $reflection->hasDefaultValue() || $reflection->isNullable();
+        $self->mode = $isOptional ? InputArgument::OPTIONAL : InputArgument::REQUIRED;
         if ('array' === $self->typeName) {
             $self->mode |= InputArgument::IS_ARRAY;
         }
@@ -90,6 +92,12 @@ class Argument
 
         if ($isBackedEnum && !$self->suggestedValues) {
             $self->suggestedValues = array_column($self->typeName::cases(), 'value');
+        }
+
+        $self->interactiveAttribute = Ask::tryFrom($member, $self->name);
+
+        if ($self->interactiveAttribute && $isOptional) {
+            throw new LogicException(\sprintf('The %s "$%s" argument of "%s" cannot be both interactive and optional.', $reflection->getMemberName(), $self->name, $reflection->getSourceName()));
         }
 
         return $self;
@@ -117,5 +125,13 @@ class Argument
         }
 
         return $value;
+    }
+
+    /**
+     * @internal
+     */
+    public function getInteractiveAttribute(): ?InteractiveAttributeInterface
+    {
+        return $this->interactiveAttribute;
     }
 }

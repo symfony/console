@@ -29,6 +29,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Console\Tests\Fixtures\InvokableExtendingCommandTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableWithInputTestCommand;
+use Symfony\Component\Console\Tests\Fixtures\InvokableWithInteractiveAttributesTestCommand;
 
 class CommandTesterTest extends TestCase
 {
@@ -448,5 +449,45 @@ class CommandTesterTest extends TestCase
 
                 TXT,
         ];
+
+        yield 'defaults with interactive' => [
+            'input' => [
+                'username' => 'user',
+            ],
+            'output' => <<<TXT
+                user
+                user.interactive@command.com
+                user-dto-interactive-password
+                no
+                yes
+                unverified
+                users
+                Standard Users
+
+                TXT,
+        ];
+    }
+
+    public function testInvokableWithInteractiveQuestionParameter()
+    {
+        $tester = new CommandTester(new InvokableWithInteractiveAttributesTestCommand());
+        $tester->setInputs(['arg1-value', 'arg2-value', 'arg3-value', 'arg6-value', 'arg7-value', 'arg4-value', 'arg5-value']);
+        $tester->execute([], ['interactive' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        self::assertStringContainsString('Enter arg1', $tester->getDisplay());
+        self::assertStringContainsString('Arg1: arg1-value', $tester->getDisplay());
+        self::assertStringContainsString('Enter arg2', $tester->getDisplay());
+        self::assertStringContainsString('Arg2: arg2-value', $tester->getDisplay());
+        self::assertStringContainsString('Enter arg3', $tester->getDisplay());
+        self::assertStringContainsString('Arg3: arg3-value', $tester->getDisplay());
+        self::assertStringContainsString('Enter arg6', $tester->getDisplay());
+        self::assertStringContainsString('Arg6: arg6-value', $tester->getDisplay());
+        self::assertStringContainsString('Enter arg7', $tester->getDisplay());
+        self::assertStringContainsString('Arg7: arg7-value', $tester->getDisplay());
+        self::assertStringContainsString('Enter arg4', $tester->getDisplay());
+        self::assertStringContainsString('Arg4: arg4-value', $tester->getDisplay());
+        self::assertStringContainsString('Enter arg5', $tester->getDisplay());
+        self::assertStringContainsString('Arg5: arg5-value', $tester->getDisplay());
     }
 }
