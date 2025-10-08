@@ -134,4 +134,12 @@ class Argument
     {
         return $this->interactiveAttribute;
     }
+
+    /**
+     * @internal
+     */
+    public function isRequired(): bool
+    {
+        return InputArgument::REQUIRED === (InputArgument::REQUIRED & $this->mode);
+    }
 }

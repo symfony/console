@@ -472,7 +472,7 @@ class CommandTesterTest extends TestCase
     public function testInvokableWithInteractiveQuestionParameter()
     {
         $tester = new CommandTester(new InvokableWithInteractiveAttributesTestCommand());
-        $tester->setInputs(['arg1-value', 'arg2-value', 'arg3-value', 'arg6-value', 'arg7-value', 'arg4-value', 'arg5-value']);
+        $tester->setInputs(['arg1-value', 'arg2-value', 'arg3-value', 'arg6-value', 'arg7-value', 'yes', 'arg9-v1', 'arg9-v2', '', 'arg4-value', 'arg5-value']);
         $tester->execute([], ['interactive' => true]);
         $tester->assertCommandIsSuccessful();
 
@@ -486,6 +486,10 @@ class CommandTesterTest extends TestCase
         self::assertStringContainsString('Arg6: arg6-value', $tester->getDisplay());
         self::assertStringContainsString('Enter arg7', $tester->getDisplay());
         self::assertStringContainsString('Arg7: arg7-value', $tester->getDisplay());
+        self::assertStringContainsString('Enter arg8 (yes/no) [no]', $tester->getDisplay());
+        self::assertStringContainsString('Arg8: yes', $tester->getDisplay());
+        self::assertStringContainsString('Enter arg9', $tester->getDisplay());
+        self::assertStringContainsString('Arg9: arg9-v1,arg9-v2', $tester->getDisplay());
         self::assertStringContainsString('Enter arg4', $tester->getDisplay());
         self::assertStringContainsString('Arg4: arg4-value', $tester->getDisplay());
         self::assertStringContainsString('Enter arg5', $tester->getDisplay());
