@@ -56,7 +56,7 @@ class DummyDto
     public Arg2 $arg2;
 
     #[Argument]
-    #[Ask('Enter arg3', hidden: true)]
+    #[Ask('Enter arg3')]
     public string $arg3;
 
     #[Argument]

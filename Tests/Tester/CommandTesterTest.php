@@ -30,6 +30,7 @@ use Symfony\Component\Console\Tests\Fixtures\InvokableExtendingCommandTestComman
 use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableWithInputTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableWithInteractiveAttributesTestCommand;
+use Symfony\Component\Console\Tests\Fixtures\InvokableWithInteractiveHiddenQuestionAttributeTestCommand;
 
 class CommandTesterTest extends TestCase
 {
@@ -489,5 +490,20 @@ class CommandTesterTest extends TestCase
         self::assertStringContainsString('Arg4: arg4-value', $tester->getDisplay());
         self::assertStringContainsString('Enter arg5', $tester->getDisplay());
         self::assertStringContainsString('Arg5: arg5-value', $tester->getDisplay());
+    }
+
+    public function testInvokableWithInteractiveHiddenQuestionParameter()
+    {
+        if ('\\' === \DIRECTORY_SEPARATOR) {
+            $this->markTestSkipped('Cannot test hidden questions on Windows');
+        }
+
+        $tester = new CommandTester(new InvokableWithInteractiveHiddenQuestionAttributeTestCommand());
+        $tester->setInputs(['arg1-value']);
+        $tester->execute([], ['interactive' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        self::assertStringContainsString('Enter arg1', $tester->getDisplay());
+        self::assertStringContainsString('Arg1: arg1-value', $tester->getDisplay());
     }
 }
