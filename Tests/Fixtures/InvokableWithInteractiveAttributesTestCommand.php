@@ -44,6 +44,8 @@ class InvokableWithInteractiveAttributesTestCommand
         $io->writeln('Arg5: '.$dto->arg5);
         $io->writeln('Arg6: '.$dto->dummyDto2->arg6);
         $io->writeln('Arg7: '.$dto->dummyDto2->arg7);
+        $io->writeln('Arg8: '.($dto->dummyDto2->arg8 ? 'yes' : 'no'));
+        $io->writeln('Arg9: '.implode(',', $dto->dummyDto2->arg9));
 
         return Command::SUCCESS;
     }
@@ -84,6 +86,14 @@ class DummyDto2
     #[Argument]
     #[Ask('Enter arg7')]
     public string $arg7;
+
+    #[Argument]
+    #[Ask('Enter arg8')]
+    public bool $arg8;
+
+    #[Argument]
+    #[Ask('Enter arg9')]
+    public array $arg9;
 
     #[Interact]
     public function prompt(SymfonyStyle $io): void

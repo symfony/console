@@ -93,7 +93,7 @@ final class MapInput
 
         foreach ($this->definition as $name => $spec) {
             // ignore required arguments that are not set yet (may happen in interactive mode)
-            if ($spec instanceof Argument && null === $input->getArgument($spec->name) && $spec->toInputArgument()->isRequired()) {
+            if ($spec instanceof Argument && $spec->isRequired() && \in_array($input->getArgument($spec->name), [null, []], true)) {
                 continue;
             }
 
@@ -111,7 +111,7 @@ final class MapInput
         foreach ($this->definition as $name => $spec) {
             $property = $this->class->getProperty($name);
 
-            if (!$property->isInitialized($object) || null === $value = $property->getValue($object)) {
+            if (!$property->isInitialized($object) || \in_array($value = $property->getValue($object), [null, []], true)) {
                 continue;
             }
 

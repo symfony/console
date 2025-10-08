@@ -13,13 +13,16 @@ namespace Symfony\Component\Console\Attribute;
 
 use Symfony\Component\Console\Attribute\Reflection\ReflectionMember;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[\Attribute(\Attribute::TARGET_PARAMETER | \Attribute::TARGET_PROPERTY)]
 class Ask implements InteractiveAttributeInterface
 {
+    public ?\Closure $normalizer;
     public ?\Closure $validator;
     private \Closure $closure;
 
@@ -41,9 +44,11 @@ class Ask implements InteractiveAttributeInterface
         public bool $multiline = false,
         public bool $trimmable = true,
         public ?int $timeout = null,
+        ?callable $normalizer = null,
         ?callable $validator = null,
         public ?int $maxAttempts = null,
     ) {
+        $this->normalizer = $normalizer ? $normalizer(...) : null;
         $this->validator = $validator ? $validator(...) : null;
     }
 
@@ -58,18 +63,38 @@ class Ask implements InteractiveAttributeInterface
             return null;
         }
 
-        $self->closure = function (SymfonyStyle $io, InputInterface $input) use ($self, $reflection, $name) {
-            if (($reflection->isProperty() && isset($this->{$reflection->getName()})) || ($reflection->isParameter() && null !== $input->getArgument($name))) {
+        $type = $reflection->getType();
+
+        if (!$type instanceof \ReflectionNamedType) {
+            throw new LogicException(\sprintf('The %s "$%s" of "%s" must have a named type. Untyped, Union or Intersection types are not supported for interactive questions.', $reflection->getMemberName(), $name, $reflection->getSourceName()));
+        }
+
+        $self->closure = function (SymfonyStyle $io, InputInterface $input) use ($self, $reflection, $name, $type) {
+            if ($reflection->isProperty() && isset($this->{$reflection->getName()})) {
                 return;
             }
 
-            $question = new Question($self->question, $self->default);
+            if ($reflection->isParameter() && !\in_array($input->getArgument($name), [null, []], true)) {
+                return;
+            }
+
+            if ('bool' === $type->getName()) {
+                $self->default ??= false;
+
+                if (!\is_bool($self->default)) {
+                    throw new LogicException(\sprintf('The "%s::$default" value for the %s "$%s" of "%s" must be a boolean.', self::class, $reflection->getMemberName(), $name, $reflection->getSourceName()));
+                }
+
+                $question = new ConfirmationQuestion($self->question, $self->default);
+            } else {
+                $question = new Question($self->question, $self->default);
+            }
             $question->setHidden($self->hidden);
             $question->setMultiline($self->multiline);
             $question->setTrimmable($self->trimmable);
             $question->setTimeout($self->timeout);
 
-            if (!$self->validator && $reflection->isProperty()) {
+            if (!$self->validator && $reflection->isProperty() && 'array' !== $type->getName()) {
                 $self->validator = function (mixed $value) use ($reflection): mixed {
                     return $this->{$reflection->getName()} = $value;
                 };
@@ -78,13 +103,25 @@ class Ask implements InteractiveAttributeInterface
             $question->setValidator($self->validator);
             $question->setMaxAttempts($self->maxAttempts);
 
-            if ($reflection->isBackedEnumType()) {
+            if ($self->normalizer) {
+                $question->setNormalizer($self->normalizer);
+            } elseif (is_subclass_of($type->getName(), \BackedEnum::class)) {
                 /** @var class-string<\BackedEnum> $backedType */
                 $backedType = $reflection->getType()->getName();
-                $question->setNormalizer(fn (string|int $value) => $backedType::tryFrom($value) ?? throw InvalidArgumentException::fromEnumValue($reflection->getName(), $value, array_map(fn (\BackedEnum $enum): string|int => $enum->value, $backedType::cases())));
+                $question->setNormalizer(fn (string|int $value) => $backedType::tryFrom($value) ?? throw InvalidArgumentException::fromEnumValue($reflection->getName(), $value, array_column($backedType::cases(), 'value')));
             }
 
-            $value = $io->askQuestion($question);
+            if ('array' === $type->getName()) {
+                $value = [];
+                while ($v = $io->askQuestion($question)) {
+                    if ("\x4" === $v || \PHP_EOL === $v || ($question->isTrimmable() && '' === $v = trim($v))) {
+                        break;
+                    }
+                    $value[] = $v;
+                }
+            } else {
+                $value = $io->askQuestion($question);
+            }
 
             if (null === $value && !$reflection->isNullable()) {
                 return;
