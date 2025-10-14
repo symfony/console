@@ -16,6 +16,7 @@ use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\Interact;
 use Symfony\Component\Console\Attribute\MapInput;
 use Symfony\Component\Console\Attribute\Option;
+use Symfony\Component\Console\Cursor;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
@@ -159,6 +160,7 @@ class InvokableCommand implements SignalableCommandInterface
             $parameters[] = match ($type->getName()) {
                 InputInterface::class => $input,
                 OutputInterface::class => $output,
+                Cursor::class => new Cursor($output),
                 SymfonyStyle::class => new SymfonyStyle($input, $output),
                 Application::class => $this->command->getApplication(),
                 default => throw new RuntimeException(\sprintf('Unsupported type "%s" for parameter "$%s".', $type->getName(), $parameter->getName())),

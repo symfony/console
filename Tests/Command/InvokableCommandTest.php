@@ -14,12 +14,14 @@ namespace Symfony\Component\Console\Tests\Command;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Completion\CompletionInput;
 use Symfony\Component\Console\Completion\CompletionSuggestions;
 use Symfony\Component\Console\Completion\Suggestion;
+use Symfony\Component\Console\Cursor;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Exception\LogicException;
@@ -27,6 +29,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 
 class InvokableCommandTest extends TestCase
@@ -460,6 +463,25 @@ class InvokableCommandTest extends TestCase
         $this->expectExceptionMessage('The "--a" option requires a value.');
 
         $command->run(new ArrayInput(['--a' => null]), new NullOutput());
+    }
+
+    public function testHelpersInjection()
+    {
+        $command = new Command('foo');
+        $command->setApplication(new Application());
+        $command->setCode(function (
+            InputInterface $input,
+            OutputInterface $output,
+            Cursor $cursor,
+            SymfonyStyle $io,
+            Application $application,
+        ): int {
+            $this->addToAssertionCount(1);
+
+            return 0;
+        });
+
+        $command->run(new ArrayInput([]), new NullOutput());
     }
 
     public function getSuggestedRoles(CompletionInput $input): array
