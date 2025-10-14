@@ -14,6 +14,7 @@ CHANGELOG
  * Add `#[MapInput]` attribute to support DTOs in commands
  * Add optional timeout for interaction in `QuestionHelper`
  * Add support for interactive invokable commands with `#[Interact]` and `#[Ask]` attributes
+ * Add support for `Cursor` helper in invokable commands
 
 7.3
 ---
