@@ -186,7 +186,8 @@ class Application implements ResetInterface
             }
         }
 
-        $prevShellVerbosity = getenv('SHELL_VERBOSITY');
+        $empty = new \stdClass();
+        $prevShellVerbosity = [$_ENV['SHELL_VERBOSITY'] ?? $empty, $_SERVER['SHELL_VERBOSITY'] ?? $empty, getenv('SHELL_VERBOSITY')];
 
         try {
             $this->configureIO($input, $output);
@@ -228,18 +229,14 @@ class Application implements ResetInterface
 
             // SHELL_VERBOSITY is set by Application::configureIO so we need to unset/reset it
             // to its previous value to avoid one command verbosity to spread to other commands
-            if (false === $prevShellVerbosity) {
-                if (\function_exists('putenv')) {
-                    @putenv('SHELL_VERBOSITY');
-                }
+            if ($empty === $_ENV['SHELL_VERBOSITY'] = $prevShellVerbosity[0]) {
                 unset($_ENV['SHELL_VERBOSITY']);
+            }
+            if ($empty === $_SERVER['SHELL_VERBOSITY'] = $prevShellVerbosity[1]) {
                 unset($_SERVER['SHELL_VERBOSITY']);
-            } else {
-                if (\function_exists('putenv')) {
-                    @putenv('SHELL_VERBOSITY='.$prevShellVerbosity);
-                }
-                $_ENV['SHELL_VERBOSITY'] = $prevShellVerbosity;
-                $_SERVER['SHELL_VERBOSITY'] = $prevShellVerbosity;
+            }
+            if (\function_exists('putenv')) {
+                @putenv('SHELL_VERBOSITY'.(false === ($prevShellVerbosity[2] ?? false) ? '' : '='.$prevShellVerbosity[2]));
             }
         }
 
@@ -959,57 +956,31 @@ class Application implements ResetInterface
      */
     protected function configureIO(InputInterface $input, OutputInterface $output): void
     {
-        if (true === $input->hasParameterOption(['--ansi'], true)) {
+        if ($input->hasParameterOption(['--ansi'], true)) {
             $output->setDecorated(true);
-        } elseif (true === $input->hasParameterOption(['--no-ansi'], true)) {
+        } elseif ($input->hasParameterOption(['--no-ansi'], true)) {
             $output->setDecorated(false);
         }
 
-        if (true === $input->hasParameterOption(['--no-interaction', '-n'], true)) {
-            $input->setInteractive(false);
-        }
+        $shellVerbosity = match (true) {
+            $input->hasParameterOption(['--silent'], true) => -2,
+            $input->hasParameterOption(['--quiet', '-q'], true) => -1,
+            $input->hasParameterOption('-vvv', true) || $input->hasParameterOption('--verbose=3', true) || 3 === $input->getParameterOption('--verbose', false, true) => 3,
+            $input->hasParameterOption('-vv', true) || $input->hasParameterOption('--verbose=2', true) || 2 === $input->getParameterOption('--verbose', false, true) => 2,
+            $input->hasParameterOption('-v', true) || $input->hasParameterOption('--verbose=1', true) || $input->hasParameterOption('--verbose', true) || $input->getParameterOption('--verbose', false, true) => 1,
+            default => (int) ($_ENV['SHELL_VERBOSITY'] ?? $_SERVER['SHELL_VERBOSITY'] ?? getenv('SHELL_VERBOSITY')),
+        };
 
-        switch ($shellVerbosity = (int) getenv('SHELL_VERBOSITY')) {
-            case -2:
-                $output->setVerbosity(OutputInterface::VERBOSITY_SILENT);
-                break;
-            case -1:
-                $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-                break;
-            case 1:
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-                break;
-            case 2:
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
-                break;
-            case 3:
-                $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
-                break;
-            default:
-                $shellVerbosity = 0;
-                break;
-        }
+        $output->setVerbosity(match ($shellVerbosity) {
+            -2 => OutputInterface::VERBOSITY_SILENT,
+            -1 => OutputInterface::VERBOSITY_QUIET,
+            1 => OutputInterface::VERBOSITY_VERBOSE,
+            2 => OutputInterface::VERBOSITY_VERY_VERBOSE,
+            3 => OutputInterface::VERBOSITY_DEBUG,
+            default => ($shellVerbosity = 0) ?: $output->getVerbosity(),
+        });
 
-        if (true === $input->hasParameterOption(['--silent'], true)) {
-            $output->setVerbosity(OutputInterface::VERBOSITY_SILENT);
-            $shellVerbosity = -2;
-        } elseif (true === $input->hasParameterOption(['--quiet', '-q'], true)) {
-            $output->setVerbosity(OutputInterface::VERBOSITY_QUIET);
-            $shellVerbosity = -1;
-        } else {
-            if ($input->hasParameterOption('-vvv', true) || $input->hasParameterOption('--verbose=3', true) || 3 === $input->getParameterOption('--verbose', false, true)) {
-                $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
-                $shellVerbosity = 3;
-            } elseif ($input->hasParameterOption('-vv', true) || $input->hasParameterOption('--verbose=2', true) || 2 === $input->getParameterOption('--verbose', false, true)) {
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
-                $shellVerbosity = 2;
-            } elseif ($input->hasParameterOption('-v', true) || $input->hasParameterOption('--verbose=1', true) || $input->hasParameterOption('--verbose', true) || $input->getParameterOption('--verbose', false, true)) {
-                $output->setVerbosity(OutputInterface::VERBOSITY_VERBOSE);
-                $shellVerbosity = 1;
-            }
-        }
-
-        if (0 > $shellVerbosity) {
+        if (0 > $shellVerbosity || $input->hasParameterOption(['--no-interaction', '-n'], true)) {
             $input->setInteractive(false);
         }
 
