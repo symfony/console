@@ -379,12 +379,13 @@ class QuestionHelper extends Helper
             return $entered;
         }
 
-        $choices = explode(',', $entered);
-        if ('' !== $lastChoice = trim($choices[\count($choices) - 1])) {
-            return $lastChoice;
+        if (false === $lastCommaPos = strrpos($entered, ',')) {
+            return $entered;
         }
 
-        return $entered;
+        $lastChoice = trim(substr($entered, $lastCommaPos + 1));
+
+        return '' !== $lastChoice ? $lastChoice : $entered;
     }
 
     /**
