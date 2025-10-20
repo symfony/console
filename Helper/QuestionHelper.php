@@ -68,6 +68,8 @@ class QuestionHelper extends Helper
         $inputStream = $input instanceof StreamableInputInterface ? $input->getStream() : null;
         $inputStream ??= \STDIN;
 
+        ProgressBar::pauseAll();
+
         try {
             if (!$question->getValidator() && !$question->getConstraints()) {
                 return $this->doAsk($inputStream, $output, $question);
@@ -84,6 +86,8 @@ class QuestionHelper extends Helper
             }
 
             return $fallbackOutput;
+        } finally {
+            ProgressBar::resumeAll();
         }
     }
 
