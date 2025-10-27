@@ -19,11 +19,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @internal
  */
-final readonly class Interaction
+final class Interaction
 {
     public function __construct(
-        private object $owner,
-        private InteractiveAttributeInterface $attribute,
+        private readonly object $owner,
+        private readonly InteractiveAttributeInterface $attribute,
     ) {
     }
 
