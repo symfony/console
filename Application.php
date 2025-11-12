@@ -1012,11 +1012,15 @@ class Application implements ResetInterface
             }
         }
 
+        $registeredSignals = false;
         $commandSignals = $command instanceof SignalableCommandInterface ? $command->getSubscribedSignals() : [];
         if ($commandSignals || $this->dispatcher && $this->signalsToDispatchEvent) {
             if (!$this->signalRegistry) {
                 throw new RuntimeException('Unable to subscribe to signal events. Make sure that the "pcntl" extension is installed and that "pcntl_*" functions are not disabled by your php.ini\'s "disable_functions" directive.');
             }
+
+            $registeredSignals = true;
+            $this->getSignalRegistry()->pushCurrentHandlers();
 
             if ($this->dispatcher) {
                 // We register application signals, so that we can dispatch the event
@@ -1067,7 +1071,13 @@ class Application implements ResetInterface
         }
 
         if (null === $this->dispatcher) {
-            return $command->run($input, $output);
+            try {
+                return $command->run($input, $output);
+            } finally {
+                if ($registeredSignals) {
+                    $this->getSignalRegistry()->popPreviousHandlers();
+                }
+            }
         }
 
         // bind before the console.command event, so the listeners have access to input options/arguments
@@ -1096,6 +1106,10 @@ class Application implements ResetInterface
 
             if (0 === $exitCode = $event->getExitCode()) {
                 $e = null;
+            }
+        } finally {
+            if ($registeredSignals) {
+                $this->getSignalRegistry()->popPreviousHandlers();
             }
         }
 
