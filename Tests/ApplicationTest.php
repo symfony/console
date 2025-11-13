@@ -2314,6 +2314,26 @@ class ApplicationTest extends TestCase
     }
 
     #[RequiresPhpExtension('pcntl')]
+    public function testSignalHandlersAreCleanedUpAfterCommandRuns()
+    {
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+        $application->addCommand(new SignableCommand(false));
+
+        $signalRegistry = $application->getSignalRegistry();
+        $tester = new ApplicationTester($application);
+
+        $this->assertCount(0, $this->getHandlersForSignal($signalRegistry, \SIGUSR1), 'Registry should be empty initially.');
+
+        $tester->run(['command' => 'signal']);
+        $this->assertCount(0, $this->getHandlersForSignal($signalRegistry, \SIGUSR1), 'Registry should be empty after first run.');
+
+        $tester->run(['command' => 'signal']);
+        $this->assertCount(0, $this->getHandlersForSignal($signalRegistry, \SIGUSR1), 'Registry should still be empty after second run.');
+    }
+
+    #[RequiresPhpExtension('pcntl')]
     public function testSignalableInvokableCommand()
     {
         $command = new Command();
@@ -2327,6 +2347,40 @@ class ApplicationTest extends TestCase
 
         $this->assertSame(1, $application->run(new ArrayInput(['signal-invokable'])));
         $this->assertTrue($invokable->signaled);
+    }
+
+    #[RequiresPhpExtension('pcntl')]
+    public function testSignalHandlersCleanupOnException()
+    {
+        $command = new class('signal:exception') extends Command implements SignalableCommandInterface {
+            public function getSubscribedSignals(): array
+            {
+                return [\SIGUSR1];
+            }
+
+            public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
+            {
+                return false;
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                throw new \RuntimeException('Test exception');
+            }
+        };
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(true);
+        $application->addCommand($command);
+
+        $signalRegistry = $application->getSignalRegistry();
+        $tester = new ApplicationTester($application);
+
+        $this->assertCount(0, $this->getHandlersForSignal($signalRegistry, \SIGUSR1), 'Pre-condition: Registry must be empty.');
+
+        $tester->run(['command' => 'signal:exception']);
+        $this->assertCount(0, $this->getHandlersForSignal($signalRegistry, \SIGUSR1), 'Signal handlers must be cleaned up even on exception.');
     }
 
     #[RequiresPhpExtension('pcntl')]
@@ -2429,6 +2483,90 @@ class ApplicationTest extends TestCase
     }
 
     #[RequiresPhpExtension('pcntl')]
+    public function testNestedCommandsIsolateSignalHandlers()
+    {
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+
+        $signalRegistry = $application->getSignalRegistry();
+        $self = $this;
+
+        $innerCommand = new class('signal:inner') extends Command implements SignalableCommandInterface {
+            public $signalRegistry;
+            public $self;
+
+            public function getSubscribedSignals(): array
+            {
+                return [\SIGUSR1];
+            }
+
+            public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
+            {
+                return false;
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $handlers = $this->self->getHandlersForSignal($this->signalRegistry, \SIGUSR1);
+                $this->self->assertCount(1, $handlers, 'Inner command should only see its own handler.');
+                $output->write('Inner execute.');
+
+                return 0;
+            }
+        };
+
+        $outerCommand = new class('signal:outer') extends Command implements SignalableCommandInterface {
+            public $signalRegistry;
+            public $self;
+
+            public function getSubscribedSignals(): array
+            {
+                return [\SIGUSR1];
+            }
+
+            public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
+            {
+                return false;
+            }
+
+            protected function execute(InputInterface $input, OutputInterface $output): int
+            {
+                $handlersBefore = $this->self->getHandlersForSignal($this->signalRegistry, \SIGUSR1);
+                $this->self->assertCount(1, $handlersBefore, 'Outer command must have its handler registered.');
+
+                $output->write('Outer pre-run.');
+
+                $this->getApplication()->find('signal:inner')->run(new ArrayInput([]), $output);
+
+                $output->write('Outer post-run.');
+
+                $handlersAfter = $this->self->getHandlersForSignal($this->signalRegistry, \SIGUSR1);
+                $this->self->assertCount(1, $handlersAfter, 'Outer command\'s handler must be restored.');
+                $this->self->assertSame($handlersBefore, $handlersAfter, 'Handler stack must be identical after pop.');
+
+                return 0;
+            }
+        };
+
+        $innerCommand->self = $self;
+        $innerCommand->signalRegistry = $signalRegistry;
+        $outerCommand->self = $self;
+        $outerCommand->signalRegistry = $signalRegistry;
+
+        $application->addCommand($innerCommand);
+        $application->addCommand($outerCommand);
+
+        $tester = new ApplicationTester($application);
+
+        $this->assertCount(0, $this->getHandlersForSignal($signalRegistry, \SIGUSR1), 'Pre-condition: Registry must be empty.');
+        $tester->run(['command' => 'signal:outer']);
+        $this->assertStringContainsString('Outer pre-run.Inner execute.Outer post-run.', $tester->getDisplay());
+
+        $this->assertCount(0, $this->getHandlersForSignal($signalRegistry, \SIGUSR1), 'Registry must be empty after all commands are finished.');
+    }
+
+    #[RequiresPhpExtension('pcntl')]
     public function testAlarmableCommandHandlerCalledAfterEventListener()
     {
         $command = new AlarmableCommand(1);
@@ -2443,6 +2581,25 @@ class ApplicationTest extends TestCase
 
         $this->assertSame(1, $application->run(new ArrayInput(['alarm'])));
         $this->assertSame([AlarmEventSubscriber::class, AlarmableCommand::class], $command->signalHandlers);
+    }
+
+    #[RequiresPhpExtension('pcntl')]
+    public function testOriginalHandlerRestoredAfterPop()
+    {
+        $this->assertSame(\SIG_DFL, pcntl_signal_get_handler(\SIGUSR1), 'Pre-condition: Original handler for SIGUSR1 must be SIG_DFL.');
+
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+        $application->addCommand(new SignableCommand(false));
+
+        $tester = new ApplicationTester($application);
+        $tester->run(['command' => 'signal']);
+
+        $this->assertSame(\SIG_DFL, pcntl_signal_get_handler(\SIGUSR1), 'OS-level handler for SIGUSR1 must be restored to SIG_DFL.');
+
+        $tester->run(['command' => 'signal']);
+        $this->assertSame(\SIG_DFL, pcntl_signal_get_handler(\SIGUSR1), 'OS-level handler must remain SIG_DFL after a second run.');
     }
 
     #[RequiresPhpExtension('pcntl')]
@@ -2489,18 +2646,6 @@ class ApplicationTest extends TestCase
 
         $this->assertSame(1, $application->run(new ArrayInput(['signal'])));
         $this->assertSame([SignalEventSubscriber::class, AlarmEventSubscriber::class], $command->signalHandlers);
-    }
-
-    private function createSignalableApplication(Command $command, ?EventDispatcherInterface $dispatcher): Application
-    {
-        $application = new Application();
-        $application->setAutoExit(false);
-        if ($dispatcher) {
-            $application->setDispatcher($dispatcher);
-        }
-        $application->addCommand(new LazyCommand($command->getName(), [], '', false, fn () => $command, true));
-
-        return $application;
     }
 
     public function testShellVerbosityIsRestoredAfterCommandExecutionWithInitialValue()
@@ -2597,6 +2742,28 @@ class ApplicationTest extends TestCase
         $this->assertFalse(getenv('SHELL_VERBOSITY'), 'SHELL_VERBOSITY should not leak to second command');
         $this->assertArrayNotHasKey('SHELL_VERBOSITY', $_ENV);
         $this->assertArrayNotHasKey('SHELL_VERBOSITY', $_SERVER);
+    }
+
+    /**
+     * Reads the private "signalHandlers" property of the SignalRegistry for assertions.
+     */
+    public function getHandlersForSignal(SignalRegistry $registry, int $signal): array
+    {
+        $handlers = (\Closure::bind(fn () => $this->signalHandlers, $registry, SignalRegistry::class))();
+
+        return $handlers[$signal] ?? [];
+    }
+
+    private function createSignalableApplication(Command $command, ?EventDispatcherInterface $dispatcher): Application
+    {
+        $application = new Application();
+        $application->setAutoExit(false);
+        if ($dispatcher) {
+            $application->setDispatcher($dispatcher);
+        }
+        $application->addCommand(new LazyCommand($command->getName(), [], '', false, fn () => $command, true));
+
+        return $application;
     }
 }
 
