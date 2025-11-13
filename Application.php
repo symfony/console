@@ -993,8 +993,12 @@ class Application implements ResetInterface
             }
         }
 
+        $registeredSignals = false;
         if (($commandSignals = $command->getSubscribedSignals()) || $this->dispatcher && $this->signalsToDispatchEvent) {
             $signalRegistry = $this->getSignalRegistry();
+
+            $registeredSignals = true;
+            $this->getSignalRegistry()->pushCurrentHandlers();
 
             if ($this->dispatcher) {
                 // We register application signals, so that we can dispatch the event
@@ -1052,7 +1056,13 @@ class Application implements ResetInterface
         }
 
         if (null === $this->dispatcher) {
-            return $command->run($input, $output);
+            try {
+                return $command->run($input, $output);
+            } finally {
+                if ($registeredSignals) {
+                    $this->getSignalRegistry()->popPreviousHandlers();
+                }
+            }
         }
 
         // bind before the console.command event, so the listeners have access to input options/arguments
@@ -1081,6 +1091,10 @@ class Application implements ResetInterface
 
             if (0 === $exitCode = $event->getExitCode()) {
                 $e = null;
+            }
+        } finally {
+            if ($registeredSignals) {
+                $this->getSignalRegistry()->popPreviousHandlers();
             }
         }
 
