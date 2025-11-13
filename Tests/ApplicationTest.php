@@ -2319,7 +2319,7 @@ class ApplicationTest extends TestCase
         $application = new Application();
         $application->setAutoExit(false);
         $application->setCatchExceptions(false);
-        $application->add(new SignableCommand(false));
+        $application->addCommand(new SignableCommand(false));
 
         $signalRegistry = $application->getSignalRegistry();
         $tester = new ApplicationTester($application);
@@ -2372,7 +2372,7 @@ class ApplicationTest extends TestCase
         $application = new Application();
         $application->setAutoExit(false);
         $application->setCatchExceptions(true);
-        $application->add($command);
+        $application->addCommand($command);
 
         $signalRegistry = $application->getSignalRegistry();
         $tester = new ApplicationTester($application);
@@ -2554,8 +2554,8 @@ class ApplicationTest extends TestCase
         $outerCommand->self = $self;
         $outerCommand->signalRegistry = $signalRegistry;
 
-        $application->add($innerCommand);
-        $application->add($outerCommand);
+        $application->addCommand($innerCommand);
+        $application->addCommand($outerCommand);
 
         $tester = new ApplicationTester($application);
 
@@ -2591,7 +2591,7 @@ class ApplicationTest extends TestCase
         $application = new Application();
         $application->setAutoExit(false);
         $application->setCatchExceptions(false);
-        $application->add(new SignableCommand(false));
+        $application->addCommand(new SignableCommand(false));
 
         $tester = new ApplicationTester($application);
         $tester->run(['command' => 'signal']);
