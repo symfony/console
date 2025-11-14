@@ -1480,6 +1480,31 @@ class ApplicationTest extends TestCase
         $this->assertTrue($inputDefinition->hasOption('custom'));
     }
 
+    public function testItRemovesArgumentsFromInputDefinitionOnSingleCommandApplication()
+    {
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+
+        $application->setDefaultCommand('list', true); // It's a single command application.
+
+        $inputDefinition = $application->getDefinition();
+
+        // $inputDefinition->setArguments() is called to remove default arguments.
+        $this->assertSame(0, $inputDefinition->getArgumentCount());
+        $this->assertFalse($inputDefinition->hasArgument('command'));
+
+        // $inputDefinition->setOptions() is not called to leave default options as they are.
+        $this->assertTrue($inputDefinition->hasOption('help'));
+        $this->assertTrue($inputDefinition->hasOption('quiet'));
+        $this->assertTrue($inputDefinition->hasOption('verbose'));
+        $this->assertTrue($inputDefinition->hasOption('version'));
+        $this->assertTrue($inputDefinition->hasOption('ansi'));
+        $this->assertTrue($inputDefinition->hasNegation('no-ansi'));
+        $this->assertFalse($inputDefinition->hasOption('no-ansi'));
+        $this->assertTrue($inputDefinition->hasOption('no-interaction'));
+    }
+
     public function testRunWithDispatcher()
     {
         $application = new Application();

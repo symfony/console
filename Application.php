@@ -389,10 +389,7 @@ class Application implements ResetInterface
         $this->definition ??= $this->getDefaultInputDefinition();
 
         if ($this->singleCommand) {
-            $inputDefinition = $this->definition;
-            $inputDefinition->setArguments();
-
-            return $inputDefinition;
+            $this->definition->setArguments();
         }
 
         return $this->definition;
