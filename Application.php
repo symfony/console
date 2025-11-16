@@ -403,6 +403,15 @@ class Application implements ResetInterface
 
             return;
         }
+
+        if (
+            CompletionInput::TYPE_OPTION_VALUE === $input->getCompletionType()
+            && ($definition = $this->getDefinition())->hasOption($input->getCompletionName())
+        ) {
+            $definition->getOption($input->getCompletionName())->complete($input, $suggestions);
+
+            return;
+        }
     }
 
     /**
