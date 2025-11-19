@@ -162,6 +162,7 @@ class InvokableCommand implements SignalableCommandInterface
                 OutputInterface::class => $output,
                 Cursor::class => new Cursor($output),
                 SymfonyStyle::class => new SymfonyStyle($input, $output),
+                Command::class => $this->command,
                 Application::class => $this->command->getApplication(),
                 default => throw new RuntimeException(\sprintf('Unsupported type "%s" for parameter "$%s".', $type->getName(), $parameter->getName())),
             };

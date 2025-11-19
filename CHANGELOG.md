@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+8.1
+---
+
+ * Add support for method-based commands with `#[AsCommand]` attribute
+
 8.0
 ---
 

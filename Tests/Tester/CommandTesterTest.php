@@ -31,6 +31,7 @@ use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableWithInputTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableWithInteractiveAttributesTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableWithInteractiveHiddenQuestionAttributeTestCommand;
+use Symfony\Component\Console\Tests\Fixtures\MethodBasedTestCommand;
 
 class CommandTesterTest extends TestCase
 {
@@ -322,6 +323,26 @@ class CommandTesterTest extends TestCase
         $tester->assertCommandIsSuccessful();
     }
 
+    public function testCallableMethodCommands()
+    {
+        $command = new MethodBasedTestCommand();
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+        $tester->assertCommandIsSuccessful();
+        $this->assertSame('cmd0', $tester->getDisplay());
+
+        $tester = new CommandTester($command->cmd1(...));
+        $tester->execute([]);
+        $tester->assertCommandIsSuccessful();
+        $this->assertSame('cmd1', $tester->getDisplay());
+
+        $tester = new CommandTester($command->cmd2(...));
+        $tester->execute([]);
+        $tester->assertCommandIsSuccessful();
+        $this->assertSame('cmd2', $tester->getDisplay());
+    }
+
     public function testInvokableDefinitionWithInputAttribute()
     {
         $application = new Application();
@@ -346,6 +367,30 @@ class CommandTesterTest extends TestCase
                   --admin %S
                   --active|--no-active %S
                   --status=STATUS                         [default: "unverified"]
+            %A
+            TXT;
+
+        self::assertSame(0, $statusCode);
+        self::assertStringMatchesFormat($expectedOutput, $bufferedOutput->fetch());
+    }
+
+    public function testMethodBasedCommandWithApplication()
+    {
+        $command = new MethodBasedTestCommand();
+
+        $application = new Application();
+        $application->addCommand($command->cmd1(...));
+        $application->setAutoExit(false);
+
+        $bufferedOutput = new BufferedOutput();
+        $statusCode = $application->run(new ArrayInput(['command' => 'help', 'command_name' => 'app:cmd1']), $bufferedOutput);
+
+        $expectedOutput = <<<TXT
+            Usage:
+              app:cmd1 [<name>]
+
+            Arguments:
+              name %S
             %A
             TXT;
 
