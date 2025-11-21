@@ -424,6 +424,15 @@ class Application implements ResetInterface
         if (CompletionInput::TYPE_OPTION_NAME === $input->getCompletionType()) {
             $suggestions->suggestOptions($this->getDefinition()->getOptions());
         }
+
+        if (
+            CompletionInput::TYPE_OPTION_VALUE === $input->getCompletionType()
+            && ($definition = $this->getDefinition())->hasOption($input->getCompletionName())
+        ) {
+            $definition->getOption($input->getCompletionName())->complete($input, $suggestions);
+
+            return;
+        }
     }
 
     /**
