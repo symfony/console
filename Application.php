@@ -791,9 +791,9 @@ class Application implements ResetInterface
             }
         }
 
-        $command = $this->get(reset($commands));
+        $command = $commands ? $this->get(reset($commands)) : null;
 
-        if ($command->isHidden()) {
+        if (!$command || $command->isHidden()) {
             throw new CommandNotFoundException(\sprintf('The command "%s" does not exist.', $name));
         }
 

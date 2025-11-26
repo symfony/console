@@ -2601,6 +2601,21 @@ class ApplicationTest extends TestCase
         $this->assertSame(\SIG_DFL, pcntl_signal_get_handler(\SIGUSR1), 'OS-level handler must remain SIG_DFL after a second run.');
     }
 
+    public function testFindAmbiguousHiddenCommands()
+    {
+        $application = new Application();
+
+        $application->add(new Command('test:foo'));
+        $application->add(new Command('test:foobar'));
+        $application->get('test:foo')->setHidden(true);
+        $application->get('test:foobar')->setHidden(true);
+
+        $this->expectException(CommandNotFoundException::class);
+        $this->expectExceptionMessage('The command "t:f" does not exist.');
+
+        $application->find('t:f');
+    }
+
     /**
      * @requires extension pcntl
      *
