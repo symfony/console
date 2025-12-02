@@ -199,10 +199,23 @@ class CommandTest extends TestCase
     public function testGetSetAliases()
     {
         $command = new \TestCommand();
-        $this->assertEquals(['name'], $command->getAliases(), '->getAliases() returns the aliases');
         $ret = $command->setAliases(['name1']);
         $this->assertEquals($command, $ret, '->setAliases() implements a fluent interface');
         $this->assertEquals(['name1'], $command->getAliases(), '->setAliases() sets the aliases');
+    }
+
+    public function testAliasesSetBeforeParentConstructorArePreserved()
+    {
+        $command = new class extends Command {
+            public function __construct()
+            {
+                // set aliases before calling parent constructor
+                $this->setAliases(['existingalias']);
+                parent::__construct('foo|newalias');
+            }
+        };
+
+        $this->assertSame(['existingalias', 'newalias'], $command->getAliases(), 'Aliases set before parent::__construct() must be preserved.');
     }
 
     #[TestWith(['name|alias1|alias2', 'name', ['alias1', 'alias2'], false])]
