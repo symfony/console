@@ -2439,6 +2439,38 @@ class ApplicationTest extends TestCase
         $application->find('t:f');
     }
 
+    public function testDoesNotFindHiddenCommandAsAlternativeIfHelpOptionIsPresent()
+    {
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->add(new \FooHiddenCommand());
+
+        $tester = new ApplicationTester($application);
+        $tester->setInputs(['yes']);
+        $tester->run(['command' => 'foohidden', '--help' => true]);
+
+        $this->assertStringContainsString('Command "foohidden" is not defined.', $tester->getDisplay(true));
+        $this->assertStringNotContainsString('Did you mean', $tester->getDisplay(true));
+        $this->assertStringNotContainsString('Do you want to run', $tester->getDisplay(true));
+        $this->assertSame(Command::FAILURE, $tester->getStatusCode());
+    }
+
+    public function testsPreservedHelpOptionWhenItsAnAlternative()
+    {
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->add(new \FoobarCommand());
+
+        $tester = new ApplicationTester($application);
+        $tester->setInputs(['yes']);
+        $tester->run(['command' => 'foobarfoo', '--help' => true]);
+
+        $this->assertStringContainsString('Command "foobarfoo" is not defined.', $tester->getDisplay(true));
+        $this->assertStringContainsString('Do you want to run "foobar:foo" instead?', $tester->getDisplay(true));
+        $this->assertStringContainsString('The foobar:foo command', $tester->getDisplay(true));
+        $this->assertSame(Command::SUCCESS, $tester->getStatusCode());
+    }
+
     /**
      * Reads the private "signalHandlers" property of the SignalRegistry for assertions.
      */
