@@ -12,7 +12,7 @@
 namespace Symfony\Component\Console\Tests\Command;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\TestWithJson;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -196,14 +196,27 @@ class CommandTest extends TestCase
     public function testGetSetAliases()
     {
         $command = new \TestCommand();
-        $this->assertEquals(['name'], $command->getAliases(), '->getAliases() returns the aliases');
         $ret = $command->setAliases(['name1']);
         $this->assertEquals($command, $ret, '->setAliases() implements a fluent interface');
         $this->assertEquals(['name1'], $command->getAliases(), '->setAliases() sets the aliases');
     }
 
-    #[TestWithJson('["name|alias1|alias2", "name", ["alias1", "alias2"], false]')]
-    #[TestWithJson('["|alias1|alias2", "alias1", ["alias2"], true]')]
+    public function testAliasesSetBeforeParentConstructorArePreserved()
+    {
+        $command = new class extends Command {
+            public function __construct()
+            {
+                // set aliases before calling parent constructor
+                $this->setAliases(['existingalias']);
+                parent::__construct('foo|newalias');
+            }
+        };
+
+        $this->assertSame(['existingalias', 'newalias'], $command->getAliases(), 'Aliases set before parent::__construct() must be preserved.');
+    }
+
+    #[TestWith(['name|alias1|alias2', 'name', ['alias1', 'alias2'], false])]
+    #[TestWith(['|alias1|alias2', 'alias1', ['alias2'], true])]
     public function testSetAliasesAndHiddenViaName(string $name, string $expectedName, array $expectedAliases, bool $expectedHidden)
     {
         $command = new Command($name);
