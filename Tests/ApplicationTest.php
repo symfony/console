@@ -2646,7 +2646,7 @@ class ApplicationTest extends TestCase
     {
         $application = new Application();
         $application->setAutoExit(false);
-        $application->add(new \FooHiddenCommand());
+        $application->addCommand(new \FooHiddenCommand());
 
         $tester = new ApplicationTester($application);
         $tester->setInputs(['yes']);
@@ -2662,7 +2662,7 @@ class ApplicationTest extends TestCase
     {
         $application = new Application();
         $application->setAutoExit(false);
-        $application->add(new \FoobarCommand());
+        $application->addCommand(new \FoobarCommand());
 
         $tester = new ApplicationTester($application);
         $tester->setInputs(['yes']);
