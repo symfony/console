@@ -970,7 +970,7 @@ class QuestionHelperTest extends AbstractQuestionHelperTestCase
         }
 
         $p = new Process(
-            ['php', dirname(__DIR__).'/Fixtures/application_test_sigint.php', $mode],
+            ['php', \dirname(__DIR__).'/Fixtures/application_test_sigint.php', $mode],
             timeout: 2, // the process will auto shutdown if not killed by SIGINT, to prevent blocking
         );
         $p->setPty(true);
