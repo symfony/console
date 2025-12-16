@@ -329,6 +329,25 @@ class AddConsoleCommandPassTest extends TestCase
         $this->assertStringContainsString('usage1', $command->getUsages()[0]);
     }
 
+    public function testProcessCommandWithDescriptionWithpercentageSigns()
+    {
+        $container = new ContainerBuilder();
+        $container
+            ->register(
+                'description_with_percentage_signs_command',
+                DescriptionWithPercentageSignsCommand::class,
+            )
+            ->addTag('console.command')
+        ;
+        $pass = new AddConsoleCommandPass();
+        $pass->process($container);
+
+        $command = $container->get('console.command_loader')->get('description-percentage-signs');
+
+        self::assertTrue($container->has('description_with_percentage_signs_command.command'));
+        self::assertSame('Just testing %percentage-signs%', $command->getDescription());
+    }
+
     public function testProcessInvokableSignalableCommand()
     {
         $container = new ContainerBuilder();
@@ -380,6 +399,14 @@ class DescribedCommand extends Command
 
 #[AsCommand(name: 'invokable', description: 'Just testing', help: 'The %command.name% help content.')]
 class InvokableCommand
+{
+    public function __invoke(): void
+    {
+    }
+}
+
+#[AsCommand(name: 'description-percentage-signs', description: 'Just testing %percentage-signs%')]
+class DescriptionWithPercentageSignsCommand
 {
     public function __invoke(): void
     {
