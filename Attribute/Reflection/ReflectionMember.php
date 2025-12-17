@@ -36,7 +36,7 @@ class ReflectionMember
     public function getSourceName(): string
     {
         if ($this->member instanceof \ReflectionProperty) {
-            return $this->member->getDeclaringClass()->name;
+            return $this->member->class;
         }
 
         $function = $this->member->getDeclaringFunction();
