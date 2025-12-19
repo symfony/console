@@ -142,7 +142,7 @@ class InvokableCommandTest extends TestCase
     public function testEnumArgument()
     {
         $command = new Command('foo');
-        $command->setCode(function (
+        $command->setCode(static function (
             #[Argument] StringEnum $enum,
             #[Argument] StringEnum $enumWithDefault = StringEnum::Image,
             #[Argument] ?StringEnum $nullableEnum = null,
@@ -183,7 +183,7 @@ class InvokableCommandTest extends TestCase
     public function testEnumOption()
     {
         $command = new Command('foo');
-        $command->setCode(function (
+        $command->setCode(static function (
             #[Option] StringEnum $enum = StringEnum::Video,
             #[Option] StringEnum $enumWithDefault = StringEnum::Image,
             #[Option] ?StringEnum $nullableEnum = null,
@@ -224,7 +224,7 @@ class InvokableCommandTest extends TestCase
     public function testInvalidArgumentType()
     {
         $command = new Command('foo');
-        $command->setCode(function (#[Argument] object $any) {});
+        $command->setCode(static function (#[Argument] object $any) {});
 
         $this->expectException(LogicException::class);
 
@@ -234,7 +234,7 @@ class InvokableCommandTest extends TestCase
     public function testInvalidOptionType()
     {
         $command = new Command('foo');
-        $command->setCode(function (#[Option] ?object $any = null) {});
+        $command->setCode(static function (#[Option] ?object $any = null) {});
 
         $this->expectException(LogicException::class);
 
@@ -426,38 +426,38 @@ class InvokableCommandTest extends TestCase
     public static function provideInvalidOptionDefinitions(): \Generator
     {
         yield 'no-default' => [
-            function (#[Option] string $a) {},
+            static function (#[Option] string $a) {},
         ];
         yield 'nullable-bool-default-true' => [
-            function (#[Option] ?bool $a = true) {},
+            static function (#[Option] ?bool $a = true) {},
         ];
         yield 'nullable-bool-default-false' => [
-            function (#[Option] ?bool $a = false) {},
+            static function (#[Option] ?bool $a = false) {},
         ];
         yield 'invalid-union-type' => [
-            function (#[Option] array|bool $a = false) {},
+            static function (#[Option] array|bool $a = false) {},
         ];
         yield 'union-type-cannot-allow-null' => [
-            function (#[Option] string|bool|null $a = null) {},
+            static function (#[Option] string|bool|null $a = null) {},
         ];
         yield 'union-type-default-true' => [
-            function (#[Option] string|bool $a = true) {},
+            static function (#[Option] string|bool $a = true) {},
         ];
         yield 'union-type-default-string' => [
-            function (#[Option] string|bool $a = 'foo') {},
+            static function (#[Option] string|bool $a = 'foo') {},
         ];
         yield 'nullable-string-not-null-default' => [
-            function (#[Option] ?string $a = 'foo') {},
+            static function (#[Option] ?string $a = 'foo') {},
         ];
         yield 'nullable-array-not-null-default' => [
-            function (#[Option] ?array $a = []) {},
+            static function (#[Option] ?array $a = []) {},
         ];
     }
 
     public function testInvalidRequiredValueOptionEvenWithDefault()
     {
         $command = new Command('foo');
-        $command->setCode(function (#[Option] string $a = 'a') {});
+        $command->setCode(static function (#[Option] string $a = 'a') {});
 
         $this->expectException(InvalidOptionException::class);
         $this->expectExceptionMessage('The "--a" option requires a value.');

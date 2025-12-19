@@ -100,7 +100,7 @@ class SymfonyQuestionHelperTest extends AbstractQuestionHelperTestCase
     {
         $questionHelper = new SymfonyQuestionHelper();
         $question = new Question('What is your favorite superhero?');
-        $question->setValidator(fn ($value) => $value);
+        $question->setValidator(static fn ($value) => $value);
         $input = $this->createStreamableInputInterfaceMock($this->getInputStream("\n"));
         $this->assertNull($questionHelper->ask($input, $this->createOutputInterface(), $question));
     }

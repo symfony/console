@@ -772,7 +772,7 @@ class Application implements ResetInterface
             foreach ($abbrevs as $abbrev) {
                 $maxLen = max(Helper::width($abbrev), $maxLen);
             }
-            $abbrevs = array_map(function ($cmd) use ($commandList, $usableWidth, $maxLen, &$commands) {
+            $abbrevs = array_map(static function ($cmd) use ($commandList, $usableWidth, $maxLen, &$commands) {
                 if ($commandList[$cmd]->isHidden()) {
                     unset($commands[array_search($cmd, $commands)]);
 
@@ -887,7 +887,7 @@ class Application implements ResetInterface
             }
 
             if (str_contains($message, "@anonymous\0")) {
-                $message = preg_replace_callback('/[a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*+@anonymous\x00.*?\.php(?:0x?|:[0-9]++\$)?[0-9a-fA-F]++/', fn ($m) => class_exists($m[0], false) ? (get_parent_class($m[0]) ?: key(class_implements($m[0])) ?: 'class').'@anonymous' : $m[0], $message);
+                $message = preg_replace_callback('/[a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*+@anonymous\x00.*?\.php(?:0x?|:[0-9]++\$)?[0-9a-fA-F]++/', static fn ($m) => class_exists($m[0], false) ? (get_parent_class($m[0]) ?: key(class_implements($m[0])) ?: 'class').'@anonymous' : $m[0], $message);
             }
 
             $width = $this->terminal->getWidth() ? $this->terminal->getWidth() - 1 : \PHP_INT_MAX;
@@ -1227,7 +1227,7 @@ class Application implements ResetInterface
             }
         }
 
-        $alternatives = array_filter($alternatives, fn ($lev) => $lev < 2 * $threshold);
+        $alternatives = array_filter($alternatives, static fn ($lev) => $lev < 2 * $threshold);
         ksort($alternatives, \SORT_NATURAL | \SORT_FLAG_CASE);
 
         return array_keys($alternatives);

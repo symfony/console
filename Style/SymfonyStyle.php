@@ -95,7 +95,7 @@ class SymfonyStyle extends OutputStyle
     public function listing(array $elements): void
     {
         $this->autoPrependText();
-        $elements = array_map(fn ($element) => \sprintf(' * %s', $element), $elements);
+        $elements = array_map(static fn ($element) => \sprintf(' * %s', $element), $elements);
 
         $this->writeln($elements);
         $this->newLine();

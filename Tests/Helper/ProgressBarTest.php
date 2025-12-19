@@ -949,7 +949,7 @@ And, as in uffish thought he stood, The Jabberwock, with eyes of flame, Came whi
 
     public function testAddingPlaceholderFormatter()
     {
-        ProgressBar::setPlaceholderFormatterDefinition('remaining_steps', fn (ProgressBar $bar) => $bar->getMaxSteps() - $bar->getProgress());
+        ProgressBar::setPlaceholderFormatterDefinition('remaining_steps', static fn (ProgressBar $bar) => $bar->getMaxSteps() - $bar->getProgress());
         $bar = new ProgressBar($output = $this->getOutputStream(), 3, 0);
         $bar->setFormat(' %remaining_steps% [%bar%]');
 
@@ -970,7 +970,7 @@ And, as in uffish thought he stood, The Jabberwock, with eyes of flame, Came whi
     {
         $bar = new ProgressBar($output = $this->getOutputStream(), 3, 0);
         $bar->setFormat(' %countdown% [%bar%]');
-        $bar->setPlaceholderFormatter('countdown', $function = fn (ProgressBar $bar) => $bar->getMaxSteps() - $bar->getProgress());
+        $bar->setPlaceholderFormatter('countdown', $function = static fn (ProgressBar $bar) => $bar->getMaxSteps() - $bar->getProgress());
 
         $this->assertSame($function, $bar->getPlaceholderFormatter('countdown'));
 
@@ -1014,7 +1014,7 @@ And, as in uffish thought he stood, The Jabberwock, with eyes of flame, Came whi
         putenv('COLUMNS=156');
 
         $bar = new ProgressBar($output = $this->getOutputStream(), 15, 0);
-        ProgressBar::setPlaceholderFormatterDefinition('memory', function (ProgressBar $bar) {
+        ProgressBar::setPlaceholderFormatterDefinition('memory', static function (ProgressBar $bar) {
             static $i = 0;
             $mem = 100000 * $i;
             $colors = $i++ ? '41;37' : '44;37';
@@ -1160,7 +1160,7 @@ And, as in uffish thought he stood, The Jabberwock, with eyes of flame, Came whi
     {
         $bar = new ProgressBar($output = $this->getOutputStream(), 0, 0);
 
-        $this->assertEquals([1, 2], iterator_to_array($bar->iterate((function () {
+        $this->assertEquals([1, 2], iterator_to_array($bar->iterate((static function () {
             yield 1;
             yield 2;
         })())));
