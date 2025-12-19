@@ -35,8 +35,15 @@ class InvokableCommandTest extends TestCase
             #[Argument] ?string $firstName,
             #[Argument] string $lastName = '',
             #[Argument(description: 'Short argument description')] string $bio = '',
+            // In this test case, we declare the callback in static context, even when the method is NOT static.
+            // PHP doesn't allow using `$this` here, and the callback is later modified on-the-fly
+            // to be called on the instance instead, and this test case validates if this mechanism works.
+            //
+            // @see \Symfony\Component\Console\Attribute\Argument
             #[Argument(suggestedValues: [self::class, 'getSuggestedRoles'])] array $roles = ['ROLE_USER'],
         ): int {
+            \assert(null !== $this); // so PHP CS Fixer knows this callback is actually coupled with `$this` and `static_lambda` rule shall not be applied
+
             return 0;
         });
 
@@ -81,6 +88,8 @@ class InvokableCommandTest extends TestCase
             #[Option(suggestedValues: [self::class, 'getSuggestedRoles'])] array $roles = ['ROLE_USER'],
             #[Option] string|bool $opt = false,
         ): int {
+            \assert(null !== $this); // so PHP CS Fixer knows this callback is actually coupled with `$this` and `static_lambda` rule shall not be applied
+
             return 0;
         });
 
