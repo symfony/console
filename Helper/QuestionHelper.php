@@ -316,7 +316,7 @@ class QuestionHelper extends Helper
                     if ($numMatches > 0 && -1 !== $ofs) {
                         $ret = (string) $matches[$ofs];
                         // Echo out remaining chars for current match
-                        $remainingCharacters = substr($ret, \strlen(trim($this->mostRecentlyEnteredValue($fullChoice))));
+                        $remainingCharacters = substr($ret, \strlen($this->mostRecentlyEnteredValue($fullChoice)));
                         $output->write($remainingCharacters);
                         $fullChoice .= $remainingCharacters;
                         $i = (false === $encoding = mb_detect_encoding($fullChoice, null, true)) ? \strlen($fullChoice) : mb_strlen($fullChoice, $encoding);
@@ -370,7 +370,7 @@ class QuestionHelper extends Helper
             if ($numMatches > 0 && -1 !== $ofs) {
                 $cursor->savePosition();
                 // Write highlighted text, complete the partially entered response
-                $charactersEntered = \strlen(trim($this->mostRecentlyEnteredValue($fullChoice)));
+                $charactersEntered = \strlen($this->mostRecentlyEnteredValue($fullChoice));
                 $output->write('<hl>'.OutputFormatter::escapeTrailingBackslash(substr($matches[$ofs], $charactersEntered)).'</hl>');
                 $cursor->restorePosition();
             }
