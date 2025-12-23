@@ -87,6 +87,8 @@ class Argument
         }
 
         if (\is_array($self->suggestedValues) && !\is_callable($self->suggestedValues) && 2 === \count($self->suggestedValues) && ($instance = $reflection->getSourceThis()) && $instance::class === $self->suggestedValues[0] && \is_callable([$instance, $self->suggestedValues[1]])) {
+            // In case that the callback is declared as a static method `[Foo::class, 'methodName']` - yet it is not callable,
+            // while non-static method `[Foo $instance, 'methodName']` would be callable, we transform the callback on the fly into a non-static version.
             $self->suggestedValues = [$instance, $self->suggestedValues[1]];
         }
 
