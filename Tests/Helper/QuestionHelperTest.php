@@ -415,6 +415,24 @@ class QuestionHelperTest extends AbstractQuestionHelperTestCase
         $this->assertSame($character, $dialog->ask($this->createStreamableInputInterfaceMock($inputStream), $this->createOutputInterface(), $question));
     }
 
+    public function testAutocompleteWithSpaceAfterPartialMatch()
+    {
+        if (!Terminal::hasSttyAvailable()) {
+            $this->markTestSkipped('`stty` is required to test autocomplete functionality');
+        }
+
+        // a<SPACE><TAB><NEWLINE>
+        $inputStream = $this->getInputStream("a \t\n");
+
+        $dialog = new QuestionHelper();
+        $dialog->setHelperSet(new HelperSet([new FormatterHelper()]));
+
+        $question = new ChoiceQuestion('Please select a choice', ['a test', 'another choice']);
+        $question->setMaxAttempts(1);
+
+        $this->assertSame('a test', $dialog->ask($this->createStreamableInputInterfaceMock($inputStream), $this->createOutputInterface(), $question));
+    }
+
     public function testAutocompleteWithTrailingBackslash()
     {
         if (!Terminal::hasSttyAvailable()) {
