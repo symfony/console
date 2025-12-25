@@ -290,9 +290,9 @@ class ApplicationTest extends TestCase
 
     public static function provideInvalidInvokableCommands(): iterable
     {
-        yield 'a function' => ['strlen', InvalidArgumentException::class, \sprintf('The command must be an instance of "%s" or an invokable object.', Command::class)];
+        yield 'a function' => ['strlen', InvalidArgumentException::class, \sprintf('The command must be an instance of "%s", an invokable object or a method of an object.', Command::class)];
         yield 'a closure' => [static function () {
-        }, InvalidArgumentException::class, \sprintf('The command must be an instance of "%s" or an invokable object.', Command::class)];
+        }, InvalidArgumentException::class, \sprintf('The command must be an instance of "%s", an invokable object or a method of an object.', Command::class)];
         yield 'without the #[AsCommand] attribute' => [new class {
             public function __invoke()
             {

@@ -484,6 +484,7 @@ class InvokableCommandTest extends TestCase
             Cursor $cursor,
             SymfonyStyle $io,
             Application $application,
+            Command $command,
         ): int {
             $this->addToAssertionCount(1);
 
