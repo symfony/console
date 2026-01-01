@@ -4,6 +4,7 @@ CHANGELOG
 8.1
 ---
 
+ * Add `#[AskChoice]` attribute for interactive choice questions in invokable commands
  * Add support for method-based commands with `#[AsCommand]` attribute
 
 8.0

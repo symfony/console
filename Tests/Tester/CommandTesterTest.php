@@ -14,7 +14,10 @@ namespace Symfony\Component\Console\Tests\Tester;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Attribute\Argument;
+use Symfony\Component\Console\Attribute\AskChoice;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -30,6 +33,7 @@ use Symfony\Component\Console\Tests\Fixtures\InvokableExtendingCommandTestComman
 use Symfony\Component\Console\Tests\Fixtures\InvokableTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableWithInputTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableWithInteractiveAttributesTestCommand;
+use Symfony\Component\Console\Tests\Fixtures\InvokableWithInteractiveChoiceAttributeTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\InvokableWithInteractiveHiddenQuestionAttributeTestCommand;
 use Symfony\Component\Console\Tests\Fixtures\MethodBasedTestCommand;
 
@@ -554,5 +558,87 @@ class CommandTesterTest extends TestCase
 
         self::assertStringContainsString('Enter arg1', $tester->getDisplay());
         self::assertStringContainsString('Arg1: arg1-value', $tester->getDisplay());
+    }
+
+    public function testInvokableWithInteractiveChoiceAttribute()
+    {
+        $tester = new CommandTester(new InvokableWithInteractiveChoiceAttributeTestCommand());
+        $tester->setInputs(['green', '', 'active', 'auth,cache']);
+        $tester->execute([], ['interactive' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        self::assertStringContainsString('Select a color', $tester->getDisplay());
+        self::assertStringContainsString('Color: green', $tester->getDisplay());
+        self::assertStringContainsString('Select a size', $tester->getDisplay());
+        self::assertStringContainsString('Size: medium', $tester->getDisplay());
+        self::assertStringContainsString('Select a status', $tester->getDisplay());
+        self::assertStringContainsString('Status: active', $tester->getDisplay());
+        self::assertStringContainsString('Select features', $tester->getDisplay());
+        self::assertStringContainsString('Features: auth,cache', $tester->getDisplay());
+    }
+
+    public function testInvokableWithInteractiveChoiceAttributeNonDefaultValues()
+    {
+        $tester = new CommandTester(new InvokableWithInteractiveChoiceAttributeTestCommand());
+        $tester->setInputs(['blue', 'large', 'pending', 'api']);
+        $tester->execute([], ['interactive' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        self::assertStringContainsString('Color: blue', $tester->getDisplay());
+        self::assertStringContainsString('Size: large', $tester->getDisplay());
+        self::assertStringContainsString('Status: pending', $tester->getDisplay());
+        self::assertStringContainsString('Features: api', $tester->getDisplay());
+    }
+
+    public function testInvokableWithInteractiveChoiceAttributeInvalidThenValid()
+    {
+        $tester = new CommandTester(new InvokableWithInteractiveChoiceAttributeTestCommand());
+        // First input 'yellow' is invalid, then 'red' is valid
+        $tester->setInputs(['yellow', 'red', 'medium', 'active', 'auth']);
+        $tester->execute([], ['interactive' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        self::assertStringContainsString('Value "yellow" is invalid', $tester->getDisplay());
+        self::assertStringContainsString('Color: red', $tester->getDisplay());
+    }
+
+    public function testInvokableWithInteractiveChoiceAttributeInvalidEnumValue()
+    {
+        $tester = new CommandTester(new InvokableWithInteractiveChoiceAttributeTestCommand());
+        // 'unknown' is not a valid enum value, then 'inactive' is valid
+        $tester->setInputs(['red', 'medium', 'unknown', 'inactive', 'api']);
+        $tester->execute([], ['interactive' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        self::assertStringContainsString('Value "unknown" is invalid', $tester->getDisplay());
+        self::assertStringContainsString('Status: inactive', $tester->getDisplay());
+    }
+
+    public function testInvokableWithInteractiveChoiceAttributeInvalidChoiceNumber()
+    {
+        $tester = new CommandTester(new InvokableWithInteractiveChoiceAttributeTestCommand());
+        // '5' is not a valid choice number, then '1' (inactive) is valid
+        $tester->setInputs(['red', 'medium', '5', '1', 'api']);
+        $tester->execute([], ['interactive' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        self::assertStringContainsString('Value "5" is invalid', $tester->getDisplay());
+        self::assertStringContainsString('Status: inactive', $tester->getDisplay());
+    }
+
+    public function testChoiceWithoutChoicesAndWithoutEnumThrowsException()
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('requires either explicit choices or a BackedEnum type');
+
+        $command = new Command('foo');
+        $command->setCode(static function (
+            #[Argument, AskChoice('Select a color')]
+            string $color,
+        ): int {
+            return 0;
+        });
+
+        $command->getDefinition();
     }
 }

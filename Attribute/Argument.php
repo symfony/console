@@ -96,7 +96,7 @@ class Argument
             $self->suggestedValues = array_column($self->typeName::cases(), 'value');
         }
 
-        $self->interactiveAttribute = Ask::tryFrom($member, $self->name);
+        $self->interactiveAttribute = Ask::tryFrom($member, $self->name) ?? AskChoice::tryFrom($member, $self->name);
 
         if ($self->interactiveAttribute && $isOptional) {
             throw new LogicException(\sprintf('The %s "$%s" argument of "%s" cannot be both interactive and optional.', $reflection->getMemberName(), $self->name, $reflection->getSourceName()));
