@@ -931,13 +931,13 @@ class ApplicationTest extends TestCase
 
     public function testRenderExceptionLineBreaks()
     {
-        $application = $this->getMockBuilder(MockableAppliationWithTerminalWidth::class)
-            ->onlyMethods(['getTerminalWidth'])
-            ->getMock();
+        $application = new class extends MockableAppliationWithTerminalWidth {
+            public function getTerminalWidth(): int
+            {
+                return 120;
+            }
+        };
         $application->setAutoExit(false);
-        $application->expects($this->any())
-            ->method('getTerminalWidth')
-            ->willReturn(120);
         $application->register('foo')->setCode(function () {
             throw new \InvalidArgumentException("\n\nline 1 with extra spaces        \nline 2\n\nline 4\n");
         });
@@ -1521,7 +1521,7 @@ class ApplicationTest extends TestCase
         $application->setCatchExceptions(false);
 
         // Throws an exception when find fails
-        $commandLoader = $this->createMock(CommandLoaderInterface::class);
+        $commandLoader = $this->createStub(CommandLoaderInterface::class);
         $commandLoader->method('getNames')->willThrowException(new \Error('Find exception'));
         $application->setCommandLoader($commandLoader);
 
