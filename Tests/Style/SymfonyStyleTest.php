@@ -155,12 +155,12 @@ class SymfonyStyleTest extends TestCase
 
     public function testCreateTree()
     {
-        $output = $this->createMock(OutputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
         $output
             ->method('getFormatter')
             ->willReturn(new OutputFormatter());
 
-        $style = new SymfonyStyle($this->createMock(InputInterface::class), $output);
+        $style = new SymfonyStyle($this->createStub(InputInterface::class), $output);
 
         $tree = $style->createTree([]);
         $this->assertInstanceOf(TreeHelper::class, $tree);
@@ -168,7 +168,7 @@ class SymfonyStyleTest extends TestCase
 
     public function testTree()
     {
-        $input = $this->createMock(InputInterface::class);
+        $input = $this->createStub(InputInterface::class);
         $output = new BufferedOutput();
         $style = new SymfonyStyle($input, $output);
 
@@ -191,7 +191,7 @@ class SymfonyStyleTest extends TestCase
 
     public function testCreateTreeWithArray()
     {
-        $input = $this->createMock(InputInterface::class);
+        $input = $this->createStub(InputInterface::class);
         $output = new BufferedOutput();
         $style = new SymfonyStyle($input, $output);
 
@@ -214,7 +214,7 @@ class SymfonyStyleTest extends TestCase
 
     public function testCreateTreeWithIterable()
     {
-        $input = $this->createMock(InputInterface::class);
+        $input = $this->createStub(InputInterface::class);
         $output = new BufferedOutput();
         $style = new SymfonyStyle($input, $output);
 
@@ -237,7 +237,7 @@ class SymfonyStyleTest extends TestCase
 
     public function testCreateTreeWithConsoleOutput()
     {
-        $input = $this->createMock(InputInterface::class);
+        $input = $this->createStub(InputInterface::class);
         $output = $this->createMock(ConsoleOutputInterface::class);
         $output
             ->method('getFormatter')
@@ -245,7 +245,7 @@ class SymfonyStyleTest extends TestCase
         $output
             ->expects($this->once())
             ->method('section')
-            ->willReturn($this->createMock(ConsoleSectionOutput::class));
+            ->willReturn($this->createStub(ConsoleSectionOutput::class));
 
         $style = new SymfonyStyle($input, $output);
 
