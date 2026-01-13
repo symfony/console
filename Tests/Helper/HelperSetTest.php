@@ -89,13 +89,13 @@ class HelperSetTest extends TestCase
 
     private function getGenericMockHelper($name, ?HelperSet $helperset = null)
     {
-        $mock_helper = $this->createMock(HelperInterface::class);
-        $mock_helper->expects($this->any())
+        $mock_helper = $this->createStub(HelperInterface::class);
+        $mock_helper
             ->method('getName')
             ->willReturn($name);
 
         if ($helperset) {
-            $mock_helper->expects($this->any())
+            $mock_helper
                 ->method('setHelperSet')
                 ->with($this->equalTo($helperset));
         }

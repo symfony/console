@@ -205,8 +205,8 @@ class SymfonyQuestionHelperTest extends AbstractQuestionHelperTestCase
 
     protected function createInputInterfaceMock($interactive = true)
     {
-        $mock = $this->createMock(InputInterface::class);
-        $mock->expects($this->any())
+        $mock = $this->createStub(InputInterface::class);
+        $mock
             ->method('isInteractive')
             ->willReturn($interactive);
 
