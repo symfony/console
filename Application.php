@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Console;
 
+use Symfony\Component\Console\ArgumentResolver\ArgumentResolverInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\CompleteCommand;
 use Symfony\Component\Console\Command\DumpCompletionCommand;
@@ -82,6 +83,7 @@ class Application implements ResetInterface
     private InputDefinition $definition;
     private HelperSet $helperSet;
     private ?EventDispatcherInterface $dispatcher = null;
+    private ?ArgumentResolverInterface $argumentResolver = null;
     private Terminal $terminal;
     private string $defaultCommand;
     private bool $singleCommand = false;
@@ -108,6 +110,19 @@ class Application implements ResetInterface
     public function setDispatcher(EventDispatcherInterface $dispatcher): void
     {
         $this->dispatcher = $dispatcher;
+    }
+
+    /**
+     * @final
+     */
+    public function setArgumentResolver(ArgumentResolverInterface $argumentResolver): void
+    {
+        $this->argumentResolver = $argumentResolver;
+    }
+
+    public function getArgumentResolver(): ?ArgumentResolverInterface
+    {
+        return $this->argumentResolver;
     }
 
     public function setCommandLoader(CommandLoaderInterface $commandLoader): void

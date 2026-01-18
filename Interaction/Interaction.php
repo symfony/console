@@ -33,7 +33,7 @@ final class Interaction
     public function interact(InputInterface $input, OutputInterface $output, \Closure $parameterResolver): void
     {
         if ($this->owner instanceof MapInput) {
-            $function = $this->attribute->getFunction($this->owner->resolveValue($input));
+            $function = $this->attribute->getFunction($this->owner->createInstance($input));
             $function->invoke(...$parameterResolver($function, $input, $output));
             $this->owner->setValue($input, $function->getClosureThis());
 

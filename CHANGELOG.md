@@ -6,6 +6,8 @@ CHANGELOG
 
  * Add `#[AskChoice]` attribute for interactive choice questions in invokable commands
  * Add support for method-based commands with `#[AsCommand]` attribute
+ * Add argument resolver support
+ * Add `BackedEnum` and `DateTimeInterface` support to `#[MapInput]`
 
 8.0
 ---
