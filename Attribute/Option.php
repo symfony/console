@@ -27,7 +27,7 @@ class Option
 
     /**
      * @internal
-     * 
+     *
      * @var string|class-string<\BackedEnum>
      */
     public string $typeName = '';

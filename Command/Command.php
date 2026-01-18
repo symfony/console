@@ -692,7 +692,7 @@ class Command implements SignalableCommandInterface
         /** @var AsCommand|null $attribute */
         $attribute = ($reflection->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
 
-        if (!$attribute && $reflection->getName() === '__invoke') {
+        if (!$attribute && '__invoke' === $reflection->getName()) {
             /** @var AsCommand|null $attribute */
             $attribute = ($class->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
         }
