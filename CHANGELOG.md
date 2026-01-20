@@ -4,11 +4,13 @@ CHANGELOG
 8.1
 ---
 
+ * [BC BREAK] Add `object` support to input options and arguments' default by changing the `$default` type to `mixed` in `InputArgument`, `InputOption`, `#[Argument]` and `#[Option]`
  * Add `#[AskChoice]` attribute for interactive choice questions in invokable commands
  * Add support for method-based commands with `#[AsCommand]` attribute
  * Add argument resolver support
  * Add `BackedEnum` and `DateTimeInterface` support to `#[MapInput]`
- * [BC BREAK] Add `object` support to input options and arguments' default by changing the `$default` type to `mixed` in `InputArgument`, `InputOption`, `#[Argument]` and `#[Option]`
+ * Add `TesterTrait::assertCommandFailed()` to test command
+ * Add `TesterTrait::assertCommandIsInvalid()` to test command
 
 8.0
 ---
