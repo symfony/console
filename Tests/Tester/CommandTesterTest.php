@@ -632,12 +632,10 @@ class CommandTesterTest extends TestCase
         $this->expectExceptionMessage('requires either explicit choices or a BackedEnum type');
 
         $command = new Command('foo');
-        $command->setCode(static function (
+        $command->setCode(static fn (
             #[Argument, AskChoice('Select a color')]
             string $color,
-        ): int {
-            return 0;
-        });
+        ): int => 0);
 
         $command->getDefinition();
     }
