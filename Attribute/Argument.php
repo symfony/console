@@ -21,7 +21,7 @@ use Symfony\Component\String\UnicodeString;
 #[\Attribute(\Attribute::TARGET_PARAMETER | \Attribute::TARGET_PROPERTY)]
 class Argument
 {
-    public string|bool|int|float|array|null $default = null;
+    public mixed $default = null;
     public array|\Closure $suggestedValues;
 
     /**

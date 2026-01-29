@@ -84,6 +84,17 @@ class InputArgumentTest extends TestCase
         $this->assertSame([1, 2], $argument->getDefault(), '->setDefault() changes the default value');
     }
 
+    public function testSetDefaultWithObject()
+    {
+        $default = new \DateTimeImmutable('2024-01-01');
+        $argument = new InputArgument('foo', InputArgument::OPTIONAL, '', $default);
+        $this->assertSame($default, $argument->getDefault(), '->getDefault() returns the object default value');
+
+        $newDefault = new \DateTimeImmutable('2024-06-01');
+        $argument->setDefault($newDefault);
+        $this->assertSame($newDefault, $argument->getDefault(), '->setDefault() changes the default value to an object');
+    }
+
     public function testSetDefaultWithRequiredArgument()
     {
         $argument = new InputArgument('foo', InputArgument::REQUIRED);

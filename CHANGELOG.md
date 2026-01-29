@@ -8,6 +8,7 @@ CHANGELOG
  * Add support for method-based commands with `#[AsCommand]` attribute
  * Add argument resolver support
  * Add `BackedEnum` and `DateTimeInterface` support to `#[MapInput]`
+ * [BC BREAK] Add `object` support to input options and arguments' default by changing the `$default` type to `mixed` in `InputArgument`, `InputOption`, `#[Argument]` and `#[Option]`
 
 8.0
 ---

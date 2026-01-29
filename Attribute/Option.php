@@ -22,7 +22,7 @@ use Symfony\Component\String\UnicodeString;
 class Option
 {
     public const ALLOWED_UNION_TYPES = ['bool|string', 'bool|int', 'bool|float'];
-    public string|bool|int|float|array|null $default = null;
+    public mixed $default = null;
     public array|\Closure $suggestedValues;
 
     /**

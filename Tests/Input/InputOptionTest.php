@@ -174,6 +174,17 @@ class InputOptionTest extends TestCase
         $this->assertSame([1, 2], $option->getDefault(), '->setDefault() changes the default value');
     }
 
+    public function testSetDefaultWithObject()
+    {
+        $default = new \DateTimeImmutable('2024-01-01');
+        $option = new InputOption('foo', null, InputOption::VALUE_REQUIRED, '', $default);
+        $this->assertSame($default, $option->getDefault(), '->getDefault() returns the object default value');
+
+        $newDefault = new \DateTimeImmutable('2024-06-01');
+        $option->setDefault($newDefault);
+        $this->assertSame($newDefault, $option->getDefault(), '->setDefault() changes the default value to an object');
+    }
+
     public function testDefaultValueWithValueNoneMode()
     {
         $option = new InputOption('foo', 'f', InputOption::VALUE_NONE);
