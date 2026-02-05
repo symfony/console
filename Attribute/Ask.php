@@ -14,8 +14,10 @@ namespace Symfony\Component\Console\Attribute;
 use Symfony\Component\Console\Attribute\Reflection\ReflectionMember;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\LogicException;
+use Symfony\Component\Console\Input\File\InputFile;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\FileQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -78,7 +80,28 @@ class Ask implements InteractiveAttributeInterface
                 return;
             }
 
-            if ('bool' === $type->getName()) {
+            $typeName = $type->getName();
+
+            if (InputFile::class === $typeName) {
+                $question = new FileQuestion($self->question);
+                $question->setValidator($self->validator);
+                $question->setMaxAttempts($self->maxAttempts);
+                $value = $io->askQuestion($question);
+
+                if (null === $value && !$reflection->isNullable()) {
+                    return;
+                }
+
+                if ($reflection->isProperty()) {
+                    $this->{$reflection->getName()} = $value;
+                } else {
+                    $input->setArgument($name, $value);
+                }
+
+                return;
+            }
+
+            if ('bool' === $typeName) {
                 $self->default ??= false;
 
                 if (!\is_bool($self->default)) {
@@ -94,7 +117,7 @@ class Ask implements InteractiveAttributeInterface
             $question->setTrimmable($self->trimmable);
             $question->setTimeout($self->timeout);
 
-            if (!$self->validator && $reflection->isProperty() && 'array' !== $type->getName()) {
+            if (!$self->validator && $reflection->isProperty() && 'array' !== $typeName) {
                 $self->validator = fn (mixed $value): mixed => $this->{$reflection->getName()} = $value;
             }
 
@@ -103,13 +126,13 @@ class Ask implements InteractiveAttributeInterface
 
             if ($self->normalizer) {
                 $question->setNormalizer($self->normalizer);
-            } elseif (is_subclass_of($type->getName(), \BackedEnum::class)) {
+            } elseif (is_subclass_of($typeName, \BackedEnum::class)) {
                 /** @var class-string<\BackedEnum> $backedType */
                 $backedType = $reflection->getType()->getName();
                 $question->setNormalizer(static fn (string|int $value) => $backedType::tryFrom($value) ?? throw InvalidArgumentException::fromEnumValue($reflection->getName(), $value, array_column($backedType::cases(), 'value')));
             }
 
-            if ('array' === $type->getName()) {
+            if ('array' === $typeName) {
                 $value = [];
                 while ($v = $io->askQuestion($question)) {
                     if ("\x4" === $v || \PHP_EOL === $v || ($question->isTrimmable() && '' === $v = trim($v))) {

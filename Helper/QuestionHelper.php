@@ -22,6 +22,7 @@ use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\FileQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Terminal;
 
@@ -98,6 +99,12 @@ class QuestionHelper extends Helper
      */
     private function doAsk($inputStream, OutputInterface $output, Question $question): mixed
     {
+        if ($question instanceof FileQuestion) {
+            $this->writePrompt($output, $question);
+
+            return (new FileInputHelper())->readFileInput($inputStream, $output, $question);
+        }
+
         $this->writePrompt($output, $question);
 
         $autocomplete = $question->getAutocompleterCallback();

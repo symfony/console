@@ -24,6 +24,7 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Helper\TreeHelper;
 use Symfony\Component\Console\Helper\TreeNode;
 use Symfony\Component\Console\Helper\TreeStyle;
+use Symfony\Component\Console\Input\File\InputFile;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
@@ -31,6 +32,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\TrimmedBufferOutput;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\FileQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Terminal;
 
@@ -245,6 +247,11 @@ class SymfonyStyle extends OutputStyle
         $questionChoice->setMultiselect($multiSelect);
 
         return $this->askQuestion($questionChoice);
+    }
+
+    public function askFile(string $question, array $allowedMimeTypes = []): ?InputFile
+    {
+        return $this->askQuestion(new FileQuestion($question, $allowedMimeTypes));
     }
 
     public function progressStart(int $max = 0): void
