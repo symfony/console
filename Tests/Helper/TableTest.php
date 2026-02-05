@@ -2094,13 +2094,13 @@ TABLE,
         $table->render();
 
         $this->assertSame(<<<TABLE
-+---------------------------------- Test Title -------------+--------------------+
-| Title                                                     | Author             |
-+-----------------------------------------------------------+--------------------+
-| 🎭 💫 ☯ Divine Comedy                                     | Dante Alighieri    |
-| ❄︎❄︎❄︎ snowflake in text style ❄︎❄︎❄︎                           |                    |
-| And a very long line to show difference in previous lines |                    |
-+-----------------------------------------------------------+--------------------+
++---------------------------------- Test Title -------------+-----------------+
+| Title                                                     | Author          |
++-----------------------------------------------------------+-----------------+
+| 🎭 💫 ☯ Divine Comedy                                     | Dante Alighieri |
+| ❄︎❄︎❄︎ snowflake in text style ❄︎❄︎❄︎                           |                 |
+| And a very long line to show difference in previous lines |                 |
++-----------------------------------------------------------+-----------------+
 
 TABLE
             ,
