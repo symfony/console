@@ -2073,7 +2073,7 @@ class TableTest extends TestCase
         $table->render();
 
         $this->assertSame(<<<TABLE
-            +---------------------------------- Test Title -------------+-----------------+
+            +-------------------------------- Test Title ---------------+-----------------+
             | Title                                                     | Author          |
             +-----------------------------------------------------------+-----------------+
             | 🎭 💫 ☯ Divine Comedy                                     | Dante Alighieri |
