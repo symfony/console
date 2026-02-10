@@ -96,6 +96,22 @@ class SymfonyStyleTest extends TestCase
         $this->assertStringEqualsFile($outputFilepath, $this->tester->getDisplay(true));
     }
 
+    public function testBlockWithWindowsLineEndings()
+    {
+        $code = static function (InputInterface $input, OutputInterface $output) {
+            $io = new SymfonyStyle($input, $output);
+            $io->block("First line.\r\nSecond line.", 'INFO', 'fg=white;bg=blue', ' ', true);
+        };
+
+        $this->command->setCode($code);
+        $this->tester->execute([], ['interactive' => false, 'decorated' => false]);
+
+        $display = $this->tester->getDisplay(true);
+        $this->assertStringNotContainsString("\r", $display);
+        $this->assertStringContainsString('First line.', $display);
+        $this->assertStringContainsString('Second line.', $display);
+    }
+
     public function testGetErrorStyle()
     {
         $input = $this->createStub(InputInterface::class);
