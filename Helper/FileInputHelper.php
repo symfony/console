@@ -57,7 +57,7 @@ final class FileInputHelper
 
                 $file = $this->readWithPasteDetection($inputStream, $output, $question, $inputHelper);
             } elseif ($question->isPathAllowed()) {
-                $file = $this->readPathInput($inputStream, $output, $question);
+                $file = $this->readPathInput($inputStream);
             } else {
                 throw new MissingInputException('Terminal does not support image paste and path input is disabled.');
             }
@@ -68,7 +68,10 @@ final class FileInputHelper
             }
         }
 
-        $this->validateFile($file, $question);
+        if (!$file->isValid()) {
+            throw new InvalidFileException(\sprintf('File "%s" is not valid or readable.', $file->getPathname()));
+        }
+
         $this->displayFile($output, $file);
 
         return $file;
@@ -153,7 +156,7 @@ final class FileInputHelper
     /**
      * @param resource $inputStream
      */
-    private function readPathInput($inputStream, OutputInterface $output, FileQuestion $question): InputFile
+    private function readPathInput($inputStream): InputFile
     {
         if (!$isBlocked = stream_get_meta_data($inputStream)['blocked'] ?? true) {
             stream_set_blocking($inputStream, true);
@@ -174,27 +177,6 @@ final class FileInputHelper
         }
 
         return InputFile::fromPath($path);
-    }
-
-    private function validateFile(InputFile $file, FileQuestion $question): void
-    {
-        if (!$file->isValid()) {
-            throw new InvalidFileException(\sprintf('File "%s" is not valid or readable.', $file->getPathname()));
-        }
-
-        if (null !== $question->getMaxFileSize() && $file->getSize() > $question->getMaxFileSize()) {
-            throw new InvalidFileException(\sprintf('File "%s" is too large (%s). Maximum allowed size is %s.', $file->getFilename(), $file->getHumanReadableSize(), $this->formatBytes($question->getMaxFileSize())));
-        }
-
-        if (!$question->getAllowedMimeTypes()) {
-            return;
-        }
-
-        $mimeType = $file->getMimeType();
-
-        if (null === $mimeType || !$question->isMimeTypeAllowed($mimeType)) {
-            throw new InvalidFileException(\sprintf('File "%s" has MIME type "%s" which is not allowed. Allowed types: %s.', $file->getFilename(), $mimeType ?? 'unknown', implode(', ', $question->getAllowedMimeTypes())));
-        }
     }
 
     private function detectProtocol(): ?ImageProtocolInterface
@@ -231,14 +213,5 @@ final class FileInputHelper
 
         $output->write($protocol->encode($contents, 16));
         $output->writeln('');
-    }
-
-    private function formatBytes(int $bytes): string
-    {
-        $units = ['B', 'KB', 'MB', 'GB'];
-        $power = $bytes > 0 ? floor(log($bytes, 1024)) : 0;
-        $power = min($power, \count($units) - 1);
-
-        return \sprintf('%.1f %s', $bytes / (1024 ** $power), $units[$power]);
     }
 }

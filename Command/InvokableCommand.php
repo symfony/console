@@ -142,7 +142,7 @@ class InvokableCommand implements SignalableCommandInterface
                 $argument = match ($type->getName()) {
                     InputInterface::class => $input,
                     OutputInterface::class => $output,
-                    SymfonyStyle::class => new SymfonyStyle($input, $output),
+                    SymfonyStyle::class => new SymfonyStyle($input, $output, $this->command->getApplication()?->getDispatcher()),
                     Cursor::class => new Cursor($output),
                     Application::class => $this->command->getApplication(),
                     Command::class, self::class => $this->command,

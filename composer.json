@@ -31,9 +31,11 @@
         "symfony/http-kernel": "^7.4|^8.0",
         "symfony/lock": "^7.4|^8.0",
         "symfony/messenger": "^7.4|^8.0",
+        "symfony/mime": "^7.4|^8.0",
         "symfony/process": "^7.4|^8.0",
         "symfony/stopwatch": "^7.4|^8.0",
         "symfony/uid": "^7.4|^8.0",
+        "symfony/validator": "^7.4|^8.0",
         "symfony/var-dumper": "^7.4|^8.0"
     },
     "provide": {

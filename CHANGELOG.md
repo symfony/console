@@ -5,8 +5,9 @@ CHANGELOG
 ---
 
  * [BC BREAK] Add `object` support to input options and arguments' default by changing the `$default` type to `mixed` in `InputArgument`, `InputOption`, `#[Argument]` and `#[Option]`
- * Support pasting images with `#[Ask]` on `InputFile` types, supporting Kitty Graphics and iTerm2 protocols
+ * Add support for pasting images with `#[Ask]` on `InputFile` types, supporting Kitty Graphics and iTerm2 protocols
  * Add `FileQuestion`, `InputFile`, `InputFileValueResolver`, and `SymfonyStyle::askFile()` for file input handling
+ * Add `Question::setConstraints()` and `ValidateQuestionInputListener` to validate question input using Validator constraints
  * Add `#[AskChoice]` attribute for interactive choice questions in invokable commands
  * Add support for method-based commands with `#[AsCommand]` attribute
  * Add argument resolver support

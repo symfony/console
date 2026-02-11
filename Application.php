@@ -112,6 +112,11 @@ class Application implements ResetInterface
         $this->dispatcher = $dispatcher;
     }
 
+    public function getDispatcher(): ?EventDispatcherInterface
+    {
+        return $this->dispatcher;
+    }
+
     /**
      * @final
      */

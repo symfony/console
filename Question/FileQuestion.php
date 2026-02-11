@@ -20,18 +20,10 @@ use Symfony\Component\Console\Exception\InvalidArgumentException;
  */
 class FileQuestion extends Question
 {
-    /** @var string[] */
-    private array $allowedMimeTypes;
-    private ?int $maxFileSize;
-    private bool $allowPaste;
-    private bool $allowPath;
-
     public function __construct(
         string $question,
-        array $allowedMimeTypes = [],
-        ?int $maxFileSize = 5 * 1024 * 1024,
-        bool $allowPaste = true,
-        bool $allowPath = true,
+        private bool $allowPaste = true,
+        private bool $allowPath = true,
     ) {
         parent::__construct($question);
 
@@ -39,25 +31,7 @@ class FileQuestion extends Question
             throw new InvalidArgumentException('At least one of allowPaste or allowPath must be true.');
         }
 
-        $this->allowedMimeTypes = $allowedMimeTypes;
-        $this->maxFileSize = $maxFileSize;
-        $this->allowPaste = $allowPaste;
-        $this->allowPath = $allowPath;
-
         $this->setTrimmable(false);
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getAllowedMimeTypes(): array
-    {
-        return $this->allowedMimeTypes;
-    }
-
-    public function getMaxFileSize(): ?int
-    {
-        return $this->maxFileSize;
     }
 
     public function isPasteAllowed(): bool
@@ -68,27 +42,5 @@ class FileQuestion extends Question
     public function isPathAllowed(): bool
     {
         return $this->allowPath;
-    }
-
-    public function isMimeTypeAllowed(string $mimeType): bool
-    {
-        if (!$this->allowedMimeTypes) {
-            return true;
-        }
-
-        foreach ($this->allowedMimeTypes as $allowedType) {
-            if ($mimeType === $allowedType) {
-                return true;
-            }
-
-            if (str_ends_with($allowedType, '/*')) {
-                $prefix = substr($allowedType, 0, -1);
-                if (str_starts_with($mimeType, $prefix)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 }

@@ -35,6 +35,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\FileQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Terminal;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Output decorator helpers for the Symfony Style Guide.
@@ -53,6 +54,7 @@ class SymfonyStyle extends OutputStyle
     public function __construct(
         private InputInterface $input,
         private OutputInterface $output,
+        private ?EventDispatcherInterface $dispatcher = null,
     ) {
         $this->bufferedOutput = new TrimmedBufferOutput(\DIRECTORY_SEPARATOR === '\\' ? 4 : 2, $output->getVerbosity(), false, clone $output->getFormatter());
         // Windows cmd wraps lines as soon as the terminal width is reached, whether there are following chars or not.
@@ -249,9 +251,9 @@ class SymfonyStyle extends OutputStyle
         return $this->askQuestion($questionChoice);
     }
 
-    public function askFile(string $question, array $allowedMimeTypes = []): ?InputFile
+    public function askFile(string $question): ?InputFile
     {
-        return $this->askQuestion(new FileQuestion($question, $allowedMimeTypes));
+        return $this->askQuestion(new FileQuestion($question));
     }
 
     public function progressStart(int $max = 0): void
@@ -309,7 +311,7 @@ class SymfonyStyle extends OutputStyle
             $this->autoPrependBlock();
         }
 
-        $this->questionHelper ??= new SymfonyQuestionHelper();
+        $this->questionHelper ??= new SymfonyQuestionHelper($this->dispatcher);
 
         $answer = $this->questionHelper->ask($this->input, $this, $question);
 
