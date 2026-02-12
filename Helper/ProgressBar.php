@@ -578,14 +578,14 @@ final class ProgressBar
             },
             'elapsed' => fn (self $bar) => Helper::formatTime(time() - $bar->getStartTime(), 2),
             'remaining' => function (self $bar) {
-                if (null === $bar->getMaxSteps()) {
+                if (null === $bar->max) {
                     throw new LogicException('Unable to display the remaining time if the maximum number of steps is not set.');
                 }
 
                 return Helper::formatTime($bar->getRemaining(), 2);
             },
             'estimated' => function (self $bar) {
-                if (null === $bar->getMaxSteps()) {
+                if (null === $bar->max) {
                     throw new LogicException('Unable to display the estimated time if the maximum number of steps is not set.');
                 }
 
