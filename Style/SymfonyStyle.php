@@ -95,7 +95,7 @@ class SymfonyStyle extends OutputStyle
     public function listing(array $elements): void
     {
         $this->autoPrependText();
-        $elements = array_map(fn ($element) => \sprintf(' * %s', $element), $elements);
+        $elements = array_map(static fn ($element) => \sprintf(' * %s', $element), $elements);
 
         $this->writeln($elements);
         $this->newLine();
@@ -437,12 +437,14 @@ class SymfonyStyle extends OutputStyle
                 $message = OutputFormatter::escape($message);
             }
 
+            $message = str_replace("\r\n", "\n", $message);
+
             $lines = array_merge(
                 $lines,
-                explode(\PHP_EOL, $outputWrapper->wrap(
+                explode("\n", $outputWrapper->wrap(
                     $message,
                     $this->lineLength - $prefixLength - $indentLength,
-                    \PHP_EOL
+                    "\n"
                 ))
             );
 
