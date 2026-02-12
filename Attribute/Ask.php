@@ -20,6 +20,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\FileQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Validator\Constraint;
 
 #[\Attribute(\Attribute::TARGET_PARAMETER | \Attribute::TARGET_PROPERTY)]
 class Ask implements InteractiveAttributeInterface
@@ -49,6 +50,8 @@ class Ask implements InteractiveAttributeInterface
         ?callable $normalizer = null,
         ?callable $validator = null,
         public ?int $maxAttempts = null,
+        /** @var Constraint[] */
+        public array $constraints = [],
     ) {
         $this->normalizer = $normalizer ? $normalizer(...) : null;
         $this->validator = $validator ? $validator(...) : null;
@@ -86,6 +89,7 @@ class Ask implements InteractiveAttributeInterface
                 $question = new FileQuestion($self->question);
                 $question->setValidator($self->validator);
                 $question->setMaxAttempts($self->maxAttempts);
+                $question->setConstraints($self->constraints);
                 $value = $io->askQuestion($question);
 
                 if (null === $value && !$reflection->isNullable()) {
@@ -123,6 +127,7 @@ class Ask implements InteractiveAttributeInterface
 
             $question->setValidator($self->validator);
             $question->setMaxAttempts($self->maxAttempts);
+            $question->setConstraints($self->constraints);
 
             if ($self->normalizer) {
                 $question->setNormalizer($self->normalizer);
