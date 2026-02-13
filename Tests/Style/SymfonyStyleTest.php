@@ -100,6 +100,8 @@ class SymfonyStyleTest extends TestCase
         $code = static function (InputInterface $input, OutputInterface $output) {
             $io = new SymfonyStyle($input, $output);
             $io->block("First line.\r\nSecond line.", 'INFO', 'fg=white;bg=blue', ' ', true);
+
+            return Command::SUCCESS;
         };
 
         $this->command->setCode($code);
