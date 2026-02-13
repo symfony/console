@@ -14,6 +14,7 @@ namespace Symfony\Component\Console\Tests\Helper;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -1370,5 +1371,25 @@ And, as in uffish thought he stood, The Jabberwock, with eyes of flame, Came whi
         $progressBar = new ProgressBar($this->getOutputStream());
 
         $this->assertNull($progressBar->getMessage());
+    }
+
+    public function testRemainingWithoutMaxThrowsLogicException()
+    {
+        $this->expectException(LogicException::class);
+
+        $bar = new ProgressBar($this->getOutputStream());
+        $bar->setFormat('%remaining%');
+        $bar->start();
+        $bar->advance();
+    }
+
+    public function testEstimatedWithoutMaxThrowsLogicException()
+    {
+        $this->expectException(LogicException::class);
+
+        $bar = new ProgressBar($this->getOutputStream());
+        $bar->setFormat('%estimated%');
+        $bar->start();
+        $bar->advance();
     }
 }
