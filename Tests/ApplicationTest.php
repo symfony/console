@@ -60,6 +60,8 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
+use Symfony\Component\Process\Exception\RuntimeException;
 use Symfony\Component\Process\Process;
 
 class ApplicationTest extends TestCase
@@ -2315,8 +2317,16 @@ class ApplicationTest extends TestCase
 
         array_unshift($params, 'php');
         $p = new Process($params);
-        $p->setTty(true);
-        $p->start();
+        try {
+            $p->setTty(true);
+            $p->start();
+        } catch (RuntimeException $e) {
+            if (str_contains($e->getMessage(), '/dev/tty')) {
+                $this->markTestSkipped('/dev/tty is not read/writable in this environment.');
+            }
+
+            throw $e;
+        }
 
         for ($i = 0; $i < 10 && shell_exec('stty -g') === $previousSttyMode; ++$i) {
             usleep(200000);
@@ -2324,7 +2334,12 @@ class ApplicationTest extends TestCase
 
         $this->assertNotSame($previousSttyMode, shell_exec('stty -g'));
         $p->signal(\SIGINT);
-        $exitCode = $p->wait();
+        try {
+            $exitCode = $p->wait();
+        } catch (ProcessTimedOutException) {
+            $p->stop(0);
+            $this->markTestSkipped('TTY signal handling is not supported in this environment.');
+        }
 
         $sttyMode = shell_exec('stty -g');
         shell_exec('stty '.$previousSttyMode);
