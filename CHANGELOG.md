@@ -14,6 +14,7 @@ CHANGELOG
  * Add `BackedEnum` and `DateTimeInterface` support to `#[MapInput]`
  * Add `TesterTrait::assertCommandFailed()` to test command
  * Add `TesterTrait::assertCommandIsInvalid()` to test command
+ * Add a result-based testing API with `CommandTester::run()`, `ExecutionResult`, and `ConsoleAssertionsTrait` to assert output and error streams together
 
 8.0
 ---
