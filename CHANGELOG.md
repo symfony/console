@@ -4,6 +4,7 @@ CHANGELOG
 8.1
 ---
 
+ * Add `TraceableValueResolver` to help inspecting value resolvers performances
  * [BC BREAK] Add `object` support to input options and arguments' default by changing the `$default` type to `mixed` in `InputArgument`, `InputOption`, `#[Argument]` and `#[Option]`
  * Add support for pasting images with `#[Ask]` on `InputFile` types, supporting Kitty Graphics and iTerm2 protocols
  * Add `FileQuestion`, `InputFile`, `InputFileValueResolver`, and `SymfonyStyle::askFile()` for file input handling
