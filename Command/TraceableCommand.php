@@ -174,9 +174,12 @@ final class TraceableCommand extends Command
                 'file' => $r->getFileName(),
                 'line' => $r->getStartLine(),
             ];
-        }
 
-        $this->command->setCode($code);
+            // Pass the original callable to avoid double-wrapping in Command::setCode()
+            $this->command->setCode($code->getCode());
+        } else {
+            $this->command->setCode($code);
+        }
 
         return parent::setCode(function (InputInterface $input, OutputInterface $output) use ($code): int {
             $event = $this->stopwatch->start($this->getName().'.code');
