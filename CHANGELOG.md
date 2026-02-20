@@ -15,6 +15,7 @@ CHANGELOG
  * Add `TesterTrait::assertCommandFailed()` to test command
  * Add `TesterTrait::assertCommandIsInvalid()` to test command
  * Add a result-based testing API with `CommandTester::run()`, `ExecutionResult`, and `ConsoleAssertionsTrait` to assert output and error streams together
+ * Add optional `$format` argument to `SymfonyStyle::createProgressBar()`, `SymfonyStyle::progressStart()`, and `SymfonyStyle::progressIterate()` to allow passing a custom `ProgressBar` format string
 
 8.0
 ---
