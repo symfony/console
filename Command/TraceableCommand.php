@@ -286,8 +286,8 @@ final class TraceableCommand extends Command
     {
         $this->input = $input;
         $this->output = $output;
-        $this->arguments = $input->getArguments();
-        $this->options = $input->getOptions();
+        $initialArguments = $input->getArguments();
+        $initialOptions = $input->getOptions();
         $event = $this->stopwatch->start($this->getName(), 'command');
 
         try {
@@ -302,9 +302,11 @@ final class TraceableCommand extends Command
             $this->duration = $event->getDuration().' ms';
             $this->maxMemoryUsage = ($event->getMemory() >> 20).' MiB';
 
-            if ($this->isInteractive) {
-                $this->extractInteractiveInputs($input->getArguments(), $input->getOptions());
-            }
+            $this->arguments = $input->getArguments();
+            $this->options = $input->getOptions();
+
+            $this->extractInteractiveInputs($initialArguments, $initialOptions);
+            $this->isInteractive = $this->isInteractive || $this->interactiveInputs;
         }
 
         return $this->exitCode;
@@ -343,22 +345,24 @@ final class TraceableCommand extends Command
         return $exitCode;
     }
 
-    private function extractInteractiveInputs(array $arguments, array $options): void
+    private function extractInteractiveInputs(array $initialArguments, array $initialOptions): void
     {
-        foreach ($arguments as $argName => $argValue) {
-            if (\array_key_exists($argName, $this->arguments) && $this->arguments[$argName] === $argValue) {
+        $nativeDefinition = $this->command->getNativeDefinition();
+
+        foreach ($nativeDefinition->getArguments() as $argName => $argument) {
+            if (\array_key_exists($argName, $initialArguments) && $initialArguments[$argName] === $this->arguments[$argName]) {
                 continue;
             }
 
-            $this->interactiveInputs[$argName] = $argValue;
+            $this->interactiveInputs[$argName] = $this->arguments[$argName];
         }
 
-        foreach ($options as $optName => $optValue) {
-            if (\array_key_exists($optName, $this->options) && $this->options[$optName] === $optValue) {
+        foreach ($nativeDefinition->getOptions() as $optName => $option) {
+            if (\array_key_exists($optName, $initialOptions) && $initialOptions[$optName] === $this->options[$optName]) {
                 continue;
             }
 
-            $this->interactiveInputs['--'.$optName] = $optValue;
+            $this->interactiveInputs['--'.$optName] = $this->options[$optName];
         }
     }
 }
