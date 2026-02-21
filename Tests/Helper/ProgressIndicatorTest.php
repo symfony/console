@@ -222,7 +222,7 @@ class ProgressIndicatorTest extends TestCase
         $this->assertStringNotContainsString("\x0D\x1B[2K", $content);
 
         // finish() must not add an extra trailing newline — ConsoleSectionOutput::overwrite() already ends with writeln()
-        $this->assertStringEndsWith(' \\ Done...'.\PHP_EOL, $content);
+        $this->assertStringEndsWith(' ✔ Done...'.\PHP_EOL, $content);
     }
 
     public function testMultipleSectionsWithProgressIndicators()
