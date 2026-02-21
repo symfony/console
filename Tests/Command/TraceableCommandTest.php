@@ -85,6 +85,22 @@ class TraceableCommandTest extends TestCase
         self::assertStringContainsString('Hello World', $commandTester->getDisplay());
     }
 
+    public function testArgumentsCaptureValueSetDuringInteract()
+    {
+        $this->application->addCommand(new InvokableWithAskCommand());
+        $command = $this->application->find('invokable:ask');
+        $traceableCommand = new TraceableCommand($command, new Stopwatch());
+
+        $commandTester = new CommandTester($traceableCommand);
+        $commandTester->setInputs(['Robin']);
+        $commandTester->execute([], ['interactive' => true]);
+        $commandTester->assertCommandIsSuccessful();
+
+        self::assertSame('Robin', $traceableCommand->arguments['name']);
+        self::assertTrue($traceableCommand->isInteractive);
+        self::assertSame(['name' => 'Robin'], $traceableCommand->interactiveInputs);
+    }
+
     public function assertLoopOutputCorrectness(string $output)
     {
         $completeChar = '\\' !== \DIRECTORY_SEPARATOR ? '▓' : '=';
