@@ -492,6 +492,8 @@ class QuestionHelper extends Helper
                 }
 
                 return $value;
+            } catch (MissingInputException $e) {
+                throw $error ?? $e;
             } catch (RuntimeException $e) {
                 throw $e;
             } catch (\Exception $error) {
