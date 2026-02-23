@@ -95,6 +95,41 @@ class SymfonyStyleTest extends TestCase
         $this->assertStringEqualsFile($outputFilepath, $this->tester->getDisplay(true));
     }
 
+    public function testProgressIterateWithCustomFormat()
+    {
+        $code = static function (InputInterface $input, OutputInterface $output): int {
+            $io = new SymfonyStyle($input, $output);
+
+            foreach ($io->progressIterate(range(1, 3), null, ' %current%/%max% [%bar%] %memory:6s%') as $step) {
+                // noop
+            }
+
+            return Command::SUCCESS;
+        };
+
+        $this->command->setCode($code);
+        $this->tester->execute([], ['interactive' => false, 'decorated' => false]);
+
+        $this->assertMatchesRegularExpression('/\d+(\.\d+)? (GiB|MiB|KiB|B)/', $this->tester->getDisplay(true));
+    }
+
+    public function testProgressStartWithCustomFormat()
+    {
+        $code = static function (InputInterface $input, OutputInterface $output): int {
+            $io = new SymfonyStyle($input, $output);
+            $io->progressStart(3, ' %current%/%max% [%bar%] %memory:6s%');
+            $io->progressAdvance(3);
+            $io->progressFinish();
+
+            return Command::SUCCESS;
+        };
+
+        $this->command->setCode($code);
+        $this->tester->execute([], ['interactive' => false, 'decorated' => false]);
+
+        $this->assertMatchesRegularExpression('/\d+(\.\d+)? (GiB|MiB|KiB|B)/', $this->tester->getDisplay(true));
+    }
+
     public function testBlockWithWindowsLineEndings()
     {
         $code = static function (InputInterface $input, OutputInterface $output) {

@@ -256,9 +256,13 @@ class SymfonyStyle extends OutputStyle
         return $this->askQuestion(new FileQuestion($question));
     }
 
-    public function progressStart(int $max = 0): void
+    /**
+     * @param string|null $format
+     */
+    public function progressStart(int $max = 0 /* , ?string $format = null */): void
     {
-        $this->progressBar = $this->createProgressBar($max);
+        $format = 2 <= \func_num_args() ? func_get_arg(1) : null;
+        $this->progressBar = $this->createProgressBar($max, $format);
         $this->progressBar->start();
     }
 
@@ -274,14 +278,22 @@ class SymfonyStyle extends OutputStyle
         unset($this->progressBar);
     }
 
-    public function createProgressBar(int $max = 0): ProgressBar
+    /**
+     * @param string|null $format
+     */
+    public function createProgressBar(int $max = 0 /* , ?string $format = null */): ProgressBar
     {
+        $format = 2 <= \func_num_args() ? func_get_arg(1) : null;
         $progressBar = parent::createProgressBar($max);
 
         if ('\\' !== \DIRECTORY_SEPARATOR || 'Hyper' === getenv('TERM_PROGRAM')) {
             $progressBar->setEmptyBarCharacter('░'); // light shade character \u2591
             $progressBar->setProgressCharacter('');
             $progressBar->setBarCharacter('▓'); // dark shade character \u2593
+        }
+
+        if (null !== $format) {
+            $progressBar->setFormat($format);
         }
 
         return $progressBar;
@@ -295,12 +307,14 @@ class SymfonyStyle extends OutputStyle
      *
      * @param iterable<TKey, TValue> $iterable
      * @param int|null               $max      Number of steps to complete the bar (0 if indeterminate), if null it will be inferred from $iterable
+     * @param string|null            $format   A ProgressBar format string (e.g. ' %current%/%max% [%bar%] %memory:6s%'); null uses the default format
      *
      * @return iterable<TKey, TValue>
      */
-    public function progressIterate(iterable $iterable, ?int $max = null): iterable
+    public function progressIterate(iterable $iterable, ?int $max = null /* , ?string $format = null */): iterable
     {
-        yield from $this->createProgressBar()->iterate($iterable, $max);
+        $format = 3 <= \func_num_args() ? func_get_arg(2) : null;
+        yield from $this->createProgressBar(0, $format)->iterate($iterable, $max);
 
         $this->newLine(2);
     }
