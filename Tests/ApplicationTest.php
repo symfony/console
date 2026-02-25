@@ -487,8 +487,8 @@ class ApplicationTest extends TestCase
     public function testFindSingleWithAmbiguousAliases()
     {
         $application = new Application();
-        $application->add(new \ManyAliasesCommand());
-        $application->add(new \AlternativeCommand());
+        $application->addCommand(new \ManyAliasesCommand());
+        $application->addCommand(new \AlternativeCommand());
 
         $this->assertInstanceOf(\ManyAliasesCommand::class, $application->find('a'), '->find() will find the correct command using a short alias');
         $this->assertInstanceOf(\ManyAliasesCommand::class, $application->find('alias'), '->find() will find the correct command using a long alias');
