@@ -409,6 +409,19 @@ class ApplicationTest extends TestCase
         $application->findNamespace('f');
     }
 
+    public function testFindAmbiguousNamespaceSortedAlphabetically()
+    {
+        $application = new Application();
+        $application->addCommand(new Command('test-zzz:cmd'));
+        $application->addCommand(new Command('test-aaa:cmd'));
+        $application->addCommand(new Command('test-bbb:cmd'));
+
+        $this->expectException(NamespaceNotFoundException::class);
+        $this->expectExceptionMessage("The namespace \"test\" is ambiguous.\nDid you mean one of these?\n    test-aaa\n    test-bbb\n    test-zzz");
+
+        $application->findNamespace('test');
+    }
+
     public function testFindNonAmbiguous()
     {
         $application = new Application();
@@ -539,11 +552,34 @@ class ApplicationTest extends TestCase
             [
                 'foo:b',
                 "Command \"foo:b\" is ambiguous.\nDid you mean one of these?\n".
+                "    foo1:bar The foo1:bar command\n".
                 "    foo:bar  The foo:bar command\n".
-                "    foo:bar1 The foo:bar1 command\n".
-                '    foo1:bar The foo1:bar command',
+                '    foo:bar1 The foo:bar1 command',
             ],
         ];
+    }
+
+    public function testFindAmbiguousCommandsSortedAlphabetically()
+    {
+        putenv('COLUMNS=120');
+
+        $application = new Application();
+        // Register commands in non-alphabetical order
+        $application->addCommand(new Command('test:zzz'));
+        $application->addCommand(new Command('test:aaa'));
+        $application->addCommand(new Command('test:bbb'));
+
+        try {
+            $application->find('test:');
+            $this->fail('Expected CommandNotFoundException');
+        } catch (CommandNotFoundException $e) {
+            $this->assertMatchesRegularExpression(
+                '/test:aaa.*test:bbb.*test:zzz/s',
+                $e->getMessage()
+            );
+        } finally {
+            putenv('COLUMNS');
+        }
     }
 
     public function testFindWithAmbiguousAbbreviationsFindsCommandIfAlternativesAreHidden()
