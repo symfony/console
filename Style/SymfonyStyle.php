@@ -156,6 +156,51 @@ class SymfonyStyle extends OutputStyle
         $this->block($message, 'CAUTION', 'fg=white;bg=red', ' ! ', true);
     }
 
+    /**
+     * Formats a message as an outlined block of text.
+     *
+     * Unlike block(), this renders colored borders instead of colored backgrounds,
+     * improving readability across terminal color schemes.
+     */
+    public function outlineBlock(string|array $messages, ?string $type = null, ?string $style = null, bool $padding = true, bool $escape = true): void
+    {
+        $messages = \is_array($messages) ? array_values($messages) : [$messages];
+
+        $this->autoPrependBlock();
+        $this->writeln($this->createOutlineBlock($messages, $type, $style, $padding, $escape));
+        $this->newLine();
+    }
+
+    public function outlineSuccess(string|array $message): void
+    {
+        $this->outlineBlock($message, '✅ Success', 'fg=green');
+    }
+
+    public function outlineError(string|array $message): void
+    {
+        $this->outlineBlock($message, '❌ Error', 'fg=red');
+    }
+
+    public function outlineWarning(string|array $message): void
+    {
+        $this->outlineBlock($message, '⚠️ Warning', 'fg=yellow');
+    }
+
+    public function outlineNote(string|array $message): void
+    {
+        $this->outlineBlock($message, '📝 Note', 'fg=blue');
+    }
+
+    public function outlineInfo(string|array $message): void
+    {
+        $this->outlineBlock($message, 'ℹ️ Info', 'fg=green');
+    }
+
+    public function outlineCaution(string|array $message): void
+    {
+        $this->outlineBlock($message, '🚨 Caution', 'fg=red');
+    }
+
     public function table(array $headers, array $rows): void
     {
         $this->createTable()
@@ -497,5 +542,54 @@ class SymfonyStyle extends OutputStyle
         }
 
         return $lines;
+    }
+
+    private function createOutlineBlock(array $messages, ?string $type = null, ?string $style = null, bool $padding = false, bool $escape = false): array
+    {
+        // Line format: ' │ '(3) + content($contentWidth) + ' │'(2) = lineLength
+        $contentWidth = $this->lineLength - 5;
+
+        $lines = [];
+        $outputWrapper = new OutputWrapper();
+
+        foreach ($messages as $key => $message) {
+            if ($escape) {
+                $message = OutputFormatter::escape($message);
+            }
+
+            $message = str_replace("\r\n", "\n", $message);
+            $lines = array_merge($lines, explode("\n", $outputWrapper->wrap($message, $contentWidth, "\n")));
+
+            if (\count($messages) > 1 && $key < \count($messages) - 1) {
+                $lines[] = '';
+            }
+        }
+
+        if ($padding) {
+            array_unshift($lines, '');
+            $lines[] = '';
+        }
+
+        $result = [];
+
+        // Top border: ' ┌─ Type ────┐' or ' ┌────┐' when no type
+        if (null !== $type) {
+            $line = ' ┌─ '.$type.' '.str_repeat('─', $this->lineLength - 6 - Helper::width($type)).'┐';
+        } else {
+            $line = ' ┌'.str_repeat('─', $this->lineLength - 3).'┐';
+        }
+        $result[] = $style ? \sprintf('<%s>%s</>', $style, $line) : $line;
+
+        foreach ($lines as $line) {
+            $lineContentWidth = Helper::width(Helper::removeDecoration($this->getFormatter(), $line));
+            $padded = $line.str_repeat(' ', max($contentWidth - $lineContentWidth, 0));
+            $result[] = $style ? \sprintf('<%s> │ </>%s<%1$s> │</>', $style, $padded) : ' │ '.$padded.' │';
+        }
+
+        $borderDashes = str_repeat('─', $this->lineLength - 3);
+        $line = ' └'.$borderDashes.'┘';
+        $result[] = $style ? \sprintf('<%s>%s</>', $style, $line) : $line;
+
+        return $result;
     }
 }
