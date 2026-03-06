@@ -85,6 +85,48 @@ class ApplicationTesterTest extends TestCase
         $this->tester->assertCommandIsSuccessful('->getStatusCode() returns the status code');
     }
 
+    /**
+     * @dataProvider provideShellVerbositySources
+     */
+    public function testShellVerbosityDoesNotOverrideInteractiveAndVerbosity(callable $setShellVerbosity, callable $cleanUp)
+    {
+        $setShellVerbosity();
+
+        try {
+            $application = new Application();
+            $application->setAutoExit(false);
+            $application->register('foo')
+                ->setCode(static function ($input, $output) {
+                    $output->writeln('foo');
+                })
+            ;
+
+            $tester = new ApplicationTester($application);
+            $tester->run(['command' => 'foo'], ['interactive' => true]);
+
+            $this->assertTrue($tester->getInput()->isInteractive());
+            $this->assertSame('foo'.\PHP_EOL, $tester->getDisplay());
+        } finally {
+            $cleanUp();
+        }
+    }
+
+    public static function provideShellVerbositySources(): iterable
+    {
+        yield 'putenv' => [
+            static function () { putenv('SHELL_VERBOSITY=-1'); },
+            static function () { putenv('SHELL_VERBOSITY'); },
+        ];
+        yield '$_ENV' => [
+            static function () { $_ENV['SHELL_VERBOSITY'] = '-1'; },
+            static function () { unset($_ENV['SHELL_VERBOSITY']); },
+        ];
+        yield '$_SERVER' => [
+            static function () { $_SERVER['SHELL_VERBOSITY'] = '-1'; },
+            static function () { unset($_SERVER['SHELL_VERBOSITY']); },
+        ];
+    }
+
     public function testErrorOutput()
     {
         $application = new Application();
