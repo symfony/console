@@ -101,8 +101,10 @@ class ApplicationTesterTest extends TestCase
             $application = new Application();
             $application->setAutoExit(false);
             $application->register('foo')
-                ->setCode(static function ($input, $output) {
+                ->setCode(static function (InputInterface $input, OutputInterface $output): int {
                     $output->writeln('foo');
+
+                    return 0;
                 })
             ;
 
