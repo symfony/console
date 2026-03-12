@@ -257,6 +257,8 @@ class QuestionHelper extends Helper
      *
      * @param resource                  $inputStream
      * @param callable(string):string[] $autocomplete
+     *
+     * @param-immediately-invoked-callable $autocomplete
      */
     private function autocomplete(OutputInterface $output, Question $question, $inputStream, callable $autocomplete): string
     {
@@ -471,6 +473,8 @@ class QuestionHelper extends Helper
      * Validates an attempt.
      *
      * @param callable $interviewer A callable that will ask for a question and return the result
+     *
+     * @param-immediately-invoked-callable $interviewer
      *
      * @throws \Exception In case the max number of attempts has been reached and no valid response has been given
      */
