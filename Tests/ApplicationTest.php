@@ -16,6 +16,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -162,6 +163,90 @@ class ApplicationTest extends TestCase
     {
         $application = new Application('foo', 'bar');
         $this->assertEquals('foo <info>bar</info>', $application->getLongVersion(), '->getLongVersion() returns the long version of the application');
+    }
+
+    public function testGetLongVersionWithContainer()
+    {
+        $container = new ContainerBuilder();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->setParameter('kernel.debug', false);
+        $container->compile();
+
+        $application = new Application('foo', 'bar', $container);
+        $this->assertStringContainsString('env:', $application->getLongVersion());
+        $this->assertStringContainsString('prod', $application->getLongVersion());
+    }
+
+    public function testContainerWiresEventDispatcher()
+    {
+        $container = new ContainerBuilder();
+        $container->register('event_dispatcher', EventDispatcher::class)->setPublic(true);
+        $container->compile();
+
+        $application = new Application('foo', 'bar', $container);
+        $application->all(); // triggers init
+
+        $this->assertInstanceOf(EventDispatcherInterface::class, $application->getDispatcher());
+    }
+
+    public function testContainerWiresCommandLoader()
+    {
+        $container = new ContainerBuilder();
+        $container->register('console.command_loader', FactoryCommandLoader::class)
+            ->setPublic(true)
+            ->setArguments([['test:cmd' => static fn () => new Command('test:cmd')]]);
+        $container->compile();
+
+        $application = new Application('foo', 'bar', $container);
+        $this->assertTrue($application->has('test:cmd'));
+    }
+
+    public function testContainerWiresEagerCommands()
+    {
+        $container = new ContainerBuilder();
+        $container->register('my.command', \FooCommand::class)->setPublic(true);
+        $container->setParameter('console.command.ids', ['my.command']);
+        $container->compile();
+
+        $application = new Application('foo', 'bar', $container);
+        $this->assertTrue($application->has('foo:bar'));
+    }
+
+    public function testPsrContainerWiresEagerCommands()
+    {
+        $fooCommand = new \FooCommand();
+
+        $container = $this->createStub(ContainerInterface::class);
+        $container->method('has')->willReturnCallback(static fn (string $id) => \in_array($id, ['console.command.ids', 'my.command']));
+        $container->method('get')->willReturnCallback(static fn (string $id) => match ($id) {
+            'console.command.ids' => ['my.command'],
+            'my.command' => $fooCommand,
+        });
+
+        $application = new Application('foo', 'bar', $container);
+        $this->assertTrue($application->has('foo:bar'));
+    }
+
+    public function testPsrContainerSkipsLazyCommands()
+    {
+        $fooCommand = new \FooCommand();
+
+        $container = $this->createStub(ContainerInterface::class);
+        $container->method('has')->willReturnCallback(static fn (string $id) => \in_array($id, ['console.command.ids', 'console.lazy_command.ids', 'my.command']));
+        $container->method('get')->willReturnCallback(static fn (string $id) => match ($id) {
+            'console.command.ids' => ['my.command'],
+            'console.lazy_command.ids' => ['my.command' => true],
+            'my.command' => $fooCommand,
+        });
+
+        $application = new Application('foo', 'bar', $container);
+        $this->assertFalse($application->has('foo:bar'));
+    }
+
+    public function testApplicationWithoutContainer()
+    {
+        $application = new Application('foo', 'bar');
+        $this->assertStringNotContainsString('env:', $application->getLongVersion());
     }
 
     public function testHelp()
