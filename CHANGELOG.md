@@ -15,6 +15,7 @@ CHANGELOG
  * Add support for method-based commands with `#[AsCommand]` attribute
  * Add argument resolver support
  * Add `BackedEnum` and `DateTimeInterface` support to `#[MapInput]`
+ * Add validation constraints support to `#[MapInput]` along with optional `validationGroups` to control which groups are validated
  * Add `TesterTrait::assertCommandFailed()` to test command
  * Add `TesterTrait::assertCommandIsInvalid()` to test command
  * Add a result-based testing API with `CommandTester::run()`, `ExecutionResult`, and `ConsoleAssertionsTrait` to assert output and error streams together
