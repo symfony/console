@@ -534,7 +534,13 @@ class SymfonyStyle extends OutputStyle
             }
 
             $line = $prefix.$line;
-            $line .= str_repeat(' ', max($this->lineLength - Helper::width(Helper::removeDecoration($this->getFormatter(), $line)), 0));
+            $paddingLength = max($this->lineLength - Helper::width(Helper::removeDecoration($this->getFormatter(), $line)), 0);
+
+            // ECH paints the trailing cells with the current background and CUF moves the cursor past
+            // them without writing characters, so most terminals trim them when copying the selection.
+            $line .= $style && $this->isDecorated() && 0 < $paddingLength
+                ? \sprintf("\e[%1\$dX\e[%1\$dC", $paddingLength)
+                : str_repeat(' ', $paddingLength);
 
             if ($style) {
                 $line = \sprintf('<%s>%s</>', $style, $line);

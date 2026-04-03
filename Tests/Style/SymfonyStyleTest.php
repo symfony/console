@@ -148,6 +148,42 @@ class SymfonyStyleTest extends TestCase
         $this->assertStringContainsString('Second line.', $display);
     }
 
+    public function testStyledBlockUsesEchPaddingWhenDecorated()
+    {
+        $output = new StreamOutput(fopen('php://memory', 'w', false), decorated: true);
+        $io = new SymfonyStyle(new ArrayInput([]), $output);
+        $io->block('msg', null, 'fg=white;bg=blue', ' ', false);
+
+        rewind($output->getStream());
+        $display = stream_get_contents($output->getStream());
+
+        $this->assertMatchesRegularExpression("/\e\[\d+X\e\[\d+C/", $display);
+    }
+
+    public function testStyledBlockKeepsSpacePaddingWhenNotDecorated()
+    {
+        $output = new StreamOutput(fopen('php://memory', 'w', false), decorated: false);
+        $io = new SymfonyStyle(new ArrayInput([]), $output);
+        $io->block('msg', null, 'fg=white;bg=blue', ' ', false);
+
+        rewind($output->getStream());
+        $display = stream_get_contents($output->getStream());
+
+        $this->assertStringNotContainsString("\e[", $display);
+    }
+
+    public function testUnstyledBlockKeepsSpacePaddingEvenWhenDecorated()
+    {
+        $output = new StreamOutput(fopen('php://memory', 'w', false), decorated: true);
+        $io = new SymfonyStyle(new ArrayInput([]), $output);
+        $io->block('msg', null, null, ' ', false);
+
+        rewind($output->getStream());
+        $display = stream_get_contents($output->getStream());
+
+        $this->assertStringNotContainsString("\e[", $display);
+    }
+
     public function testGetErrorStyle()
     {
         $input = $this->createStub(InputInterface::class);
