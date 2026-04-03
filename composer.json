@@ -25,8 +25,8 @@
     "require-dev": {
         "psr/log": "^1|^2|^3",
         "symfony/config": "^7.4|^8.0",
-        "symfony/dependency-injection": "^7.4|^8.0",
-        "symfony/event-dispatcher": "^7.4|^8.0",
+        "symfony/dependency-injection": "^8.1",
+        "symfony/event-dispatcher": "^8.1",
         "symfony/filesystem": "^7.4|^8.0",
         "symfony/http-foundation": "^7.4|^8.0",
         "symfony/http-kernel": "^7.4|^8.0",
@@ -41,6 +41,10 @@
     },
     "provide": {
         "psr/log-implementation": "1.0|2.0|3.0"
+    },
+    "conflict": {
+        "symfony/dependency-injection": "<8.1",
+        "symfony/event-dispatcher": "<8.1"
     },
     "autoload": {
         "psr-4": { "Symfony\\Component\\Console\\": "" },
