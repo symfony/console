@@ -79,6 +79,24 @@ class RegisterCommandArgumentLocatorsPassTest extends TestCase
         $container->compile();
     }
 
+    #[DoesNotPerformAssertions]
+    public function testProcessNullableAutowireAttributeWithInvalidService()
+    {
+        $container = new ContainerBuilder();
+        $container->register('console.argument_resolver.service')->setSynthetic(true)->addArgument(null);
+
+        $command = new Definition(CommandWithAutowireAttributeNullableInvalidReference::class);
+        $command->setAutowired(true);
+        $command->addTag('console.command', ['command' => 'test:command']);
+        $command->addTag('console.command.service_arguments');
+        $container->setDefinition('test.command', $command);
+
+        $pass = new RegisterCommandArgumentLocatorsPass();
+        $pass->process($container);
+
+        $container->compile();
+    }
+
     public function testProcessThrowsOnInvalidAutowiredService()
     {
         $container = new ContainerBuilder();
@@ -226,6 +244,15 @@ class CommandWithAutowireAttribute
 }
 
 class CommandWithAutowireAttributeInvalidReference
+{
+    public function __invoke(
+        #[Autowire(service: 'invalid.id')]
+        \stdClass $service2,
+    ) {
+    }
+}
+
+class CommandWithAutowireAttributeNullableInvalidReference
 {
     public function __invoke(
         #[Autowire(service: 'invalid.id')]
