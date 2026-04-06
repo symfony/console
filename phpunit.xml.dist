@@ -20,7 +20,7 @@
     </testsuites>
 
     <source ignoreSuppressionOfDeprecations="true">
-        <deprecationTrigger>
+        <deprecationTrigger ignoreUndefinedTriggers="true">
             <function>trigger_deprecation</function>
             <method>Doctrine\Deprecations\Deprecation::trigger</method>
             <method>Doctrine\Deprecations\Deprecation::triggerIfCalledFromOutside</method>
