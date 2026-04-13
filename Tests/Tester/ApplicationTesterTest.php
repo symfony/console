@@ -29,7 +29,7 @@ class ApplicationTesterTest extends TestCase
         $this->application->setAutoExit(false);
         $this->application->register('foo')
             ->addArgument('foo')
-            ->setCode(function ($input, $output) {
+            ->setCode(static function ($input, $output) {
                 $output->writeln('foo');
             })
         ;
@@ -65,7 +65,7 @@ class ApplicationTesterTest extends TestCase
     {
         $application = new Application();
         $application->setAutoExit(false);
-        $application->register('foo')->setCode(function ($input, $output) {
+        $application->register('foo')->setCode(static function ($input, $output) {
             $helper = new QuestionHelper();
             $helper->ask($input, $output, new Question('Q1'));
             $helper->ask($input, $output, new Question('Q2'));
@@ -133,7 +133,7 @@ class ApplicationTesterTest extends TestCase
         $application->setAutoExit(false);
         $application->register('foo')
             ->addArgument('foo')
-            ->setCode(function ($input, $output) {
+            ->setCode(static function ($input, $output) {
                 $output->getErrorOutput()->write('foo');
             })
         ;

@@ -121,22 +121,22 @@ class InputArgumentTest extends TestCase
         $this->assertTrue($argument->hasCompletion());
         $suggestions = new CompletionSuggestions();
         $argument->complete(new CompletionInput(), $suggestions);
-        $this->assertSame($values, array_map(fn (Suggestion $suggestion) => $suggestion->getValue(), $suggestions->getValueSuggestions()));
+        $this->assertSame($values, array_map(static fn (Suggestion $suggestion) => $suggestion->getValue(), $suggestions->getValueSuggestions()));
     }
 
     public function testCompleteClosure()
     {
         $values = ['foo', 'bar'];
-        $argument = new InputArgument('foo', null, '', null, fn (CompletionInput $input): array => $values);
+        $argument = new InputArgument('foo', null, '', null, static fn (CompletionInput $input): array => $values);
         $this->assertTrue($argument->hasCompletion());
         $suggestions = new CompletionSuggestions();
         $argument->complete(new CompletionInput(), $suggestions);
-        $this->assertSame($values, array_map(fn (Suggestion $suggestion) => $suggestion->getValue(), $suggestions->getValueSuggestions()));
+        $this->assertSame($values, array_map(static fn (Suggestion $suggestion) => $suggestion->getValue(), $suggestions->getValueSuggestions()));
     }
 
     public function testCompleteClosureReturnIncorrectType()
     {
-        $argument = new InputArgument('foo', InputArgument::OPTIONAL, '', null, fn (CompletionInput $input) => 'invalid');
+        $argument = new InputArgument('foo', InputArgument::OPTIONAL, '', null, static fn (CompletionInput $input) => 'invalid');
 
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Closure for argument "foo" must return an array. Got "string".');
