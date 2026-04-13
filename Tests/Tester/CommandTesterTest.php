@@ -42,7 +42,7 @@ class CommandTesterTest extends TestCase
         $this->command = new Command('foo');
         $this->command->addArgument('command');
         $this->command->addArgument('foo');
-        $this->command->setCode(function (OutputInterface $output): int {
+        $this->command->setCode(static function (OutputInterface $output): int {
             $output->writeln('foo');
 
             return 0;
@@ -106,7 +106,7 @@ class CommandTesterTest extends TestCase
         $application->setAutoExit(false);
 
         $command = new Command('foo');
-        $command->setCode(function (OutputInterface $output): int {
+        $command->setCode(static function (OutputInterface $output): int {
             $output->writeln('foo');
 
             return 0;
@@ -130,7 +130,7 @@ class CommandTesterTest extends TestCase
 
         $command = new Command('foo');
         $command->setHelperSet(new HelperSet([new QuestionHelper()]));
-        $command->setCode(function (InputInterface $input, OutputInterface $output) use ($questions, $command): int {
+        $command->setCode(static function (InputInterface $input, OutputInterface $output) use ($questions, $command): int {
             $helper = $command->getHelper('question');
             $helper->ask($input, $output, new Question($questions[0]));
             $helper->ask($input, $output, new Question($questions[1]));
@@ -153,7 +153,7 @@ class CommandTesterTest extends TestCase
 
         $command = new Command('foo');
         $command->setHelperSet(new HelperSet([new QuestionHelper()]));
-        $command->setCode(function (InputInterface $input, OutputInterface $output) use ($question, $command): int {
+        $command->setCode(static function (InputInterface $input, OutputInterface $output) use ($question, $command): int {
             $output->write($command->getHelper('question')->ask($input, $output, (new Question($question))->setMultiline(true)));
             $output->write(stream_get_contents($input->getStream()));
 
@@ -183,7 +183,7 @@ class CommandTesterTest extends TestCase
 
         $command = new Command('foo');
         $command->setHelperSet(new HelperSet([new QuestionHelper()]));
-        $command->setCode(function (InputInterface $input, OutputInterface $output) use ($questions, $command): int {
+        $command->setCode(static function (InputInterface $input, OutputInterface $output) use ($questions, $command): int {
             $helper = $command->getHelper('question');
             $helper->ask($input, $output, new Question($questions[0], 'Bobby'));
             $helper->ask($input, $output, new Question($questions[1], 'Fine'));
@@ -210,7 +210,7 @@ class CommandTesterTest extends TestCase
 
         $command = new Command('foo');
         $command->setHelperSet(new HelperSet([new QuestionHelper()]));
-        $command->setCode(function (InputInterface $input, OutputInterface $output) use ($questions, $command): int {
+        $command->setCode(static function (InputInterface $input, OutputInterface $output) use ($questions, $command): int {
             $helper = $command->getHelper('question');
             $helper->ask($input, $output, new ChoiceQuestion('choice', ['a', 'b']));
             $helper->ask($input, $output, new Question($questions[0]));
@@ -239,7 +239,7 @@ class CommandTesterTest extends TestCase
 
         $command = new Command('foo');
         $command->setHelperSet(new HelperSet([new QuestionHelper()]));
-        $command->setCode(function (InputInterface $input, OutputInterface $output) use ($questions, $command): int {
+        $command->setCode(static function (InputInterface $input, OutputInterface $output) use ($questions, $command): int {
             $helper = $command->getHelper('question');
             $helper->ask($input, $output, new ChoiceQuestion('choice', ['a', 'b']));
             $helper->ask($input, $output, new Question($questions[0]));
@@ -266,7 +266,7 @@ class CommandTesterTest extends TestCase
         ];
 
         $command = new Command('foo');
-        $command->setCode(function (InputInterface $input, OutputInterface $output) use ($questions): int {
+        $command->setCode(static function (InputInterface $input, OutputInterface $output) use ($questions): int {
             $io = new SymfonyStyle($input, $output);
             $io->ask($questions[0]);
             $io->ask($questions[1]);
@@ -287,7 +287,7 @@ class CommandTesterTest extends TestCase
         $command = new Command('foo');
         $command->addArgument('command');
         $command->addArgument('foo');
-        $command->setCode(function (OutputInterface $output): int {
+        $command->setCode(static function (OutputInterface $output): int {
             $output->getErrorOutput()->write('foo');
 
             return 0;

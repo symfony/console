@@ -390,7 +390,7 @@ class CommandTest extends TestCase
     public function testSetCode()
     {
         $command = new \TestCommand();
-        $ret = $command->setCode(function (InputInterface $input, OutputInterface $output): int {
+        $ret = $command->setCode(static function (InputInterface $input, OutputInterface $output): int {
             $output->writeln('from the code...');
 
             return 0;
@@ -550,7 +550,7 @@ class CommandTest extends TestCase
         $this->expectUserDeprecationMessage('Since symfony/console 7.3: Returning a non-integer value from the command "foo" is deprecated and will throw an exception in Symfony 8.0.');
 
         $command = new Command('foo');
-        $command->setCode(function () {});
+        $command->setCode(static function () {});
         $command->run(new ArrayInput([]), new NullOutput());
     }
 }
