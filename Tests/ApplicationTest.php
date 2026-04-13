@@ -1339,9 +1339,7 @@ class ApplicationTest extends TestCase
             ->register('foo')
             ->setAliases(['f'])
             ->setDefinition([new InputOption('survey', 'e', InputOption::VALUE_REQUIRED, 'My option with a shortcut.')])
-            ->setCode(static function (InputInterface $input, OutputInterface $output): int {
-                return 0;
-            })
+            ->setCode(static fn (InputInterface $input, OutputInterface $output): int => 0)
         ;
 
         $input = new ArrayInput(['command' => 'foo']);
@@ -1362,9 +1360,7 @@ class ApplicationTest extends TestCase
         $application
             ->register('foo')
             ->setDefinition([$def])
-            ->setCode(static function (InputInterface $input, OutputInterface $output): int {
-                return 0;
-            })
+            ->setCode(static fn (InputInterface $input, OutputInterface $output): int => 0)
         ;
 
         $input = new ArrayInput(['command' => 'foo']);
@@ -1961,12 +1957,12 @@ class ApplicationTest extends TestCase
             'foo:bar' => static function () use (&$loaded) {
                 $loaded['foo:bar'] = true;
 
-                return (new Command('foo:bar'))->setCode(static function (): int { return 0; });
+                return (new Command('foo:bar'))->setCode(static fn (): int => 0);
             },
             'foo' => static function () use (&$loaded) {
                 $loaded['foo'] = true;
 
-                return (new Command('foo'))->setCode(static function (): int { return 0; });
+                return (new Command('foo'))->setCode(static fn (): int => 0);
             },
         ]));
 
