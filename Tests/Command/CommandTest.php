@@ -387,7 +387,7 @@ class CommandTest extends TestCase
     public function testSetCode()
     {
         $command = new \TestCommand();
-        $ret = $command->setCode(function (InputInterface $input, OutputInterface $output): int {
+        $ret = $command->setCode(static function (InputInterface $input, OutputInterface $output): int {
             $output->writeln('from the code...');
 
             return 0;

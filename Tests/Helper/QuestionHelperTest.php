@@ -321,14 +321,14 @@ class QuestionHelperTest extends AbstractQuestionHelperTestCase
         //
         // No effort is made to avoid irrelevant suggestions, as this is handled
         // by the autocomplete function.
-        $callback = function ($input) {
+        $callback = static function ($input) {
             $knownWords = ['Carrot', 'Creme', 'Curry', 'Parsnip', 'Pie', 'Potato', 'Tart'];
             $inputWords = explode(' ', $input);
             array_pop($inputWords);
             $suggestionBase = $inputWords ? implode(' ', $inputWords).' ' : '';
 
             return array_map(
-                fn ($word) => $suggestionBase.$word.' ',
+                static fn ($word) => $suggestionBase.$word.' ',
                 $knownWords
             );
         };
@@ -620,7 +620,7 @@ class QuestionHelperTest extends AbstractQuestionHelperTestCase
         $dialog->setHelperSet($helperSet);
 
         $error = 'This is not a color!';
-        $validator = function ($color) use ($error) {
+        $validator = static function ($color) use ($error) {
             if (!\in_array($color, ['white', 'black'], true)) {
                 throw new \InvalidArgumentException($error);
             }
@@ -809,7 +809,7 @@ class QuestionHelperTest extends AbstractQuestionHelperTestCase
         $dialog = new QuestionHelper();
 
         $question = new Question('What\'s your name?');
-        $question->setValidator(function ($value) {
+        $question->setValidator(static function ($value) {
             if (!$value) {
                 throw new \Exception('A value is required.');
             }
@@ -826,7 +826,7 @@ class QuestionHelperTest extends AbstractQuestionHelperTestCase
         $dialog = new QuestionHelper();
 
         $question = new Question('What\'s your name?');
-        $question->setValidator(function ($value) {
+        $question->setValidator(static function ($value) {
             if ('' === $value || null === $value) {
                 throw new \InvalidArgumentException('A value is required.');
             }
@@ -847,9 +847,9 @@ class QuestionHelperTest extends AbstractQuestionHelperTestCase
         $application = new Application();
         $application->setAutoExit(false);
         $application->register('question')
-            ->setCode(function (InputInterface $input, OutputInterface $output) use (&$tries): int {
+            ->setCode(static function (InputInterface $input, OutputInterface $output) use (&$tries): int {
                 $question = new Question('This is a promptable question');
-                $question->setValidator(function ($value) use (&$tries) {
+                $question->setValidator(static function ($value) use (&$tries) {
                     ++$tries;
                     if (!$value) {
                         throw new \Exception();

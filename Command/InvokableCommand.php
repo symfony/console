@@ -86,10 +86,10 @@ class InvokableCommand implements SignalableCommandInterface
             }
 
             if ($input = MapInput::tryFrom($parameter)) {
-                $inputArguments = array_map(fn (Argument $a) => $a->toInputArgument(), iterator_to_array($input->getArguments(), false));
+                $inputArguments = array_map(static fn (Argument $a) => $a->toInputArgument(), iterator_to_array($input->getArguments(), false));
 
                 // make sure optional arguments are defined after required ones
-                usort($inputArguments, fn (InputArgument $a, InputArgument $b) => (int) $b->isRequired() - (int) $a->isRequired());
+                usort($inputArguments, static fn (InputArgument $a, InputArgument $b) => (int) $b->isRequired() - (int) $a->isRequired());
 
                 foreach ($inputArguments as $inputArgument) {
                     $definition->addArgument($inputArgument);

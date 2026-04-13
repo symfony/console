@@ -90,7 +90,7 @@ class ProcessHelperTest extends TestCase
         $output = $this->getOutputStream(StreamOutput::VERBOSITY_NORMAL);
 
         $executed = false;
-        $callback = function () use (&$executed) { $executed = true; };
+        $callback = static function () use (&$executed) { $executed = true; };
 
         $helper->run($output, ['php', '-r', 'echo 42;'], null, $callback);
         $this->assertTrue($executed);
