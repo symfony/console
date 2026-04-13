@@ -95,9 +95,7 @@ class Ask implements InteractiveAttributeInterface
             $question->setTimeout($self->timeout);
 
             if (!$self->validator && $reflection->isProperty() && 'array' !== $type->getName()) {
-                $self->validator = function (mixed $value) use ($reflection): mixed {
-                    return $this->{$reflection->getName()} = $value;
-                };
+                $self->validator = fn (mixed $value): mixed => $this->{$reflection->getName()} = $value;
             }
 
             $question->setValidator($self->validator);
