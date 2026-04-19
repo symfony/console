@@ -37,7 +37,7 @@ class CompleteCommandTest extends TestCase
         $this->application = new Application();
         $this->application->addCommand(new CompleteCommandTest_HelloCommand());
         $this->application->getDefinition()
-            ->addOption(new InputOption('global-option', null, InputOption::VALUE_REQUIRED, suggestedValues: ['foo', 'bar', 'baz']));
+            ->addOption(new InputOption('global-option', null, InputOption::VALUE_REQUIRED, '', null, ['foo', 'bar', 'baz']));
 
         $this->command->setApplication($this->application);
         $this->tester = new CommandTester($this->command);
