@@ -2606,7 +2606,7 @@ class ApplicationTest extends TestCase
     #[RequiresPhpExtension('pcntl')]
     public function testAlarmSubscriber()
     {
-        $command = new BaseSignableCommand(signal: \SIGALRM);
+        $command = new BaseSignableCommand(true, \SIGALRM);
 
         $subscriber1 = new AlarmEventSubscriber();
         $subscriber2 = new AlarmEventSubscriber();
@@ -2824,7 +2824,7 @@ class ApplicationTest extends TestCase
     #[TestWith([4])]
     public function testAlarmSubscriberCalledAfterSignalSubscriberAndInheritsExitCode(int|false $exitCode)
     {
-        $command = new BaseSignableCommand(signal: \SIGALRM);
+        $command = new BaseSignableCommand(true, \SIGALRM);
 
         $subscriber1 = new class($exitCode) extends SignalEventSubscriber {
             public function __construct(private int|false $exitCode)
