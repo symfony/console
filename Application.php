@@ -760,6 +760,8 @@ class Application implements ResetInterface
             $commands = preg_grep('{^'.$expr.'}i', $allCommands);
         }
 
+        sort($commands);
+
         // if no commands matched or we just matched namespaces
         if (!$commands || \count(preg_grep('{^'.$expr.'$}i', $commands)) < 1) {
             if (false !== $pos = strrpos($name, ':')) {
