@@ -37,8 +37,14 @@ interface RawInputInterface extends InputInterface
     /**
      * Returns a stringified representation of the options passed to the command.
      *
-     * The options are NOT escaped, as otherwise passing them to a Process
-     * would result in them being escaped twice.
+     * The returned strings interpolate raw option values verbatim and are NOT
+     * shell-escaped. They are intended to be passed as an array argv to
+     * {@see \Symfony\Component\Process\Process}, which performs its own
+     * escaping. Never concatenate the result into a shell string nor pass it
+     * to {@see \Symfony\Component\Process\Process::fromShellCommandline()},
+     * `shell_exec()`, `exec()`, `system()`, `passthru()`, or `proc_open()`
+     * with a string command: untrusted option values would allow command
+     * injection.
      *
      * @param string[]|null $optionNames Names of the options returned. If null, all options are returned.
      *                                   Requested options that either do not exist or were not passed

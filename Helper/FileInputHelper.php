@@ -13,6 +13,7 @@ namespace Symfony\Component\Console\Helper;
 
 use Symfony\Component\Console\Exception\InvalidFileException;
 use Symfony\Component\Console\Exception\MissingInputException;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\File\InputFile;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\FileQuestion;
@@ -34,6 +35,7 @@ final class FileInputHelper
     private const BPM_DISABLE = "\x1b[?2004l";
     private const PASTE_START = "\x1b[200~";
     private const PASTE_END = "\x1b[201~";
+    private const MAX_PASTE_BYTES = 16 * 1024 * 1024;
 
     private ?ImageProtocolInterface $protocol = null;
 
@@ -79,10 +81,10 @@ final class FileInputHelper
 
     public function displayFile(OutputInterface $output, InputFile $file): void
     {
-        $link = \sprintf('<href=file://%s>%s</>', $file->getRealPath(), $file->getFilename());
+        $link = \sprintf('<href=file://%s>%s</>', OutputFormatter::escape($file->getRealPath()), OutputFormatter::escape($file->getFilename()));
 
         if ($output->isVeryVerbose()) {
-            $output->writeln(\sprintf('<info>%s</info> %s (<comment>%s, %s</comment>)', "\u{1F4CE}", $link, $file->getMimeType() ?? 'unknown', $file->getHumanReadableSize()));
+            $output->writeln(\sprintf('<info>%s</info> %s (<comment>%s, %s</comment>)', "\u{1F4CE}", $link, OutputFormatter::escape($file->getMimeType() ?? 'unknown'), $file->getHumanReadableSize()));
         } else {
             $output->writeln(\sprintf('<info>%s</info> %s', "\u{1F4CE}", $link));
         }
@@ -113,6 +115,10 @@ final class FileInputHelper
             }
 
             $buffer .= $char;
+
+            if (\strlen($buffer) > self::MAX_PASTE_BYTES) {
+                throw new InvalidFileException(\sprintf('Pasted input exceeds the maximum allowed size of %d bytes.', self::MAX_PASTE_BYTES));
+            }
 
             if (!$inPaste && str_ends_with($buffer, self::PASTE_START)) {
                 $inPaste = true;

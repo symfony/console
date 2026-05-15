@@ -47,7 +47,8 @@ class Question
 
     /**
      * @param string                     $question The question to ask to the user
-     * @param string|bool|int|float|null $default  The default answer to return if the user enters nothing
+     * @param string|bool|int|float|null $default  The default answer to return if the user enters nothing.
+     *                                             Object defaults set on InputArgument/InputOption are not propagated here.
      */
     public function __construct(
         private string $question,

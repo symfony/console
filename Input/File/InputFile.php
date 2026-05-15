@@ -58,7 +58,21 @@ final class InputFile extends \SplFileInfo
         $extension = $format ? '.'.$format : '';
         $tempPath = sys_get_temp_dir().'/symfony_input_'.bin2hex(random_bytes(8)).$extension;
 
-        if (false === @file_put_contents($tempPath, $data)) {
+        $previousUmask = umask(0o077);
+
+        try {
+            $handle = @fopen($tempPath, 'x');
+        } finally {
+            umask($previousUmask);
+        }
+
+        if (false === $handle) {
+            throw new InvalidFileException(\sprintf('Failed to create temporary file at "%s".', $tempPath));
+        }
+
+        if (\strlen($data) !== @fwrite($handle, $data) || !@fclose($handle)) {
+            @unlink($tempPath);
+
             throw new InvalidFileException(\sprintf('Failed to create temporary file at "%s".', $tempPath));
         }
 

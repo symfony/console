@@ -54,6 +54,55 @@ class InputFileTest extends TestCase
         $this->assertStringEndsWith('.txt', $file->getPathname());
     }
 
+    public function testFromDataRestrictsTempFilePermissions()
+    {
+        if ('\\' === \DIRECTORY_SEPARATOR) {
+            $this->markTestSkipped('POSIX file mode bits are not meaningful on Windows.');
+        }
+
+        $file = InputFile::fromData('sensitive');
+
+        $this->assertSame(0o600, fileperms($file->getPathname()) & 0o777);
+    }
+
+    public function testFromDataRestoresUmaskOnSuccess()
+    {
+        if ('\\' === \DIRECTORY_SEPARATOR) {
+            $this->markTestSkipped('umask is not meaningful on Windows.');
+        }
+
+        $before = umask();
+
+        try {
+            InputFile::fromData('payload');
+
+            $this->assertSame($before, umask());
+        } finally {
+            umask($before);
+        }
+    }
+
+    public function testFromDataRestoresUmaskOnFailure()
+    {
+        if ('\\' === \DIRECTORY_SEPARATOR) {
+            $this->markTestSkipped('umask is not meaningful on Windows.');
+        }
+
+        $before = umask();
+
+        try {
+            try {
+                InputFile::fromData('payload', '/does-not-exist/file');
+                $this->fail('Expected InvalidFileException was not thrown.');
+            } catch (InvalidFileException) {
+            }
+
+            $this->assertSame($before, umask());
+        } finally {
+            umask($before);
+        }
+    }
+
     public function testFromPathWithExistingFile()
     {
         $path = $this->tempDir.'/test.txt';

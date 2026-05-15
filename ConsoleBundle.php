@@ -21,7 +21,6 @@ use Symfony\Component\Console\DependencyInjection\ConsoleArgumentValueResolverPa
 use Symfony\Component\Console\DependencyInjection\RegisterCommandArgumentLocatorsPass;
 use Symfony\Component\Console\DependencyInjection\RemoveEmptyCommandArgumentLocatorsPass;
 use Symfony\Component\DependencyInjection\ChildDefinition;
-use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Kernel\AbstractBundle;
@@ -42,7 +41,7 @@ class ConsoleBundle extends AbstractBundle
 
     public function build(ContainerBuilder $container): void
     {
-        $this->addCompilerPassIfExists($container, AddEventAliasesPass::class, arguments: [ConsoleEvents::ALIASES, [], [ConsoleEvents::COMMAND, ConsoleEvents::TERMINATE, ConsoleEvents::ERROR]]);
+        $this->addCompilerPassIfExists($container, AddEventAliasesPass::class, [ConsoleEvents::ALIASES, [], [ConsoleEvents::COMMAND, ConsoleEvents::TERMINATE, ConsoleEvents::ERROR]]);
         $container->addCompilerPass(new RegisterCommandArgumentLocatorsPass());
         $container->addCompilerPass(new RemoveEmptyCommandArgumentLocatorsPass(), PassConfig::TYPE_BEFORE_REMOVING);
         $container->addCompilerPass(new ConsoleArgumentValueResolverPass());
@@ -85,22 +84,12 @@ class ConsoleBundle extends AbstractBundle
         }
     }
 
-    /**
-     * @template T of CompilerPassInterface
-     *
-     * @param class-string<T> $class
-     *
-     * @return T|null
-     */
-    private function addCompilerPassIfExists(ContainerBuilder $container, string $class, string $type = PassConfig::TYPE_BEFORE_OPTIMIZATION, int $priority = 0, array $arguments = []): CompilerPassInterface
+    private function addCompilerPassIfExists(ContainerBuilder $container, string $class, array $arguments = []): void
     {
         $container->addResource(new ClassExistenceResource($class));
-        $pass = null;
 
         if (class_exists($class)) {
-            $container->addCompilerPass($pass = new $class(...$arguments), $type, $priority);
+            $container->addCompilerPass(new $class(...$arguments));
         }
-
-        return $pass;
     }
 }

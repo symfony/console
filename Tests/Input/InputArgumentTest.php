@@ -48,7 +48,7 @@ class InputArgumentTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Argument mode "-1" is not valid.');
 
-        new InputArgument('foo', '-1');
+        new InputArgument('foo', -1);
     }
 
     #[Group('legacy')]

@@ -580,9 +580,9 @@ class SymfonyStyle extends OutputStyle
 
         // Top border: ' ┌─ Type ────┐' or ' ┌────┐' when no type
         if (null !== $type) {
-            $line = ' ┌─ '.$type.' '.str_repeat('─', $this->lineLength - 6 - Helper::width($type)).'┐';
+            $line = ' ┌─ '.$type.' '.str_repeat('─', max(0, $this->lineLength - 6 - Helper::width($type))).'┐';
         } else {
-            $line = ' ┌'.str_repeat('─', $this->lineLength - 3).'┐';
+            $line = ' ┌'.str_repeat('─', max(0, $this->lineLength - 3)).'┐';
         }
         $result[] = $style ? \sprintf('<%s>%s</>', $style, $line) : $line;
 
@@ -592,7 +592,7 @@ class SymfonyStyle extends OutputStyle
             $result[] = $style ? \sprintf('<%s> │ </>%s<%1$s> │</>', $style, $padded) : ' │ '.$padded.' │';
         }
 
-        $borderDashes = str_repeat('─', $this->lineLength - 3);
+        $borderDashes = str_repeat('─', max(0, $this->lineLength - 3));
         $line = ' └'.$borderDashes.'┘';
         $result[] = $style ? \sprintf('<%s>%s</>', $style, $line) : $line;
 

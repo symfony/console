@@ -31,8 +31,10 @@ final class TraceableValueResolver implements ValueResolverInterface
         $method = $this->inner::class.'::'.__FUNCTION__;
         $this->stopwatch->start($method, 'command.argument_value_resolver');
 
-        yield from $this->inner->resolve($argumentName, $input, $member);
-
-        $this->stopwatch->stop($method);
+        try {
+            yield from $this->inner->resolve($argumentName, $input, $member);
+        } finally {
+            $this->stopwatch->stop($method);
+        }
     }
 }

@@ -69,16 +69,14 @@ final class KittyGraphicsProtocol implements ImageProtocolInterface
 
     public function encode(string $imageData, ?int $maxWidth = null): string
     {
-        $format = $this->detectImageFormat($imageData);
+        if ('png' !== $this->detectImageFormat($imageData)) {
+            return '';
+        }
 
         $controlParts = ['a=T', 'f=100'];
 
         if (null !== $maxWidth) {
             $controlParts[] = \sprintf('c=%d', $maxWidth);
-        }
-
-        if ('png' === $format) {
-            $controlParts[1] = 'f=100';
         }
 
         $controlData = implode(',', $controlParts);

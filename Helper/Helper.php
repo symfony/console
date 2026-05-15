@@ -162,9 +162,7 @@ abstract class Helper implements HelperInterface
     {
         $string ??= '';
 
-        // Fast path: if string contains no formatting markers, return as-is
-        // Check for: < (tags), \033 (ANSI escape), ]8;; (terminal hyperlink)
-        if (!str_contains($string, '<') && !str_contains($string, "\033") && !str_contains($string, ']8;;')) {
+        if (!str_contains($string, '<') && !str_contains($string, "\033")) {
             return $string;
         }
 

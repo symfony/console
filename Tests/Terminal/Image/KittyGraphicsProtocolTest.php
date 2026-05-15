@@ -98,7 +98,7 @@ class KittyGraphicsProtocolTest extends TestCase
 
     public function testEncode()
     {
-        $imageData = 'test image data';
+        $imageData = "\x89PNG\r\n\x1a\n".str_repeat("\x00", 10);
 
         $encoded = (new KittyGraphicsProtocol())->encode($imageData);
 
@@ -109,7 +109,7 @@ class KittyGraphicsProtocolTest extends TestCase
 
     public function testEncodeWithMaxWidth()
     {
-        $imageData = 'test image data';
+        $imageData = "\x89PNG\r\n\x1a\n".str_repeat("\x00", 10);
         $encoded = (new KittyGraphicsProtocol())->encode($imageData, 50);
 
         $this->assertStringContainsString('c=50', $encoded);
@@ -122,6 +122,16 @@ class KittyGraphicsProtocolTest extends TestCase
         $encoded = (new KittyGraphicsProtocol())->encode($pngData);
 
         $this->assertStringContainsString('f=100', $encoded);
+    }
+
+    public function testEncodeRejectsNonPngFormats()
+    {
+        $protocol = new KittyGraphicsProtocol();
+
+        $this->assertSame('', $protocol->encode("\xFF\xD8\xFFjpg data"));
+        $this->assertSame('', $protocol->encode('GIF89a'.str_repeat("\x00", 4)));
+        $this->assertSame('', $protocol->encode('RIFF    WEBP'.str_repeat("\x00", 4)));
+        $this->assertSame('', $protocol->encode('not an image'));
     }
 
     public function testDecodeDifferentFormats()
