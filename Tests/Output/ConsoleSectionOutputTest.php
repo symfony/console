@@ -188,6 +188,18 @@ class ConsoleSectionOutputTest extends TestCase
         $this->assertEquals($expected, stream_get_contents($output->getStream()));
     }
 
+    public function testOverwriteFormatsMessage()
+    {
+        $sections = [];
+        $output = new ConsoleSectionOutput($this->stream, $sections, OutputInterface::VERBOSITY_NORMAL, true, new OutputFormatter());
+
+        $output->writeln('Foo');
+        $output->overwrite('<info>Bar</>');
+
+        rewind($output->getStream());
+        $this->assertEquals('Foo'.\PHP_EOL."\x1b[1A\x1b[0J\x1b[32mBar\x1b[39m".\PHP_EOL, stream_get_contents($output->getStream()));
+    }
+
     public function testOverwriteMultipleLines()
     {
         $sections = [];
