@@ -106,7 +106,7 @@ class ConsoleSectionOutput extends StreamOutput
         }
 
         foreach ($message as $line) {
-            $this->addContent($line, true);
+            $this->addContent($this->getFormatter()->format($line) ?? '', true);
         }
 
         $erasedContent = $this->popStreamContentUntilCurrentSection($this->maxHeight ? min($this->maxHeight, $linesCleared) : $linesCleared);
