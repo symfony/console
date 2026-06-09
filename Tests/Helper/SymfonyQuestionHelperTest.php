@@ -96,6 +96,47 @@ class SymfonyQuestionHelperTest extends AbstractQuestionHelperTestCase
         $this->assertOutputContains('What is your favorite superhero? [Batman]', $output);
     }
 
+    public function testAskChoiceDefaultRendersFormatterTagsInsteadOfEscapingThem()
+    {
+        $questionHelper = new SymfonyQuestionHelper();
+        $helperSet = new HelperSet([new FormatterHelper()]);
+        $questionHelper->setHelperSet($helperSet);
+
+        $choices = ['<comment>Add new tag</comment>', 'hello', 'world'];
+        $question = new ChoiceQuestion('Select a tag', $choices, 0);
+        $question->setMaxAttempts(1);
+
+        $this->assertSame($choices[0], $questionHelper->ask(
+            $this->createStreamableInputInterfaceMock($this->getInputStream("\n")),
+            $output = $this->createOutputInterface(),
+            $question
+        ));
+        // The default value in the brackets must match how the same choice is rendered
+        // in the choices list below, instead of leaking its raw formatter markup.
+        $this->assertOutputContains('Select a tag [Add new tag]:', $output);
+        $this->assertOutputNotContains('[<comment>Add new tag</comment>]', $output);
+    }
+
+    public function testAskMultiselectChoiceDefaultRendersFormatterTagsInsteadOfEscapingThem()
+    {
+        $questionHelper = new SymfonyQuestionHelper();
+        $helperSet = new HelperSet([new FormatterHelper()]);
+        $questionHelper->setHelperSet($helperSet);
+
+        $choices = ['<comment>Add new tag</comment>', 'hello', 'world'];
+        $question = new ChoiceQuestion('Select tags', $choices, '0,1');
+        $question->setMultiselect(true);
+        $question->setMaxAttempts(1);
+
+        $questionHelper->ask(
+            $this->createStreamableInputInterfaceMock($this->getInputStream("\n")),
+            $output = $this->createOutputInterface(),
+            $question
+        );
+        $this->assertOutputContains('Select tags [Add new tag, hello]:', $output);
+        $this->assertOutputNotContains('[<comment>Add new tag</comment>, hello]', $output);
+    }
+
     public function testAskReturnsNullIfValidatorAllowsIt()
     {
         $questionHelper = new SymfonyQuestionHelper();
@@ -223,6 +264,12 @@ class SymfonyQuestionHelperTest extends AbstractQuestionHelperTestCase
         }
 
         $this->assertStringContainsString($expected, $stream);
+    }
+
+    private function assertOutputNotContains(string $unexpected, StreamOutput $output): void
+    {
+        rewind($output->getStream());
+        $this->assertStringNotContainsString($unexpected, stream_get_contents($output->getStream()));
     }
 
     public function testAskMultilineQuestionIncludesHelpText()
