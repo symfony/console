@@ -192,7 +192,7 @@ class Question
     /**
      * Gets the callback function used for the autocompleter.
      *
-     * @return (callable(string):string[])|null
+     * @return (callable(string):array<string>)|null
      */
     public function getAutocompleterCallback(): ?callable
     {
@@ -204,7 +204,7 @@ class Question
      *
      * The callback is passed the user input as argument and should return an iterable of corresponding suggestions.
      *
-     * @param (callable(string):string[])|null $callback
+     * @param (callable(string):array<string>)|null $callback
      *
      * @return $this
      */
