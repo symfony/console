@@ -255,8 +255,8 @@ class QuestionHelper extends Helper
     /**
      * Autocompletes a question.
      *
-     * @param resource                  $inputStream
-     * @param callable(string):string[] $autocomplete
+     * @param resource                      $inputStream
+     * @param callable(string):list<string> $autocomplete
      *
      * @param-immediately-invoked-callable $autocomplete
      */
